@@ -1,0 +1,15 @@
+﻿.mdiContainer {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    border: 2px solid transparent;
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAIAAAACDbGyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAySURBVBhXY1ywYAEDEmAB4pMnT0I4VVVVID4QODk5QRggPlAYwgECxv///0OZQMDAAADXFArpdyFW/AAAAABJRU5ErkJggg==') 2 stretch;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    background-color: #ABABAB;
+    min-height: calc(100vh - 42px);
+    float: left;
+    clear: none;
+    width: calc(100% - 236px);
+    height: calc(100% - 42px);
+}

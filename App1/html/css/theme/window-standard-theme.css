@@ -1,0 +1,108 @@
+﻿.btn-only-close {
+    background: url('../../css/theme/resources/standard-window/btn-only-close.png') 0 0
+}
+
+    .btn-only-close:hover {
+        background: url('../../css/theme/resources/standard-window/btn-only-close.png') 0 48px
+    }
+
+        .btn-only-close:hover:active {
+            background: url('../../css/theme/resources/standard-window/btn-only-close.png') 0 24px
+        }
+
+.jsPanel-content {
+    padding: 0px;
+    border: 1px solid transparent;
+    border-top: 0px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    border-image: url('../../css/theme/resources/standard-window/frame-borders.png') 0 1 1 1 stretch;
+}
+
+.jsPanel-headerbar {
+    height: 30px;
+    border-radius: 8px;
+    background-color: transparent;
+    background-image: url('../../css/theme/resources/standard-window/top.png');
+    border: 8px solid transparent;
+    border-top: 0px;
+    border-bottom: 0px;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    border-image: url('../../css/theme/resources/standard-window/top-borders.png') 0 8 0 8 stretch;
+}
+
+.jsPanel-controlbar {
+    margin-top: 1px;
+    margin-right: -7px;
+}
+
+.jsPanel-hdr {
+    background-color: transparent;
+}
+
+.jsPanel-title {
+    font-size: 9.1pt;
+}
+
+.jsPanel-btn:not(.btn-only-close) {
+    margin-left: 1px;
+    width: 45px;
+    height: 29px;
+}
+
+.jsPanel-btn.btn-only-close {
+    margin-left: 1px;
+    width: 31px;
+    height: 24px;
+}
+
+.jsPanel-btn-maximize {
+    background: url('../../css/theme/resources/standard-window/btn-maximize.png') 0 0
+}
+
+    .jsPanel-btn-maximize:hover {
+        background: url('../../css/theme/resources/standard-window/btn-maximize.png') 0 58px
+    }
+
+        .jsPanel-btn-maximize:hover:active {
+            background: url('../../css/theme/resources/standard-window/btn-maximize.png') 0 29px
+        }
+
+.jsPanel-btn-minimize {
+    background: url('../../css/theme/resources/standard-window/btn-minimize.png') 0 0
+}
+
+    .jsPanel-btn-minimize:hover {
+        background: url('../../css/theme/resources/standard-window/btn-minimize.png') 0 58px
+    }
+
+        .jsPanel-btn-minimize:hover:active {
+            background: url('../../css/theme/resources/standard-window/btn-minimize.png') 0 29px
+        }
+
+.jsPanel-btn-normalize {
+    background: url('../../css/theme/resources/standard-window/btn-normalize.png') 0 0
+}
+
+    .jsPanel-btn-normalize:hover {
+        background: url('../../css/theme/resources/standard-window/btn-normalize.png') 0 58px
+    }
+
+        .jsPanel-btn-normalize:hover:active {
+            background: url('../../css/theme/resources/standard-window/btn-normalize.png') 0 29px
+        }
+
+.jsPanel-btn-close:not(.btn-only-close) {
+    background: url('../../css/theme/resources/standard-window/btn-close.png') 0 0
+}
+
+    .jsPanel-btn-close:hover:not(.btn-only-close) {
+        background: url('../../css/theme/resources/standard-window/btn-close.png') 0 58px
+    }
+
+        .jsPanel-btn-close:hover:active:not(.btn-only-close) {
+            background: url('../../css/theme/resources/standard-window/btn-close.png') 0 29px
+        }

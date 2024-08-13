@@ -1,0 +1,213 @@
+﻿.treeview {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    -ms-interpolation-mode: nearest-neighbor;
+    border: 5px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAMAAAC6V+0/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAVUExURaCgoP///2lpaePj42RkZPDw8AAAAM3qxucAAAAHdFJOU////////wAaSwNGAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAARElEQVQoU8XNMQ4AIAhDUSrq/Y9sxAaRuDj5xp9A5QIiJdMZa7IirwiMvDPqsbv2IbbNo0aMOK2YWOQz9xY5GkA4GQADjJYEqjjtrHIAAAAASUVORK5CYII=') 5 5 9 5 stretch;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    min-height: calc(100vh - 42px);
+    float: left;
+    clear: none;
+    width: 236px;
+    height: calc(100% - 42px);
+    font-family: Tahoma, Geneva, Verdana, sans-serif,sans-serif;
+    font-size: 8pt;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+    overflow: auto;
+    max-height: calc(100vh - 42px);
+}
+
+a, span {
+    cursor: default;
+}
+
+.tree {
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-left: 12px;
+}
+
+    .tree input {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+    }
+
+        .tree input ~ ul {
+            display: none;
+        }
+
+        .tree input:checked ~ ul {
+            display: block;
+        }
+
+    .tree li {
+        line-height: 16px;
+        position: relative;
+        padding: 0 0 0px 20px;
+        display: block;
+    }
+
+    .tree ul li {
+        padding: 0px 0 0 20px;
+        line-height: 16px;
+        display: block;
+    }
+
+    .tree > li:last-child {
+        padding-bottom: 0;
+    }
+
+.tree_label {
+    height: 16px;
+    min-height: 16px;
+    max-height: 16px;
+    font-size: 8pt;
+    position: relative;
+    display: block;
+    background: #fff;
+}
+
+label.tree_label {
+    cursor: default;
+    height: 16px;
+}
+
+    label.tree_label:hover {
+        color: #666;
+    }
+
+:checked ~ label.tree_label {
+    color: #f00;
+}
+
+label.tree_label:before {
+    background: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJUExURW1tbf///wAAAH9lfc0AAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAdSURBVBjTY4AARkFBQRCpiCCVlBTRRMBqgICBAQAyrwHf98FKbgAAAABJRU5ErkJggg==');
+    color: #fff;
+    position: relative;
+    z-index: 0;
+    float: left;
+    margin: 4px 9px 0 -28px;
+    width: 9px;
+    height: 9px;
+    content: '';
+    text-align: center;
+    line-height: 14px;
+}
+
+:checked ~ label.tree_label:before {
+    background: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJBAMAAAASvxsjAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJUExURW1tbf///wAAAH9lfc0AAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZSURBVBjTY4AARkFBQTRSSUkRmzgQMDAAACvvAZ8cphlMAAAAAElFTkSuQmCC');
+}
+
+.tree li:before {
+    background: white;
+    position: absolute;
+    top: 6px;
+    bottom: -8px;
+    left: -4px;
+    display: block;
+    width: 0;
+    border: 0px solid transparent;
+    border-left: 1px solid transparent;
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURf///21tbfadgwIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARSURBVBjTY2BkZBAQAJECAgABSgBFdDtFXAAAAABJRU5ErkJggg==') 1 1 1 1 repeat;
+    content: "";
+    background: white;
+}
+
+.tree_label:after {
+    background: transparent;
+    position: absolute;
+    top: 0;
+    left: -24px;
+    display: block;
+    height: 8px;
+    width: 20px;
+    border: 0px solid transparent;
+    border-bottom: 1px solid transparent;
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURf///21tbfadgwIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARSURBVBjTY2BkZBAQAJECAgABSgBFdDtFXAAAAABJRU5ErkJggg==') 1 1 1 1 repeat;
+    z-index: -1;
+    content: '';
+}
+
+
+span.tree_label:after {
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURf///21tbfadgwIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARSURBVBjTY2BkZBAQAJECAgABSgBFdDtFXAAAAABJRU5ErkJggg==') 1 1 1 1 repeat;
+}
+
+label.tree_label:after {
+    top: 8px;
+    left: -23px;
+    border: 0px solid transparent;
+    border-top: 1px solid transparent;
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURf///21tbfadgwIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARSURBVBjTY2BkZBAQAJECAgABSgBFdDtFXAAAAABJRU5ErkJggg==') 1 1 1 1 repeat;
+    border-bottom: 0;
+}
+
+:checked ~ label.tree_label:after {
+    top: 8px;
+    border: 0px solid transparent;
+    border-top: 1px solid transparent;
+    border-right: 1px solid transparent;
+    border-image: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAEBAMAAABb34NNAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAGUExURf///21tbfadgwIAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAARSURBVBjTY2BkZBAQAJECAgABSgBFdDtFXAAAAABJRU5ErkJggg==') 1 1 1 1 repeat;
+    border-bottom: 0;
+    border-left: 0;
+    bottom: 0;
+    background: transparent;
+    height: 14px;
+    width: 18px;
+    left: -22px;
+}
+
+.tree li:last-child:before {
+    background: white;
+    bottom: auto;
+}
+
+.tree > li:last-child:before {
+    display: none;
+}
+
+ul {
+    list-style-type: none;
+    display: block;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-inline-start: 0px;
+    padding-inline-end: 0px;
+    min-width: max-content;
+}
+
+.icon-zone {
+    background: white;
+    min-width: 16px;
+    min-height: 16px;
+    display: inline-block;
+    margin-left: -12px;
+    z-index: 0;
+    margin-right: 2px;
+}
+
+.label-text {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.label-text-selected {
+    background-color: #0078D7;
+    color: white;
+    height: 14px;
+    margin: 1px;
+    outline: 1px dotted #FF8728;
+    box-shadow: 0 0 0 1px black;
+}
