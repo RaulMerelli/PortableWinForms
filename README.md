@@ -27,5 +27,6 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 ### Tested events
 - Click (Button)
 
+Windows management is provided by the great JavaScript library jsPanel, with some minor custom edits to fit better the project.
 
 At the current stage the code quality is really low, please don't look at it until further indication if you don't want to have a stroke.
