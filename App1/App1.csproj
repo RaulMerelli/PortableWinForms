@@ -128,20 +128,53 @@
     <Compile Include="System\Drawing\GraphicsUnit.cs" />
     <Compile Include="System\Drawing\KnownColorTable.cs" />
     <Compile Include="System\Windows\Forms\AnchorStyles.cs" />
+    <Compile Include="System\Windows\Forms\Appearance.cs" />
     <Compile Include="System\Windows\Forms\ApplicationExtender.cs" />
+    <Compile Include="System\Windows\Forms\ArrowDirection.cs" />
     <Compile Include="System\Windows\Forms\AutoScaleMode.cs" />
-    <Compile Include="System\Windows\Forms\Button.cs" />
-    <Compile Include="System\Windows\Forms\ButtonBase.cs" />
-    <Compile Include="System\Windows\Forms\CheckBox.cs" />
+    <Compile Include="System\Windows\Forms\BorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\Button.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ButtonBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\CheckBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\CheckState.cs" />
     <Compile Include="System\Windows\Forms\ClientUtils.cs" />
+    <Compile Include="System\Windows\Forms\ColorDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\ComboBoxStyle.cs" />
-    <Compile Include="System\Windows\Forms\ComboBox.cs" />
-    <Compile Include="System\Windows\Forms\Control.cs" />
+    <Compile Include="System\Windows\Forms\ComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\CommonDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ContentAlignment.cs" />
+    <Compile Include="System\Windows\Forms\Control.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\ControlCollection.cs" />
-    <Compile Include="System\Windows\Forms\DataGridView.cs" />
+    <Compile Include="System\Windows\Forms\ControlEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\ControlEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\DataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\DialogResult.cs" />
-    <Compile Include="System\Windows\Forms\Form.cs" />
-    <Compile Include="Form1.cs" />
+    <Compile Include="System\Windows\Forms\DragAction.cs" />
+    <Compile Include="System\Windows\Forms\DragDropEffects.cs" />
+    <Compile Include="System\Windows\Forms\DragEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\DragEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\Form.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Form1.Designer.cs" />
     <Compile Include="JsonHelper.cs" />
     <Compile Include="JsonProperties.cs" />
@@ -149,32 +182,107 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="System\Windows\Forms\GroupBox.cs" />
+    <Compile Include="System\Windows\Forms\FormBorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\GiveFeedbackEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\GiveFeedbackEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\GroupBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\HelpEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\HelpEventHandler.cs" />
     <Compile Include="System\Windows\Forms\HelpInfo.cs" />
     <Compile Include="System\Windows\Forms\HelpNavigator.cs" />
+    <Compile Include="System\Windows\Forms\IDataObject.cs" />
+    <Compile Include="System\Windows\Forms\ImageLayout.cs" />
+    <Compile Include="System\Windows\Forms\ImeMode.cs" />
+    <Compile Include="System\Windows\Forms\InvalidateEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\InvalidateEventHandler.cs" />
     <Compile Include="System\Windows\Forms\IWin32Window.cs" />
-    <Compile Include="System\Windows\Forms\Label.cs" />
-    <Compile Include="System\Windows\Forms\ListBox.cs" />
-    <Compile Include="System\Windows\Forms\ListControl.cs" />
-    <Compile Include="System\Windows\Forms\MainMenu.cs" />
-    <Compile Include="System\Windows\Forms\MenuItem.cs" />
-    <Compile Include="System\Windows\Forms\MenuStrip.cs" />
+    <Compile Include="System\Windows\Forms\KeyEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\KeyEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\KeyPressEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\KeyPressEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\Keys.cs" />
+    <Compile Include="System\Windows\Forms\LinkBehavior.cs" />
+    <Compile Include="System\Windows\Forms\LinkLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Label.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\LayoutEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\LayoutEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\LinkLabelLinkClickedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\LinkLabelLinkClickedEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\LinkState.cs" />
+    <Compile Include="System\Windows\Forms\LinkUtilities.cs" />
+    <Compile Include="System\Windows\Forms\ListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ListControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MainMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MenuStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\MessageBox.cs" />
     <Compile Include="System\Windows\Forms\MessageBoxButtons.cs" />
     <Compile Include="System\Windows\Forms\MessageBoxDefaultButton.cs" />
     <Compile Include="System\Windows\Forms\MessageBoxIcon.cs" />
     <Compile Include="System\Windows\Forms\MessageBoxOptions.cs" />
+    <Compile Include="System\Windows\Forms\MouseButtons.cs" />
+    <Compile Include="System\Windows\Forms\MouseEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\MouseEventHandler.cs" />
     <Compile Include="System\Windows\Forms\NativeMethods.cs" />
-    <Compile Include="System\Windows\Forms\NumericUpDown.cs" />
-    <Compile Include="System\Windows\Forms\Panel.cs" />
-    <Compile Include="System\Windows\Forms\PictureBox.cs" />
-    <Compile Include="System\Windows\Forms\RadioButton.cs" />
-    <Compile Include="System\Windows\Forms\ScrollableControl.cs" />
+    <Compile Include="System\Windows\Forms\NumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Padding.cs" />
+    <Compile Include="System\Windows\Forms\PaintEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\PaintEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\Panel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\PictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\PictureBoxSizeMode.cs" />
+    <Compile Include="System\Windows\Forms\PreviewKeyDownEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\PreviewKeyDownEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\QueryAccessibilityHelpEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\QueryAccessibilityHelpEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\QueryContinueDragEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\QueryContinueDragEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\RadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ScrollableControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\ScrollBars.cs" />
-    <Compile Include="System\Windows\Forms\TextBox.cs" />
+    <Compile Include="System\Windows\Forms\TextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TextBoxBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TextImageRelation.cs" />
     <Compile Include="System\Windows\Forms\Timer.cs" />
-    <Compile Include="System\Windows\Forms\ToolStrip.cs" />
-    <Compile Include="System\Windows\Forms\ToolStripMenuItem.cs" />
+    <Compile Include="System\Windows\Forms\ToolStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ToolStripMenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\UICues.cs" />
+    <Compile Include="System\Windows\Forms\UICuesEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\UICuesEventHandler.cs" />
     <Compile Include="System\Windows\Forms\WindowsFormsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -184,7 +292,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="html\css\bottombar.css" />
-    <Content Include="html\css\icons.css" />
     <Content Include="html\css\jspanel\jspanel.css" />
     <Content Include="html\css\mdi.css" />
     <Content Include="html\css\menu.css" />

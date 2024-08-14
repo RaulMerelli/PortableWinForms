@@ -18,13 +18,6 @@ namespace System.Windows.Forms
 
         private object syncObj = new object();
 
-        //
-        // Riepilogo:
-        //     Ottiene o imposta una stringa arbitraria che rappresenta un tipo di stato dell'utente.
-        //
-        //
-        // Valori restituiti:
-        //     Stringa arbitraria che rappresenta un tipo di stato dell'utente.
         [Localizable(false)]
         [Bindable(true)]
         [DefaultValue(null)]
@@ -41,13 +34,6 @@ namespace System.Windows.Forms
             }
         }
 
-        //
-        // Riepilogo:
-        //     Ottiene o imposta un valore che indica se il timer è in esecuzione.
-        //
-        // Valori restituiti:
-        //     true se il timer è attualmente abilitato; in caso contrario, false.Il valore
-        //     predefinito è false.
         [DefaultValue(false)]
         public virtual bool Enabled
         {
@@ -73,17 +59,6 @@ namespace System.Windows.Forms
             }
         }
 
-        //
-        // Riepilogo:
-        //     Ottiene o imposta l'intervallo di tempo, in millisecondi, prima che venga generato
-        //     l'evento System.Windows.Forms.Timer.Tick relativo all'ultima occorrenza dell'evento
-        //     System.Windows.Forms.Timer.Tick.
-        //
-        // Valori restituiti:
-        //     Un valore System.Int32 che specifica il numero di millisecondi prima che venga
-        //     generato l'evento System.Windows.Forms.Timer.Tick relativo all'ultima occorrenza
-        //     dell'evento System.Windows.Forms.Timer.Tick.Il valore non può essere minore di
-        //     1.
         [DefaultValue(100)]
         public int Interval
         {
@@ -108,10 +83,6 @@ namespace System.Windows.Forms
             }
         }
 
-        //
-        // Riepilogo:
-        //     Si verifica quando l'intervallo specificato del timer è trascorso e il timer
-        //     viene attivato.
         public event EventHandler Tick
         {
             add
@@ -124,23 +95,11 @@ namespace System.Windows.Forms
             }
         }
 
-        //
-        // Riepilogo:
-        //     Inzializza una nuova istanza della classe System.Windows.Forms.Timer.
         public Timer()
         {
             interval = 100;
         }
 
-        //
-        // Riepilogo:
-        //     Inizializza una nuova istanza della classe System.Windows.Forms.Timer insieme
-        //     al contenitore specificato.
-        //
-        // Parametri:
-        //   container:
-        //     Oggetto System.ComponentModel.IContainer che rappresenta il contenitore per il
-        //     timer.
         public Timer(IContainer container)
             : this()
         {
@@ -151,14 +110,6 @@ namespace System.Windows.Forms
 
         }
 
-        //
-        // Riepilogo:
-        //     Genera l'evento System.Windows.Forms.Timer.Tick.
-        //
-        // Parametri:
-        //   e:
-        //     Oggetto System.EventArgs che contiene i dati dell'evento.Questo valore è sempre
-        //     System.EventArgs.Empty.
         protected virtual void OnTick(EventArgs e)
         {
             if (onTimer != null)
@@ -167,29 +118,16 @@ namespace System.Windows.Forms
             }
         }
 
-        //
-        // Riepilogo:
-        //     Avvia il timer.
         public void Start()
         {
             Enabled = true;
         }
 
-        //
-        // Riepilogo:
-        //     Arresta il timer.
         public void Stop()
         {
             Enabled = false;
         }
 
-        //
-        // Riepilogo:
-        //     Restituisce una stringa che rappresenta l'oggetto System.Windows.Forms.Timer.
-        //
-        //
-        // Valori restituiti:
-        //     Stringa che rappresenta l'oggetto System.Windows.Forms.Timer corrente.
         public override string ToString()
         {
             string text = base.ToString();

@@ -18,7 +18,6 @@
 
         private void UpdateUpDown()
         {
-            //Win32.SendMessage(UpDownHandle, Win32.UDM_SETRANGE, 0, Win32.MAKELPARAM((int)maximum, (int)minimum));    // Sets the controls direction and range.
         }
 
         public decimal Maximum

@@ -18,6 +18,7 @@ namespace winformtest
         private void button2_Click(object sender, EventArgs e)
         {
             MessageBox.Show("textBox1: " + textBox1.Text, "captiontest", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            button1.Size = new System.Drawing.Size(80, 30);
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -30,6 +31,10 @@ namespace winformtest
         private void button4_Click(object sender, EventArgs e)
         {
             textBox1.Text = "test";
+        }
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            label1.Text = textBox1.Text;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms
 {
@@ -15,7 +15,6 @@ namespace System.Windows.Forms
             //   Verify that the number passed in has only one bit on
             //   Verify that the bit that is on is a valid bit by bitwise anding it to a mask.
             //
-            /*
             public static bool IsValidContentAlignment(ContentAlignment contentAlign)
             {
                 if (ClientUtils.GetBitCount((uint)contentAlign) != 1)
@@ -27,7 +26,7 @@ namespace System.Windows.Forms
                 int contentAlignmentMask = 0x777;
                 return ((contentAlignmentMask & (int)contentAlign) != 0);
             }
-            */
+            
 
             // IsEnumWithinShiftedRange
             // shifts off the number of bits specified by numBitsToShift 
@@ -58,7 +57,7 @@ namespace System.Windows.Forms
             //   Verify that the number is between 0 and 8
             //   Verify that the bit that is on - thus forcing it to be a power of two.
             //          
-            /*
+            
             public static bool IsValidTextImageRelation(TextImageRelation relation)
             {
                 return ClientUtils.IsEnumValid(relation, (int)relation, (int)TextImageRelation.Overlay, (int)TextImageRelation.TextBeforeImage, 1);
@@ -77,7 +76,15 @@ namespace System.Windows.Forms
                         return false;
                 }
             }
-            */
+        }
+
+        // RotateLeft(0xFF000000, 4) -> 0xF000000F
+        public static int RotateLeft(int value, int nBits)
+        {
+            Debug.Assert(Marshal.SizeOf(typeof(int)) == 4, "The impossible has happened.");
+
+            nBits = nBits % 32;
+            return value << nBits | (value >> (32 - nBits));
         }
     }
 }

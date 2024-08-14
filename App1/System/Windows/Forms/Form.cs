@@ -7,29 +7,33 @@ namespace System.Windows.Forms
 {
     public class Form : Control
     {
-        internal string _Text;
+        internal string text;
         public string Text
         {
             get
             {
-                return _Text;
+                return text;
             }
             set
             {
-                _Text = value;
-                if (layoutPerformed)
+                if (value != text)
                 {
-                    Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].querySelector('.jsPanel-title').innerHTML=\"{value}\"");
+                    text = value;
+                    if (layoutPerformed)
+                    {
+                        Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].querySelector('.jsPanel-title').innerHTML=\"{value}\"");
+                    }
                 }
             }
         }
         public bool UseCompatibleTextRendering = true;
-        public Size ClientSize;
         public SizeF AutoScaleDimensions;
         public AutoScaleMode AutoScaleMode;
         public bool MinimizeBox = true;
         public bool MaximizeBox = true;
-        public int FakeHandle; // Da sostituire con un handleProvider generale e da usare anche nei controlli child al posto del hWnd
+        public FormBorderStyle FormBorderStyle = FormBorderStyle.Sizable;
+
+        public int FakeHandle;
 
         public override void PerformLayout()
         {
@@ -38,13 +42,11 @@ namespace System.Windows.Forms
             layoutPerformed = true;
         }
 
-        private async void webView2_WebMessageReceived(WebView2 sender, CoreWebView2WebMessageReceivedEventArgs args) 
+        private async void webView2_WebMessageReceived(WebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
-            // Sarebbe bello trasformare questa roba in WndProc così se ci sono overide sono fino ad un certo punto "gestibili"
             string received = args.TryGetWebMessageAsString();
             var eventReturn = JsonHelper.Deserialize<EventReturn>(received);
 
-            // Obtain the control involved with the event received that we need to manage
             Control child = FindControlById(this, eventReturn.identifier);
 
             if (child != null)
@@ -52,25 +54,25 @@ namespace System.Windows.Forms
                 switch (eventReturn.eventName)
                 {
                     case "Click":
-                        child.Click?.Invoke(child, new EventArgs());
+                        child.OnClick(EventArgs.Empty);
                         break;
                     case "Input":
-                        if (child.GetType() == typeof(TextBox)) // Bisognerebbe anche qua utilizzare un metodo che vada al tipo base
+                        if (child.GetType().IsSubclassOf(typeof(TextBox)) || child.GetType() == typeof(TextBox))
                         {
                             TextBox textBox = (TextBox)child;
-                            textBox._Text = await Page.Get(textBox.identifier, textBox.Multiline ? "innerHTML" : "value");
+                            textBox.text = await Page.Get(textBox.identifier, textBox.Multiline ? "innerHTML" : "value");
                         }
-                        if (child.GetType() == typeof(Label)) // Bisognerebbe anche qua utilizzare un metodo che vada al tipo base
+                        if (child.GetType().IsSubclassOf(typeof(Label)) || child.GetType() == typeof(Label))
                         {
                             Label label = (Label)child;
-                            label._Text = await Page.Get(label.identifier, "innerHTML");
+                            label.text = await Page.Get(label.identifier, "innerHTML");
                         }
-                        if (child.GetType() == typeof(Button)) // Bisognerebbe anche qua utilizzare un metodo che vada al tipo base
+                        if (child.GetType().IsSubclassOf(typeof(Button)) || child.GetType() == typeof(Button))
                         {
                             Button button = (Button)child;
-                            button._Text = await Page.GetFromScript($"document.getElementById(\"{identifier}\").getElementsByTagName('p')[0].innerHTML");
+                            button.text = await Page.GetFromScript($"document.getElementById(\"{identifier}\").getElementsByTagName('p')[0].innerHTML");
                         }
-                        child.TextChanged?.Invoke(child, new EventArgs());
+                        child.OnTextChanged(EventArgs.Empty);
                         break;
                 }
             }
@@ -83,7 +85,7 @@ namespace System.Windows.Forms
             string style = "";
 
             style += $"font: 8pt Microsoft Sans Serif;";
-            style += $"background-color: #F0F0F0;"; // {System.Drawing.ColorTranslator.ToHtml(BackColor)}
+            style += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
             style += $"background-repeat: repeat;";
             style += $"min-height: {ClientSize.Height}px;";
             style += $"min-width: {ClientSize.Width}px;";
@@ -105,7 +107,7 @@ namespace System.Windows.Forms
                     at = "left-top",
                     my = "left-top"
                 },
-                resizable = true,
+                resizable = FormBorderStyle == FormBorderStyle.Sizable || FormBorderStyle == FormBorderStyle.SizableToolWindow,
                 size = new JsonProperties.Size
                 {
                     width = $"{ClientSize.Width}px",
