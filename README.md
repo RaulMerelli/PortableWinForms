@@ -32,5 +32,11 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 - TextChanged (TextBox)
 
 Windows management is provided by the great JavaScript library jsPanel, with some minor custom edits to better fit the project.
+Dialog icons are from KDE/oxygen-icons
+
+It works on Xbox (tested Xbox Series S) but there are some more issues than running on Windows:
+- Cursors
+- Missing fonts
+- Debug must take place with Visual Studio 2019, VS2022 won't work because it's remote debugger it's not installed in the Xbox system. You can still compile with VS2022.
 
 At the current stage the code quality is really low, please don't look at it until further indication if you don't want to have a stroke.

@@ -17,10 +17,15 @@ namespace App1
 
         async void InitwebView()
         {
+            bool result = Windows.UI.ViewManagement.ApplicationViewScaling.TrySetDisableLayoutScaling(true);
             Page.pContainer = WebView2;
             await Page.pContainer.EnsureCoreWebView2Async();
             StorageFolder appInstalledFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
-            Page.pContainer.CoreWebView2.Navigate(Path.Combine("file:", appInstalledFolder.Path, @"html\", "index.html"));
+
+            string page = "https://localHTML/index.html";
+            Page.pContainer.CoreWebView2.SetVirtualHostNameToFolderMapping("localHTML", Path.Combine("file:", appInstalledFolder.Path, @"html"), Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind.Allow);
+            Page.pContainer.Source = new Uri(page);
+
             Page.pContainer.NavigationCompleted += PContainer_NavigationCompleted;
         }
 
