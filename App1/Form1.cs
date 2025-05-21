@@ -9,6 +9,8 @@ namespace winformtest
         {
             InitializeComponent();
             this.Resize += new System.EventHandler(this.Form1_Resize);
+            this.ResizeBegin += new System.EventHandler(this.Form1_ResizeBegin);
+            this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -42,6 +44,15 @@ namespace winformtest
         private void Form1_Resize(object sender, EventArgs e)
         {
             textBox2.Text = this.Size.Width.ToString();
+        }
+        private void Form1_ResizeBegin(object sender, EventArgs e)
+        {
+            textBox3.Text = this.Size.Width.ToString();
+        }
+
+        private void Form1_ResizeEnd(object sender, EventArgs e)
+        {
+            textBox3.Text = this.Size.Width.ToString();
         }
     }
 }

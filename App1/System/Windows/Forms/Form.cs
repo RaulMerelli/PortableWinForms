@@ -1,12 +1,17 @@
 ﻿using App1;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
+using System.ComponentModel;
 using System.Drawing;
 
 namespace System.Windows.Forms
 {
     public class Form : Control
     {
+        private static readonly object EVENT_RESIZEBEGIN = new object();
+
+        private static readonly object EVENT_RESIZEEND = new object();
+
         internal string text;
         public string Text
         {
@@ -95,7 +100,8 @@ namespace System.Windows.Forms
                         child.OnTextChanged(EventArgs.Empty);
                         break;
                     case "Resize":
-
+                    case "ResizeBegin":
+                    case "ResizeEnd":
                         if (child.GetType().IsSubclassOf(typeof(Form)) || child.GetType() == typeof(Form))
                         {
                             Form form = (Form)child;
@@ -104,7 +110,18 @@ namespace System.Windows.Forms
                             int w = int.Parse(wstr);
                             int h = int.Parse(hstr);
                             size = new Size(w, h);
-                            child.OnResize(EventArgs.Empty);
+                            if (eventReturn.eventName == "ResizeBegin")
+                            {
+                                form.OnResizeBegin(EventArgs.Empty);
+                            }
+                            else if (eventReturn.eventName == "ResizeEnd")
+                            {
+                                form.OnResizeEnd(EventArgs.Empty);
+                            }
+                            else
+                            {
+                                form.OnResize(EventArgs.Empty);
+                            }
                         }
                         break;
                 }
@@ -114,6 +131,52 @@ namespace System.Windows.Forms
         protected internal override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            //if (formState[FormStateRenderSizeGrip] != 0)
+            //{
+            //    Invalidate();
+            //}
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void OnResizeBegin(EventArgs e)
+        {
+            if (CanRaiseEvents)
+            {
+                ((EventHandler)base.Events[EVENT_RESIZEBEGIN])?.Invoke(this, e);
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void OnResizeEnd(EventArgs e)
+        {
+            if (CanRaiseEvents)
+            {
+                ((EventHandler)base.Events[EVENT_RESIZEEND])?.Invoke(this, e);
+            }
+        }
+
+        public event EventHandler ResizeBegin
+        {
+            add
+            {
+                base.Events.AddHandler(EVENT_RESIZEBEGIN, value);
+            }
+            remove
+            {
+                base.Events.RemoveHandler(EVENT_RESIZEBEGIN, value);
+            }
+        }
+
+        public event EventHandler ResizeEnd
+        {
+            add
+            {
+                base.Events.AddHandler(EVENT_RESIZEEND, value);
+            }
+            remove
+            {
+                base.Events.RemoveHandler(EVENT_RESIZEEND, value);
+            }
         }
 
         async void create()

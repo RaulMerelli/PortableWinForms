@@ -39,6 +39,12 @@ function launchPostWindowSuccess(htmlContent, propertiesJson) {
             disable: !properties.resizable,
             resize: function (panel) {
                 eventHandler(properties.identifier, 'Resize');
+            },
+            start: function (panel) {
+                eventHandler(properties.identifier, 'ResizeBegin');
+            },
+            stop: function (panel) {
+                eventHandler(properties.identifier, 'ResizeEnd');
             }
         },
         position: {

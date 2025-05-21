@@ -27,6 +27,8 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 - Click (Button, TextBox, Label)
 - TextChanged (TextBox)
 - Resize (Form)
+- ResizeBegin (Form)
+- ResizeEnd (Form)
 
 ### Tested events
 - Click (Button)
