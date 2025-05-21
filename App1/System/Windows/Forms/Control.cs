@@ -1110,6 +1110,11 @@ namespace System.Windows.Forms
             ((EventHandler)base.Events[EventClick])?.Invoke(this, e);
         }
 
+        protected virtual internal void OnResize(EventArgs e)
+        {
+            ((EventHandler)base.Events[EventResize])?.Invoke(this, e);
+        }
+
         protected virtual internal void OnTextChanged(EventArgs e)
         {
             if (base.Events[EventText] is EventHandler eventHandler)

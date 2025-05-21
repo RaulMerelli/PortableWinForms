@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
+using System.Diagnostics;
 using System.IO;
 using Windows.Storage;
 using winformtest;
@@ -22,10 +23,9 @@ namespace App1
             await Page.pContainer.EnsureCoreWebView2Async();
             StorageFolder appInstalledFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
 
-            string page = "https://localHTML/index.html";
-            Page.pContainer.CoreWebView2.SetVirtualHostNameToFolderMapping("localHTML", Path.Combine("file:", appInstalledFolder.Path, @"html"), Microsoft.Web.WebView2.Core.CoreWebView2HostResourceAccessKind.Allow);
+            string page = "https://appassets.example/index.html";
+            Page.pContainer.CoreWebView2.SetVirtualHostNameToFolderMapping("appassets.example", Path.Combine("file:", appInstalledFolder.Path, @"html"), CoreWebView2HostResourceAccessKind.Allow);
             Page.pContainer.Source = new Uri(page);
-
             Page.pContainer.NavigationCompleted += PContainer_NavigationCompleted;
         }
 
@@ -33,6 +33,10 @@ namespace App1
         {
             if (args != null)
             {
+                if (!args.IsSuccess)
+                {
+                    Debug.WriteLine($"Navigation failed: Error code {args.WebErrorStatus}");
+                }
                 if (args.IsSuccess)
                 {
                     //Application.EnableVisualStyles();

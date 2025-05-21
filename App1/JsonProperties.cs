@@ -3,6 +3,7 @@
     public class Properties
     {
         public string id { get; set; }
+        public string identifier { get; set; }
         public bool mdi { get; set; }
         public bool resizable { get; set; }
         public bool maximize { get; set; }

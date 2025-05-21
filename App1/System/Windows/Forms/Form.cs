@@ -26,6 +26,26 @@ namespace System.Windows.Forms
                 }
             }
         }
+
+        public Size Size
+        {
+            get
+            {
+                return base.size;
+            }
+            set
+            {
+                if (value != base.Size)
+                {
+                    base.size = value;
+                    if (layoutPerformed)
+                    {
+                        Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].resize({{width:{value.Width},height:{value.Height}}});");
+                    }
+                }
+            }
+        }
+
         public bool UseCompatibleTextRendering = true;
         public SizeF AutoScaleDimensions;
         public AutoScaleMode AutoScaleMode;
@@ -74,8 +94,26 @@ namespace System.Windows.Forms
                         }
                         child.OnTextChanged(EventArgs.Empty);
                         break;
+                    case "Resize":
+
+                        if (child.GetType().IsSubclassOf(typeof(Form)) || child.GetType() == typeof(Form))
+                        {
+                            Form form = (Form)child;
+                            string wstr = (await Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].style.width")).Replace("px", "").Replace("\"", "");
+                            string hstr = (await Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].style.height")).Replace("px", "").Replace("\"", "");
+                            int w = int.Parse(wstr);
+                            int h = int.Parse(hstr);
+                            size = new Size(w, h);
+                            child.OnResize(EventArgs.Empty);
+                        }
+                        break;
                 }
             }
+        }
+
+        protected internal override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
         }
 
         async void create()
@@ -98,6 +136,7 @@ namespace System.Windows.Forms
             JsonProperties.Properties properties = new JsonProperties.Properties
             {
                 id = FakeHandle.ToString(),
+                identifier = FakeHandle.ToString() + "-" + Name.ToString(),
                 icon = "",
                 maximize = MaximizeBox,
                 minimize = MinimizeBox,

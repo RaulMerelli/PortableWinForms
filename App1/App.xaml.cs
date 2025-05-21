@@ -28,8 +28,15 @@ namespace App1
         /// </summary>
         public App()
         {
-            this.InitializeComponent();
-            this.Suspending += OnSuspending;
+            try
+            {
+                this.InitializeComponent();
+                this.Suspending += OnSuspending;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
         }
 
         /// <summary>

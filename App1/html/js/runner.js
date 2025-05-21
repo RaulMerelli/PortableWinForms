@@ -36,7 +36,10 @@ function launchPostWindowSuccess(htmlContent, propertiesJson) {
             opacity: 1
         },
         resizeit: {
-            disable: !properties.resizable
+            disable: !properties.resizable,
+            resize: function (panel) {
+                eventHandler(properties.identifier, 'Resize');
+            }
         },
         position: {
             my: properties.position.my,

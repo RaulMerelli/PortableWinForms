@@ -8,11 +8,13 @@ namespace winformtest
         public Form1()
         {
             InitializeComponent();
+            this.Resize += new System.EventHandler(this.Form1_Resize);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("test", "captiontest", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            MessageBox.Show("Form resized to 600x600", "Demo app", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            this.Size = new System.Drawing.Size(600, 600);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -35,6 +37,11 @@ namespace winformtest
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             label1.Text = textBox1.Text;
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            textBox2.Text = this.Size.Width.ToString();
         }
     }
 }

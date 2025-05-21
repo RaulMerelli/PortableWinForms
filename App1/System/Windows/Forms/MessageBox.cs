@@ -379,6 +379,7 @@ namespace System.Windows.Forms
             JsonProperties.Properties properties = new JsonProperties.Properties
             {
                 id = "MessageBox",
+                identifier = "MessageBox",
                 icon = "",
                 maximize = false,
                 minimize = false,

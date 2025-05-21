@@ -11,8 +11,9 @@ namespace App1
 
         public static async Task<string> RunScript(string script)
         {
+            string result = await pContainer.ExecuteScriptAsync(script.Replace("\u200B", ""));
             // il carattere \u200B a volte compare e va rimosso per prevenire errori
-            return await pContainer.ExecuteScriptAsync(script.Replace("\u200B", ""));
+            return result;
         }
 
         public static async Task Set(string element, string property, string value)
@@ -38,6 +39,10 @@ namespace App1
         public static async Task<string> GetFromScript(string script)
         {
             return JsonValue.Parse(await RunScript(script)).GetString();
+        }
+        public static async Task<int> GetIntFromScript(string script)
+        {
+            return int.Parse(JsonValue.Parse(await RunScript(script)).GetString());
         }
     }
 }
