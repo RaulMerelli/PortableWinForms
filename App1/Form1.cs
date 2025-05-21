@@ -8,9 +8,21 @@ namespace winformtest
         public Form1()
         {
             InitializeComponent();
-            this.Resize += new System.EventHandler(this.Form1_Resize);
-            this.ResizeBegin += new System.EventHandler(this.Form1_ResizeBegin);
-            this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
+            Resize += new System.EventHandler(this.Form1_Resize);
+            ResizeBegin += new System.EventHandler(this.Form1_ResizeBegin);
+            ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
+            label1.Click += Label1_Click;
+            textBox2.Click += TextBox2_Click;
+        }
+
+        private void TextBox2_Click(object sender, EventArgs e)
+        {
+            textBox2.Text = "You clicked me!";
+        }
+
+        private void Label1_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Click on label1", "Demo app", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
         }
 
         private void button1_Click(object sender, EventArgs e)
