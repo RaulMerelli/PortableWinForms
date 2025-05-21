@@ -30,11 +30,6 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 - ResizeBegin (Form)
 - ResizeEnd (Form)
 
-### Tested events
-- Click (Button)
-- TextChanged (TextBox)
-- Resize (Form)
-
 An example is provided (Form1), showcasing what this project is currently able to do.
 
 Windows management is provided by the great JavaScript library jsPanel, with some minor custom edits to better fit the project.
