@@ -16,6 +16,8 @@ namespace System.Windows.Forms
             style += CssLocationAndSize();
 
             script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
+            script += $"document.getElementById('{identifier}').addEventListener('mouseenter', function() {{ eventHandler('{identifier}', 'MouseEnter');}});​";
+            script += $"document.getElementById('{identifier}').addEventListener('mouseleave', function() {{ eventHandler('{identifier}', 'MouseLeave');}});​";
 
             await Page.Add(Parent.identifier, "innerHTML", $"'<button id=\"{identifier}\" class=\"button\" style=\"{style}\" ><p>{Text}</p></button>';");
 
@@ -25,7 +27,7 @@ namespace System.Windows.Forms
             layoutPerformed = true;
         }
 
-        protected internal override void OnClick(EventArgs e)
+        internal override void OnClick(EventArgs e)
         {
             /*
             Form form = FindFormInternal();

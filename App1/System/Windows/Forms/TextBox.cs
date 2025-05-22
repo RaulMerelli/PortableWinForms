@@ -40,6 +40,8 @@ namespace System.Windows.Forms
 
             script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
             script += $"document.getElementById('{identifier}').addEventListener('input', function() {{ eventHandler('{identifier}', 'Input');}});";
+            script += $"document.getElementById('{identifier}').addEventListener('mouseenter', function() {{ eventHandler('{identifier}', 'MouseEnter');}});​";
+            script += $"document.getElementById('{identifier}').addEventListener('mouseleave', function() {{ eventHandler('{identifier}', 'MouseLeave');}});​";
 
             if (Multiline)
             {

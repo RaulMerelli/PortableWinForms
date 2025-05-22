@@ -2,15 +2,8 @@
 {
     partial class Form1
     {
-        /// <summary>
-        /// Variabile di progettazione necessaria.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Pulire le risorse in uso.
-        /// </summary>
-        /// <param name="disposing">ha valore true se le risorse gestite devono essere eliminate, false in caso contrario.</param>
         /*
         protected override void Dispose(bool disposing)
         {
@@ -24,10 +17,6 @@
 
         #region Codice generato da Progettazione Windows Form
 
-        /// <summary>
-        /// Metodo necessario per il supporto della finestra di progettazione. Non modificare
-        /// il contenuto del metodo con l'editor di codice.
-        /// </summary>
         private void InitializeComponent()
         {
             this.button1 = new System.Windows.Forms.Button();
@@ -213,6 +202,48 @@
             this.textBox3.Size = new System.Drawing.Size(100, 20);
             this.textBox3.TabIndex = 15;
             // 
+            // comboBox1
+            // 
+            //this.comboBox1.FormattingEnabled = true;
+            //this.comboBox1.Items.AddRange(new object[] {
+            //"1",
+            //"2",
+            //"23",
+            //"34",
+            //"354",
+            //"5",
+            //"34",
+            //"62",
+            //"457",
+            //"4",
+            //"7",
+            //"735",
+            //"478",
+            //"536",
+            //"85",
+            //"368",
+            //"536",
+            //"835",
+            //"68",
+            //"5368",
+            //"536",
+            //"8",
+            //"5368",
+            //"53",
+            //"68",
+            //"53",
+            //"8",
+            //"538",
+            //"356",
+            //"8",
+            //"356",
+            //"8"});
+            //this.comboBox1.Location = new System.Drawing.Point(37, 36);
+            //this.comboBox1.Name = "comboBox1";
+            //this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            //this.comboBox1.TabIndex = 0;
+            //this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -232,6 +263,7 @@
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
+            //this.Controls.Add(this.comboBox1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
@@ -258,6 +290,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
+        //private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 

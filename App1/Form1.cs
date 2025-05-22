@@ -12,7 +12,14 @@ namespace winformtest
             ResizeBegin += new System.EventHandler(this.Form1_ResizeBegin);
             ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
             label1.Click += Label1_Click;
+            label2.Click += Label2_Click;
             textBox2.Click += TextBox2_Click;
+            this.Move += Form1_Move;
+        }
+
+        private void Form1_Move(object sender, EventArgs e)
+        {
+            textBox2.Text = this.Location.ToString();
         }
 
         private void TextBox2_Click(object sender, EventArgs e)
@@ -23,6 +30,12 @@ namespace winformtest
         private void Label1_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Click on label1", "Demo app", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+        }
+
+        private void Label2_Click(object sender, EventArgs e)
+        {
+            this.Location = new System.Drawing.Point(100, 100);
+            MessageBox.Show("Click on label2", "Demo app", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
         }
 
         private void button1_Click(object sender, EventArgs e)

@@ -43,6 +43,8 @@ namespace System.Windows.Forms
             style += CssLocationAndSize();
 
             script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
+            script += $"document.getElementById('{identifier}').addEventListener('mouseenter', function() {{ eventHandler('{identifier}', 'MouseEnter');}});​";
+            script += $"document.getElementById('{identifier}').addEventListener('mouseleave', function() {{ eventHandler('{identifier}', 'MouseLeave');}});​";
 
             await Page.Add(Parent.identifier, "innerHTML", $"'<div id=\"{identifier}\" style=\"{style}\" class=\"label\">{Text}</div>';".Replace("\u200B", ""));
 

@@ -33,7 +33,16 @@ function launchPostWindowSuccess(htmlContent, propertiesJson) {
         headerLogo: properties.icon == "" ? '' : '<img src="' + properties.icon + '"></img>',
         dragit: {
             cursor: "default",
-            opacity: 1
+            opacity: 1,
+            drag: function (panel) {
+                eventHandler(properties.identifier, 'Move');
+            },
+            start: function (panel) {
+                eventHandler(properties.identifier, 'MoveBegin');
+            },
+            stop: function (panel) {
+                eventHandler(properties.identifier, 'MoveEnd');
+            }
         },
         resizeit: {
             disable: !properties.resizable,
@@ -79,6 +88,7 @@ function launchPostWindowSuccess(htmlContent, propertiesJson) {
                     }
                 });
             }
+            eventHandler(properties.identifier, 'Load');
         }
     });
     panel.header.style.background = "transparent";
