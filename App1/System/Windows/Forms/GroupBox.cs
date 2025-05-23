@@ -14,7 +14,7 @@ namespace System.Windows.Forms
             string titlestyle = "";
             string script = "";
 
-            identifier += Name;
+            WebviewIdentifier += Name;
                         
             style += $"font: 8pt Microsoft Sans Serif;";
             style += $"margin: 0px;";
@@ -23,9 +23,9 @@ namespace System.Windows.Forms
             titlestyle += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
             style += CssLocationAndSize();
 
-            script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
+            script += $"document.getElementById('{WebviewIdentifier}').addEventListener('click', function() {{ eventHandler('{WebviewIdentifier}', 'Click');}});​";
 
-            await Page.Add(Parent.identifier, "innerHTML", $"'<div id=\"{identifier}\" style=\"{style}\" class=\"frame\"><div id=\"{identifier}-title\" style=\"{titlestyle}\" class=\"frame-title\">{Text}</div></div>';".Replace("\u200B", ""));
+            await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<div id=\"{WebviewIdentifier}\" style=\"{style}\" class=\"frame\"><div id=\"{WebviewIdentifier}-title\" style=\"{titlestyle}\" class=\"frame-title\">{Text}</div></div>';".Replace("\u200B", ""));
 
             await Page.RunScript(script);
 

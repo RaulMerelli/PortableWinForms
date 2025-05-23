@@ -36,8 +36,8 @@ namespace winformtest
         {
             this.Location = new System.Drawing.Point(100, 100);
             MessageBox.Show("Click on label2", "Demo app", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            label2.Click -= Label2_Click;
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Form resized to 600x600", "Demo app", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
@@ -46,7 +46,7 @@ namespace winformtest
 
         private void button2_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("textBox1: " + textBox1.Text, "captiontest", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            MessageBox.Show("Button1 should now be bigger! Also look at the content of textBox1: " + textBox1.Text, "captiontest", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             button1.Size = new System.Drawing.Size(80, 30);
         }
 

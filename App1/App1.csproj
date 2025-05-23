@@ -129,8 +129,12 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="EventReturn.cs" />
+    <Compile Include="Microsoft\Win32\UserPreferenceCategory.cs" />
+    <Compile Include="Microsoft\Win32\UserPreferenceChangedEventArgs.cs" />
+    <Compile Include="Microsoft\Win32\UserPreferenceChangedEventHandler.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="System\ComponentModel\CompModeSwitches.cs" />
+    <Compile Include="System\Drawing2D\MatrixOrder.cs" />
     <Compile Include="System\Drawing\Color.cs" />
     <Compile Include="System\Drawing\ColorConverter.cs" />
     <Compile Include="System\Drawing\ColorTranslator.cs" />
@@ -142,14 +146,30 @@
     <Compile Include="System\Drawing\FontStyle.cs" />
     <Compile Include="System\Drawing\GraphicsUnit.cs" />
     <Compile Include="System\Drawing\IDeviceContext.cs" />
+    <Compile Include="System\Drawing\Imaging\BitmapData.cs" />
+    <Compile Include="System\Drawing\Imaging\EmfPlusRecordType.cs" />
+    <Compile Include="System\Drawing\Imaging\PixelFormat.cs" />
+    <Compile Include="System\Drawing\Imaging\PlayRecordCallback.cs" />
+    <Compile Include="System\Drawing\Imaging\PropertyItem.cs" />
     <Compile Include="System\Drawing\KnownColorTable.cs" />
+    <Compile Include="System\Drawing\StringAlignment.cs" />
+    <Compile Include="System\Drawing\StringDigitSubstitute.cs" />
+    <Compile Include="System\Drawing\StringFormatFlags.cs" />
+    <Compile Include="System\Drawing\StringTrimming.cs" />
     <Compile Include="System\Drawing\SystemColors.cs" />
+    <Compile Include="System\Drawing\Text\HotkeyPrefix.cs" />
     <Compile Include="System\Drawing\Text\TextRenderingHint.cs" />
+    <Compile Include="System\Internal\GPRECT.cs" />
+    <Compile Include="System\Internal\GPRECTF.cs" />
     <Compile Include="System\Internal\HandleCollector.cs" />
+    <Compile Include="System\Windows\Forms\AccessibleRole.cs" />
+    <Compile Include="System\Windows\Forms\AccessibleStates.cs" />
     <Compile Include="System\Windows\Forms\AmbientProperties.cs" />
     <Compile Include="System\Windows\Forms\AnchorStyles.cs" />
     <Compile Include="System\Windows\Forms\Appearance.cs" />
     <Compile Include="System\Windows\Forms\ApplicationExtender.cs" />
+    <Compile Include="System\Windows\Forms\ArrangeDirection.cs" />
+    <Compile Include="System\Windows\Forms\ArrangeStartingPosition.cs" />
     <Compile Include="System\Windows\Forms\ArrowDirection.cs" />
     <Compile Include="System\Windows\Forms\AutoCompleteMode.cs" />
     <Compile Include="System\Windows\Forms\AutoCompleteSource.cs" />
@@ -169,6 +189,8 @@
     <Compile Include="System\Windows\Forms\BindingMemberInfo.cs" />
     <Compile Include="System\Windows\Forms\BindingsCollection.cs" />
     <Compile Include="System\Windows\Forms\BindToObject.cs" />
+    <Compile Include="System\Windows\Forms\BootMode.cs" />
+    <Compile Include="System\Windows\Forms\Border3DStyle.cs" />
     <Compile Include="System\Windows\Forms\BorderStyle.cs" />
     <Compile Include="System\Windows\Forms\BoundsSpecified.cs" />
     <Compile Include="System\Windows\Forms\Button.cs">
@@ -183,6 +205,7 @@
     <Compile Include="System\Windows\Forms\CheckState.cs" />
     <Compile Include="System\Windows\Forms\ClientUtils.cs" />
     <Compile Include="System\Windows\Forms\CloseReason.cs" />
+    <Compile Include="System\Windows\Forms\ColorDepth.cs" />
     <Compile Include="System\Windows\Forms\ColorDialog.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -223,6 +246,7 @@
     <Compile Include="System\Windows\Forms\DrawItemState.cs" />
     <Compile Include="System\Windows\Forms\DrawMode.cs" />
     <Compile Include="System\Windows\Forms\FeatureSupport.cs" />
+    <Compile Include="System\Windows\Forms\FlatButtonAppearance.cs" />
     <Compile Include="System\Windows\Forms\FlatStyle.cs" />
     <Compile Include="System\Windows\Forms\Form.cs">
       <SubType>Component</SubType>
@@ -251,6 +275,7 @@
     <Compile Include="System\Windows\Forms\HelpInfo.cs" />
     <Compile Include="System\Windows\Forms\HelpNavigator.cs" />
     <Compile Include="System\Windows\Forms\IBindableComponent.cs" />
+    <Compile Include="System\Windows\Forms\IButtonControl.cs" />
     <Compile Include="System\Windows\Forms\ICurrencyManagerProvider.cs" />
     <Compile Include="System\Windows\Forms\IDataObject.cs" />
     <Compile Include="System\Windows\Forms\IFeatureSupport.cs" />
@@ -276,7 +301,10 @@
     <Compile Include="System\Windows\Forms\Layout\LayoutEngine.cs" />
     <Compile Include="System\Windows\Forms\Layout\LayoutTransaction.cs" />
     <Compile Include="System\Windows\Forms\Layout\PropertyNames.cs" />
+    <Compile Include="System\Windows\Forms\LeftRightAlignment.cs" />
+    <Compile Include="System\Windows\Forms\LinkArea.cs" />
     <Compile Include="System\Windows\Forms\LinkBehavior.cs" />
+    <Compile Include="System\Windows\Forms\LinkConverter.cs" />
     <Compile Include="System\Windows\Forms\LinkLabel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -338,6 +366,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="System\Windows\Forms\PictureBoxSizeMode.cs" />
+    <Compile Include="System\Windows\Forms\PowerStatus.cs" />
     <Compile Include="System\Windows\Forms\PreviewKeyDownEventArgs.cs" />
     <Compile Include="System\Windows\Forms\PreviewKeyDownEventHandler.cs" />
     <Compile Include="System\Windows\Forms\PropertyManager.cs" />
@@ -352,6 +381,7 @@
     <Compile Include="System\Windows\Forms\RelatedCurrencyManager.cs" />
     <Compile Include="System\Windows\Forms\RelatedPropertyManager.cs" />
     <Compile Include="System\Windows\Forms\RightToLeft.cs" />
+    <Compile Include="System\Windows\Forms\Screen.cs" />
     <Compile Include="System\Windows\Forms\ScreenOrientation.cs" />
     <Compile Include="System\Windows\Forms\ScrollableControl.cs">
       <SubType>Component</SubType>
@@ -359,6 +389,7 @@
     <Compile Include="System\Windows\Forms\ScrollBars.cs" />
     <Compile Include="System\Windows\Forms\SecurityUtils.cs" />
     <Compile Include="System\Windows\Forms\StringSource.cs" />
+    <Compile Include="System\Windows\Forms\SystemInformation.cs" />
     <Compile Include="System\Windows\Forms\SystemParameter.cs" />
     <Compile Include="System\Windows\Forms\TextBox.cs">
       <SubType>Component</SubType>

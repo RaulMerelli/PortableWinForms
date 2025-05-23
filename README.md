@@ -32,6 +32,11 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 - Move (Form)
 - MouseEnter (Button, TextBox, Label, CheckBox, RadioButton)
 - MouseLeave (Button, TextBox, Label, CheckBox, RadioButton)
+- MouseDown (Button, TextBox, Label, CheckBox, RadioButton)
+- MouseClick (Button, TextBox, Label, CheckBox, RadioButton)
+- MouseDoubleClick (Button, TextBox, Label, CheckBox, RadioButton)
+- MouseUp (Button, TextBox, Label, CheckBox, RadioButton)
+- MouseMove (Button, TextBox, Label, CheckBox, RadioButton)
 
 An example is provided (Form1), showcasing what this project is currently able to do.
 
@@ -43,7 +48,7 @@ It works also on Xbox (tested Xbox Series S), but there are some more issues tha
 - Missing fonts
 - Debug must take place with Visual Studio 2019, VS2022 won't work because its remote debugger it's not installed in the Xbox system. You can still compile with VS2022.
 
-At the current stage the code quality is really low, please don't look at it until further indication if you don't want to have a stroke.
+At the current stage the code quality is really low (aside from Microsoft unchanged code), please don't look at it until further indication if you don't want to have a stroke.
 
 ## Compilation and execution problems
 - Debugger can't attach: Try by deleting obj and bin folders, ticking "Compile with NET Native toolchain", recompile the  project and removing the tick. 

@@ -139,3 +139,37 @@ function closeCurrentWindow(control) {
     $(control).parent().closest('.jsPanel').remove();
 }
 
+function mouseDownEvent(event) {
+    eventHandler(event.currentTarget.id, 'MouseDown')
+}
+function mouseUpEvent(event) {
+    eventHandler(event.currentTarget.id, 'MouseUp')
+}
+function mouseMoveEvent(event) {
+    eventHandler(event.currentTarget.id, 'MouseMove')
+}
+function mouseEnterEvent(event) {
+    eventHandler(event.currentTarget.id, 'MouseEnter')
+}
+function mouseLeaveEvent(event) {
+    eventHandler(event.currentTarget.id, 'MouseLeave')
+}
+function mouseClickEvent(event) {
+    if (event.pointerType === 'mouse' || event instanceof MouseEvent) {
+        eventHandler(event.currentTarget.id, 'MouseClick');
+    } 
+}
+function mouseDoubleClickEvent(event) {
+    if (event.pointerType === 'mouse' || event instanceof MouseEvent) {
+        eventHandler(event.currentTarget.id, 'MouseDoubleClick');
+    }
+}
+function clickEvent(event) {
+    eventHandler(event.currentTarget.id, 'Click')
+}
+function doubleClickEvent(event) {
+    eventHandler(event.currentTarget.id, 'DoubleClick')
+}
+function textChangedEvent(event) {
+    eventHandler(event.currentTarget.id, 'Input')
+}

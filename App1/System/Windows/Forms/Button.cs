@@ -1,25 +1,149 @@
 ﻿using App1;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
 {
     public class Button : ButtonBase
     {
+        private DialogResult dialogResult;
+        private const int InvalidDimensionValue = Int32.MinValue;
+        private Size systemSize = new Size(InvalidDimensionValue, InvalidDimensionValue);
+        public Button() : base()
+        {
+            // Buttons shouldn't respond to right clicks, so we need to do all our own click logic
+            SetStyle(ControlStyles.StandardClick |
+                     ControlStyles.StandardDoubleClick,
+                     false);
+        }
+
+        [
+        Browsable(true),
+        DefaultValue(AutoSizeMode.GrowOnly),
+        Localizable(true),
+        ]
+        public AutoSizeMode AutoSizeMode
+        {
+            get
+            {
+                return GetAutoSizeMode();
+            }
+            set
+            {
+
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)AutoSizeMode.GrowAndShrink, (int)AutoSizeMode.GrowOnly))
+                {
+                    throw new InvalidEnumArgumentException("value", (int)value, typeof(AutoSizeMode));
+                }
+
+                if (GetAutoSizeMode() != value)
+                {
+                    SetAutoSizeMode(value);
+                    if (ParentInternal != null)
+                    {
+                        // DefaultLayout does not keep anchor information until it needs to.  When
+                        // AutoSize became a common property, we could no longer blindly call into
+                        // DefaultLayout, so now we do a special InitLayout just for DefaultLayout.
+                        if (ParentInternal.LayoutEngine == DefaultLayout.Instance)
+                        {
+                            ParentInternal.LayoutEngine.InitLayout(this, BoundsSpecified.Size);
+                        }
+                        LayoutTransaction.DoLayout(ParentInternal, this, PropertyNames.AutoSize);
+                    }
+                }
+            }
+        }
+
+        //internal override ButtonBaseAdapter CreateFlatAdapter()
+        //{
+        //    return new ButtonFlatAdapter(this);
+        //}
+
+        //internal override ButtonBaseAdapter CreatePopupAdapter()
+        //{
+        //    return new ButtonPopupAdapter(this);
+        //}
+
+        //internal override ButtonBaseAdapter CreateStandardAdapter()
+        //{
+        //    return new ButtonStandardAdapter(this);
+        //}
+        [DefaultValue(DialogResult.None)]
+        public virtual DialogResult DialogResult
+        {
+            get
+            {
+                return dialogResult;
+            }
+
+            set
+            {
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)DialogResult.None, (int)DialogResult.No))
+                {
+                    throw new InvalidEnumArgumentException("value", (int)value, typeof(DialogResult));
+                }
+                dialogResult = value;
+            }
+        }
+        internal override void OnMouseEnter(EventArgs e)
+        {
+            base.OnMouseEnter(e);
+        }
+
+        internal override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+        }
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
+        public new event EventHandler DoubleClick
+        {
+            add
+            {
+                base.DoubleClick += value;
+            }
+            remove
+            {
+                base.DoubleClick -= value;
+            }
+        }
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced)]
+        public new event MouseEventHandler MouseDoubleClick
+        {
+            add
+            {
+                base.MouseDoubleClick += value;
+            }
+            remove
+            {
+                base.MouseDoubleClick -= value;
+            }
+        }
+
+        public virtual void NotifyDefault(bool value)
+        {
+            if (IsDefault != value)
+            {
+                IsDefault = value;
+            }
+        }
+
         public async override void PerformLayout()
         {
             string style = "";
             string script = "";
 
-            identifier += Name;
+            WebviewIdentifier += Name;
                         
             style += $"font: 8pt Microsoft Sans Serif;";
             style += $"color: {System.Drawing.ColorTranslator.ToHtml(ForeColor)};";
             style += CssLocationAndSize();
 
-            script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
-            script += $"document.getElementById('{identifier}').addEventListener('mouseenter', function() {{ eventHandler('{identifier}', 'MouseEnter');}});​";
-            script += $"document.getElementById('{identifier}').addEventListener('mouseleave', function() {{ eventHandler('{identifier}', 'MouseLeave');}});​";
+            script += preLayoutScriptString;
 
-            await Page.Add(Parent.identifier, "innerHTML", $"'<button id=\"{identifier}\" class=\"button\" style=\"{style}\" ><p>{Text}</p></button>';");
+            await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<button id=\"{WebviewIdentifier}\" class=\"button\" style=\"{style}\" ><p>{Text}</p></button>';");
 
             await Page.RunScript(script);
 

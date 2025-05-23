@@ -209,11 +209,6 @@ namespace System.Windows.Forms
             Debug.Assert(formState[FormStateIsActive] == 0, "Failed to set formState[FormStateIsActive]");
             Debug.Assert(formState[FormStateIconSet] == 0, "Failed to set formState[FormStateIconSet]");
 
-
-#if SECURITY_DIALOG
-            Debug.Assert(formState[FormStateAddedSecurityMenuItem]       == 0, "Failed to set formState[FormStateAddedSecurityMenuItem]");
-#endif
-
             // SECURITY NOTE: The IsRestrictedWindow check is done once and cached. We force it to happen here
             // since we want to ensure the check is done on the code that constructs the form.
             bool temp = IsRestrictedWindow;
@@ -243,7 +238,6 @@ namespace System.Windows.Forms
         {
             get
             {
-                /// SECREVIEW: make sure to keep changes here in sync with ToolStripDropDown.IsRestrictedWindow
                 if (formState[FormStateIsRestrictedWindowChecked] == 0)
                 {
                     formState[FormStateIsRestrictedWindow] = 0;
@@ -588,7 +582,7 @@ namespace System.Windows.Forms
                     text = value;
                     if (layoutPerformed)
                     {
-                        Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].querySelector('.jsPanel-title').innerHTML=\"{value}\"");
+                        Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].querySelector('.jsPanel-title').innerHTML=\"{value}\"");
                     }
                 }
             }
@@ -607,7 +601,7 @@ namespace System.Windows.Forms
                     base.size = value;
                     if (layoutPerformed)
                     {
-                        Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].resize({{width:{value.Width},height:{value.Height}}});");
+                        Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].resize({{width:{value.Width},height:{value.Height}}});");
                     }
                 }
             }
@@ -626,7 +620,7 @@ namespace System.Windows.Forms
                     base.location = value;
                     if (layoutPerformed)
                     {
-                        Page.RunScript($@"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].reposition({{ left: {value.X}, top: {value.Y}}});");
+                        Page.RunScript($@"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].reposition({{ left: {value.X}, top: {value.Y}}});");
                     }
                 }
             }
@@ -707,17 +701,17 @@ namespace System.Windows.Forms
                         if (child.GetType().IsSubclassOf(typeof(TextBox)) || child.GetType() == typeof(TextBox))
                         {
                             TextBox textBox = (TextBox)child;
-                            textBox.text = await Page.Get(textBox.identifier, textBox.Multiline ? "innerHTML" : "value");
+                            textBox.text = await Page.Get(textBox.WebviewIdentifier, textBox.Multiline ? "innerHTML" : "value");
                         }
                         if (child.GetType().IsSubclassOf(typeof(Label)) || child.GetType() == typeof(Label))
                         {
                             Label label = (Label)child;
-                            label.text = await Page.Get(label.identifier, "innerHTML");
+                            label.text = await Page.Get(label.WebviewIdentifier, "innerHTML");
                         }
                         if (child.GetType().IsSubclassOf(typeof(Button)) || child.GetType() == typeof(Button))
                         {
                             Button button = (Button)child;
-                            button.text = await Page.GetFromScript($"document.getElementById(\"{identifier}\").getElementsByTagName('p')[0].innerHTML");
+                            button.text = await Page.GetFromScript($"document.getElementById(\"{WebviewIdentifier}\").getElementsByTagName('p')[0].innerHTML");
                         }
                         child.OnTextChanged(EventArgs.Empty);
                         break;
@@ -727,8 +721,8 @@ namespace System.Windows.Forms
                         if (child.GetType().IsSubclassOf(typeof(Form)) || child.GetType() == typeof(Form))
                         {
                             Form form = (Form)child;
-                            string wstr = (await Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].style.width")).Replace("px", "").Replace("\"", "");
-                            string hstr = (await Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].style.height")).Replace("px", "").Replace("\"", "");
+                            string wstr = (await Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].style.width")).Replace("px", "").Replace("\"", "");
+                            string hstr = (await Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].style.height")).Replace("px", "").Replace("\"", "");
                             int w = (int)double.Parse(wstr, CultureInfo.InvariantCulture);
                             int h = (int)double.Parse(hstr, CultureInfo.InvariantCulture);
                             size = new Size(w, h);
@@ -752,8 +746,8 @@ namespace System.Windows.Forms
                         if (child.GetType().IsSubclassOf(typeof(Form)) || child.GetType() == typeof(Form))
                         {
                             Form form = (Form)child;
-                            string xstr = (await Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].style.left")).Replace("px", "").Replace("\"", "");
-                            string ystr = (await Page.RunScript($"$(document.getElementById('{identifier}')).parent().closest('.jsPanel')[0].style.top")).Replace("px", "").Replace("\"", "");
+                            string xstr = (await Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].style.left")).Replace("px", "").Replace("\"", "");
+                            string ystr = (await Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].style.top")).Replace("px", "").Replace("\"", "");
                             int x = (int)double.Parse(xstr, CultureInfo.InvariantCulture);
                             int y = (int)double.Parse(ystr, CultureInfo.InvariantCulture);
                             location = new Point(x, y);
@@ -765,6 +759,15 @@ namespace System.Windows.Forms
                         break;
                     case "MouseLeave":
                         child.OnMouseLeave(EventArgs.Empty);
+                        break;
+                    case "MouseClick":
+                        child.OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0)); // dummy, data has to be retrived from html
+                        break;
+                    case "MouseDown":
+                        child.OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0)); // dummy, data has to be retrived from html
+                        break;
+                    case "MouseUp":
+                        child.OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0)); // dummy, data has to be retrived from html
                         break;
                 }
             }
@@ -836,7 +839,7 @@ namespace System.Windows.Forms
         async void create()
         {
             FakeHandle = new Random().Next(1, 65000);
-            identifier = FakeHandle + "-" + Name;
+            WebviewIdentifier = FakeHandle + "-" + Name;
             string style = "";
 
             style += $"font: 8pt Microsoft Sans Serif;";
@@ -848,7 +851,7 @@ namespace System.Windows.Forms
             style += $"width: 100%;";
             style += $"overflow: hidden;";
 
-            string htmlContent = $"<div id=\"{identifier}\" class=\"{this.Name}\" style=\"{style}\"></div>";
+            string htmlContent = $"<div id=\"{WebviewIdentifier}\" class=\"{this.Name}\" style=\"{style}\"></div>";
 
             JsonProperties.Properties properties = new JsonProperties.Properties
             {
@@ -881,7 +884,7 @@ namespace System.Windows.Forms
         internal Control FindControlById(Control startControl, string id)
         {
             // Check if the startControl has the matching id
-            if (startControl.identifier == id)
+            if (startControl.WebviewIdentifier == id)
             {
                 return startControl;
             }

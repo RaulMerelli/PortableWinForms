@@ -17,7 +17,7 @@ namespace System.Windows.Forms
                     text = value;
                     if (layoutPerformed)
                     {
-                        Page.Set(identifier, Multiline ? "innerHTML" : "value", $"\"{value}\"");
+                        Page.Set(WebviewIdentifier, Multiline ? "innerHTML" : "value", $"\"{value}\"");
                         OnTextChanged(EventArgs.Empty);
                     }
                 }
@@ -32,24 +32,23 @@ namespace System.Windows.Forms
             string style = "";
             string script = "";
 
-            identifier += Name;
+            WebviewIdentifier += Name;
                         
             style += $"font: 8pt Microsoft Sans Serif;";
             style += $"color: {System.Drawing.ColorTranslator.ToHtml(ForeColor)};";
             style += CssLocationAndSize();
 
-            script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
-            script += $"document.getElementById('{identifier}').addEventListener('input', function() {{ eventHandler('{identifier}', 'Input');}});";
-            script += $"document.getElementById('{identifier}').addEventListener('mouseenter', function() {{ eventHandler('{identifier}', 'MouseEnter');}});​";
-            script += $"document.getElementById('{identifier}').addEventListener('mouseleave', function() {{ eventHandler('{identifier}', 'MouseLeave');}});​";
+            script += preLayoutScriptString;
+
+            script += $"document.getElementById('{WebviewIdentifier}').addEventListener('input', textChangedEvent);"; // Always, in order to keep updated the Text Property
 
             if (Multiline)
             {
-                await Page.Add(Parent.identifier, "innerHTML", $"'<textarea style=\"{style}\" autocomplete=\"off\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\" id=\"{identifier}\">{Text}</textarea>';");
+                await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<textarea style=\"{style}\" autocomplete=\"off\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\" id=\"{WebviewIdentifier}\">{Text}</textarea>';");
             }
             else
             {
-                await Page.Add(Parent.identifier, "innerHTML", $"'<input id=\"{identifier}\" style=\"{style}\" class=\"textbox\" type=\"text\" value=\"{Text}\" autocomplete=\"off\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">';");
+                await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<input id=\"{WebviewIdentifier}\" style=\"{style}\" class=\"textbox\" type=\"text\" value=\"{Text}\" autocomplete=\"off\" autocorrect=\"off\" autocapitalize=\"off\" spellcheck=\"false\">';");
             }
 
             await Page.RunScript(script);

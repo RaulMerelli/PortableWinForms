@@ -1,11 +1,13 @@
 ﻿using App1;
 using JsonProperties;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security;
@@ -14,6 +16,7 @@ using System.ServiceModel.Channels;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Layout;
+using Windows.UI.Xaml;
 
 namespace System.Windows.Forms
 {
@@ -307,6 +310,120 @@ namespace System.Windows.Forms
         public string Name;
         public int TabIndex;
         public ControlCollection Controls = new ControlCollection();
+        internal List<string[]> preLayoutScript = new List<string[]>();
+
+        internal string preLayoutScriptString
+        {
+            get
+            {
+                string result = "";
+                for (int i = 0; i < preLayoutScript.Count; i++)
+                {
+                    if (preLayoutScript[i].Length == 3)
+                    {
+                        preLayoutScript[i][1] = WebviewIdentifier;
+                        result += string.Join("", preLayoutScript[i]);
+                    }
+                }
+                return result;
+            }
+        }
+
+        internal void AddJsEvent(object key)
+        {
+            string[] script = { };
+            if (key == EventClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('click', clickEvent)" };
+            }
+            if (key == EventDoubleClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('dblclick', doubleClickEvent)" };
+            }
+            if (key == EventMouseClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('click', mouseClickEvent)" };
+            }
+            if (key == EventMouseDoubleClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('dblclick', mouseDoubleClickEvent)" };
+            }
+            if (key == EventMouseEnter)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mouseenter', mouseEnterEvent)" };
+            }
+            if (key == EventMouseLeave)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mouseleave', mouseLeaveEvent)" };
+            }
+            if (key == EventMouseMove)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mousemove', mouseMoveEvent)" };
+            }
+            //if (key == EventText)
+            //{
+            //    script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('input', textChangedEvent)" };
+            //}
+            if (!string.IsNullOrEmpty(WebviewIdentifier))
+            {
+                if (script.Length > 0)
+                {
+                    Page.RunScript(string.Join("", script));
+                }
+            }
+            else
+            {
+                preLayoutScript.Add(script);
+            }
+        }
+
+        internal void RemoveJsEvent(object key)
+        {
+            string[] script = { };
+            if (key == EventClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('click', clickEvent)" };
+            }
+            if (key == EventDoubleClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('dblclick', doubleClickEvent)" };
+            }
+            if (key == EventMouseClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('click', mouseClickEvent)" };
+            }
+            if (key == EventMouseDoubleClick)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('dblclick', mouseDoubleClickEvent)" };
+            }
+            if (key == EventMouseEnter)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('mouseenter', mouseEnterEvent)" };
+            }
+            if (key == EventMouseLeave)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('mouseleave', mouseLeaveEvent)" };
+            }
+            if (key == EventMouseMove)
+            {
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('mousemove', mouseMoveEvent)" };
+            }
+            //if (key == EventText)
+            //{
+            //    script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').removeEventListener('input', textChangedEvent)" };
+            //}
+            if (!string.IsNullOrEmpty(WebviewIdentifier))
+            {
+                if (script.Length > 0)
+                {
+                    Page.RunScript(string.Join("", script));
+                }
+            }
+            else
+            {
+                preLayoutScript.Add(script);
+            }
+        }
 
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -314,10 +431,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventAutoSizeChanged);
                 base.Events.AddHandler(EventAutoSizeChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventAutoSizeChanged);
                 base.Events.RemoveHandler(EventAutoSizeChanged, value);
             }
         }
@@ -326,10 +445,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventBackColor);
                 base.Events.AddHandler(EventBackColor, value);
             }
             remove
             {
+                RemoveJsEvent(EventBackColor);
                 base.Events.RemoveHandler(EventBackColor, value);
             }
         }
@@ -338,10 +459,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventBackgroundImage);
                 base.Events.AddHandler(EventBackgroundImage, value);
             }
             remove
             {
+                RemoveJsEvent(EventBackgroundImage);
                 base.Events.RemoveHandler(EventBackgroundImage, value);
             }
         }
@@ -350,10 +473,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventBackgroundImageLayout);
                 base.Events.AddHandler(EventBackgroundImageLayout, value);
             }
             remove
             {
+                RemoveJsEvent(EventBackgroundImageLayout);
                 base.Events.RemoveHandler(EventBackgroundImageLayout, value);
             }
         }
@@ -362,10 +487,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventBindingContext);
                 base.Events.AddHandler(EventBindingContext, value);
             }
             remove
             {
+                RemoveJsEvent(EventBindingContext);
                 base.Events.RemoveHandler(EventBindingContext, value);
             }
         }
@@ -374,10 +501,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventCausesValidation);
                 base.Events.AddHandler(EventCausesValidation, value);
             }
             remove
             {
+                RemoveJsEvent(EventCausesValidation);
                 base.Events.RemoveHandler(EventCausesValidation, value);
             }
         }
@@ -386,10 +515,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventClientSize);
                 base.Events.AddHandler(EventClientSize, value);
             }
             remove
             {
+                RemoveJsEvent(EventClientSize);
                 base.Events.RemoveHandler(EventClientSize, value);
             }
         }
@@ -399,10 +530,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventContextMenu);
                 base.Events.AddHandler(EventContextMenu, value);
             }
             remove
             {
+                RemoveJsEvent(EventContextMenu);
                 base.Events.RemoveHandler(EventContextMenu, value);
             }
         }
@@ -411,10 +544,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventContextMenuStrip);
                 base.Events.AddHandler(EventContextMenuStrip, value);
             }
             remove
             {
+                RemoveJsEvent(EventContextMenuStrip);
                 base.Events.RemoveHandler(EventContextMenuStrip, value);
             }
         }
@@ -423,10 +558,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventCursor);
                 base.Events.AddHandler(EventCursor, value);
             }
             remove
             {
+                RemoveJsEvent(EventCursor);
                 base.Events.RemoveHandler(EventCursor, value);
             }
         }
@@ -435,10 +572,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDock);
                 base.Events.AddHandler(EventDock, value);
             }
             remove
             {
+                RemoveJsEvent(EventDock);
                 base.Events.RemoveHandler(EventDock, value);
             }
         }
@@ -447,10 +586,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventEnabled);
                 base.Events.AddHandler(EventEnabled, value);
             }
             remove
             {
+                RemoveJsEvent(EventEnabled);
                 base.Events.RemoveHandler(EventEnabled, value);
             }
         }
@@ -459,10 +600,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventFont);
                 base.Events.AddHandler(EventFont, value);
             }
             remove
             {
+                RemoveJsEvent(EventFont);
                 base.Events.RemoveHandler(EventFont, value);
             }
         }
@@ -471,10 +614,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventForeColor);
                 base.Events.AddHandler(EventForeColor, value);
             }
             remove
             {
+                RemoveJsEvent(EventForeColor);
                 base.Events.RemoveHandler(EventForeColor, value);
             }
         }
@@ -483,10 +628,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventLocation);
                 base.Events.AddHandler(EventLocation, value);
             }
             remove
             {
+                RemoveJsEvent(EventLocation);
                 base.Events.RemoveHandler(EventLocation, value);
             }
         }
@@ -495,10 +642,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMarginChanged);
                 base.Events.AddHandler(EventMarginChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventMarginChanged);
                 base.Events.RemoveHandler(EventMarginChanged, value);
             }
         }
@@ -507,10 +656,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventRegionChanged);
                 base.Events.AddHandler(EventRegionChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventRegionChanged);
                 base.Events.RemoveHandler(EventRegionChanged, value);
             }
         }
@@ -519,10 +670,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventRightToLeft);
                 base.Events.AddHandler(EventRightToLeft, value);
             }
             remove
             {
+                RemoveJsEvent(EventRightToLeft);
                 base.Events.RemoveHandler(EventRightToLeft, value);
             }
         }
@@ -531,10 +684,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventSize);
                 base.Events.AddHandler(EventSize, value);
             }
             remove
             {
+                RemoveJsEvent(EventSize);
                 base.Events.RemoveHandler(EventSize, value);
             }
         }
@@ -543,10 +698,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventCursor);
                 base.Events.AddHandler(EventTabIndex, value);
             }
             remove
             {
+                RemoveJsEvent(EventAutoSizeChanged);
                 base.Events.RemoveHandler(EventTabIndex, value);
             }
         }
@@ -555,10 +712,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventTabStop);
                 base.Events.AddHandler(EventTabStop, value);
             }
             remove
             {
+                RemoveJsEvent(EventTabStop);
                 base.Events.RemoveHandler(EventTabStop, value);
             }
         }
@@ -567,10 +726,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventText);
                 base.Events.AddHandler(EventText, value);
             }
             remove
             {
+                RemoveJsEvent(EventText);
                 base.Events.RemoveHandler(EventText, value);
             }
         }
@@ -579,10 +740,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventVisible);
                 base.Events.AddHandler(EventVisible, value);
             }
             remove
             {
+                RemoveJsEvent(EventVisible);
                 base.Events.RemoveHandler(EventVisible, value);
             }
         }
@@ -591,10 +754,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventClick);
                 base.Events.AddHandler(EventClick, value);
             }
             remove
             {
+                RemoveJsEvent(EventClick);
                 base.Events.RemoveHandler(EventClick, value);
             }
         }
@@ -605,10 +770,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventControlAdded);
                 base.Events.AddHandler(EventControlAdded, value);
             }
             remove
             {
+                RemoveJsEvent(EventControlAdded);
                 base.Events.RemoveHandler(EventControlAdded, value);
             }
         }
@@ -619,10 +786,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventControlRemoved);
                 base.Events.AddHandler(EventControlRemoved, value);
             }
             remove
             {
+                RemoveJsEvent(EventControlRemoved);
                 base.Events.RemoveHandler(EventControlRemoved, value);
             }
         }
@@ -631,10 +800,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDragDrop);
                 base.Events.AddHandler(EventDragDrop, value);
             }
             remove
             {
+                RemoveJsEvent(EventDragDrop);
                 base.Events.RemoveHandler(EventDragDrop, value);
             }
         }
@@ -643,10 +814,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDragEnter);
                 base.Events.AddHandler(EventDragEnter, value);
             }
             remove
             {
+                RemoveJsEvent(EventDragEnter);
                 base.Events.RemoveHandler(EventDragEnter, value);
             }
         }
@@ -655,10 +828,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDragOver);
                 base.Events.AddHandler(EventDragOver, value);
             }
             remove
             {
+                RemoveJsEvent(EventDragOver);
                 base.Events.RemoveHandler(EventDragOver, value);
             }
         }
@@ -667,10 +842,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDragLeave);
                 base.Events.AddHandler(EventDragLeave, value);
             }
             remove
             {
+                RemoveJsEvent(EventDragLeave);
                 base.Events.RemoveHandler(EventDragLeave, value);
             }
         }
@@ -679,10 +856,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventGiveFeedback);
                 base.Events.AddHandler(EventGiveFeedback, value);
             }
             remove
             {
+                RemoveJsEvent(EventGiveFeedback);
                 base.Events.RemoveHandler(EventGiveFeedback, value);
             }
         }
@@ -693,10 +872,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventHandleCreated);
                 base.Events.AddHandler(EventHandleCreated, value);
             }
             remove
             {
+                RemoveJsEvent(EventHandleCreated);
                 base.Events.RemoveHandler(EventHandleCreated, value);
             }
         }
@@ -707,10 +888,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventHandleDestroyed);
                 base.Events.AddHandler(EventHandleDestroyed, value);
             }
             remove
             {
+                RemoveJsEvent(EventHandleDestroyed);
                 base.Events.RemoveHandler(EventHandleDestroyed, value);
             }
         }
@@ -719,10 +902,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventHelpRequested);
                 base.Events.AddHandler(EventHelpRequested, value);
             }
             remove
             {
+                RemoveJsEvent(EventHelpRequested);
                 base.Events.RemoveHandler(EventHelpRequested, value);
             }
         }
@@ -733,10 +918,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventInvalidated);
                 base.Events.AddHandler(EventInvalidated, value);
             }
             remove
             {
+                RemoveJsEvent(EventInvalidated);
                 base.Events.RemoveHandler(EventInvalidated, value);
             }
         }
@@ -745,10 +932,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventPaddingChanged);
                 base.Events.AddHandler(EventPaddingChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventPaddingChanged);
                 base.Events.RemoveHandler(EventPaddingChanged, value);
             }
         }
@@ -757,10 +946,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventPaint);
                 base.Events.AddHandler(EventPaint, value);
             }
             remove
             {
+                RemoveJsEvent(EventPaint);
                 base.Events.RemoveHandler(EventPaint, value);
             }
         }
@@ -769,10 +960,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventQueryContinueDrag);
                 base.Events.AddHandler(EventQueryContinueDrag, value);
             }
             remove
             {
+                RemoveJsEvent(EventQueryContinueDrag);
                 base.Events.RemoveHandler(EventQueryContinueDrag, value);
             }
         }
@@ -781,10 +974,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventQueryAccessibilityHelp);
                 base.Events.AddHandler(EventQueryAccessibilityHelp, value);
             }
             remove
             {
+                RemoveJsEvent(EventQueryAccessibilityHelp);
                 base.Events.RemoveHandler(EventQueryAccessibilityHelp, value);
             }
         }
@@ -793,10 +988,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDoubleClick);
                 base.Events.AddHandler(EventDoubleClick, value);
             }
             remove
             {
+                RemoveJsEvent(EventDoubleClick);
                 base.Events.RemoveHandler(EventDoubleClick, value);
             }
         }
@@ -805,10 +1002,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventEnter);
                 base.Events.AddHandler(EventEnter, value);
             }
             remove
             {
+                RemoveJsEvent(EventEnter);
                 base.Events.RemoveHandler(EventEnter, value);
             }
         }
@@ -819,10 +1018,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventGotFocus);
                 base.Events.AddHandler(EventGotFocus, value);
             }
             remove
             {
+                RemoveJsEvent(EventGotFocus);
                 base.Events.RemoveHandler(EventGotFocus, value);
             }
         }
@@ -831,10 +1032,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventKeyDown);
                 base.Events.AddHandler(EventKeyDown, value);
             }
             remove
             {
+                RemoveJsEvent(EventKeyDown);
                 base.Events.RemoveHandler(EventKeyDown, value);
             }
         }
@@ -843,10 +1046,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventKeyPress);
                 base.Events.AddHandler(EventKeyPress, value);
             }
             remove
             {
+                RemoveJsEvent(EventKeyPress);
                 base.Events.RemoveHandler(EventKeyPress, value);
             }
         }
@@ -855,10 +1060,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventKeyUp);
                 base.Events.AddHandler(EventKeyUp, value);
             }
             remove
             {
+                RemoveJsEvent(EventKeyUp);
                 base.Events.RemoveHandler(EventKeyUp, value);
             }
         }
@@ -867,10 +1074,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventLayout);
                 base.Events.AddHandler(EventLayout, value);
             }
             remove
             {
+                RemoveJsEvent(EventLayout);
                 base.Events.RemoveHandler(EventLayout, value);
             }
         }
@@ -879,10 +1088,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventLeave);
                 base.Events.AddHandler(EventLeave, value);
             }
             remove
             {
+                RemoveJsEvent(EventLeave);
                 base.Events.RemoveHandler(EventLeave, value);
             }
         }
@@ -893,10 +1104,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventLostFocus);
                 base.Events.AddHandler(EventLostFocus, value);
             }
             remove
             {
+                RemoveJsEvent(EventLostFocus);
                 base.Events.RemoveHandler(EventLostFocus, value);
             }
         }
@@ -905,10 +1118,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseClick);
                 base.Events.AddHandler(EventMouseClick, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseClick);
                 base.Events.RemoveHandler(EventMouseClick, value);
             }
         }
@@ -917,10 +1132,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseDoubleClick);
                 base.Events.AddHandler(EventMouseDoubleClick, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseDoubleClick);
                 base.Events.RemoveHandler(EventMouseDoubleClick, value);
             }
         }
@@ -929,10 +1146,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseCaptureChanged);
                 base.Events.AddHandler(EventMouseCaptureChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseCaptureChanged);
                 base.Events.RemoveHandler(EventMouseCaptureChanged, value);
             }
         }
@@ -941,10 +1160,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseDown);
                 base.Events.AddHandler(EventMouseDown, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseDown);
                 base.Events.RemoveHandler(EventMouseDown, value);
             }
         }
@@ -953,10 +1174,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseEnter);
                 base.Events.AddHandler(EventMouseEnter, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseEnter);
                 base.Events.RemoveHandler(EventMouseEnter, value);
             }
         }
@@ -965,10 +1188,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseLeave);
                 base.Events.AddHandler(EventMouseLeave, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseLeave);
                 base.Events.RemoveHandler(EventMouseLeave, value);
             }
         }
@@ -977,10 +1202,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDpiChangedBeforeParent);
                 base.Events.AddHandler(EventDpiChangedBeforeParent, value);
             }
             remove
             {
+                RemoveJsEvent(EventDpiChangedBeforeParent);
                 base.Events.RemoveHandler(EventDpiChangedBeforeParent, value);
             }
         }
@@ -989,10 +1216,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventDpiChangedAfterParent);
                 base.Events.AddHandler(EventDpiChangedAfterParent, value);
             }
             remove
             {
+                RemoveJsEvent(EventDpiChangedAfterParent);
                 base.Events.RemoveHandler(EventDpiChangedAfterParent, value);
             }
         }
@@ -1001,10 +1230,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseHover);
                 base.Events.AddHandler(EventMouseHover, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseHover);
                 base.Events.RemoveHandler(EventMouseHover, value);
             }
         }
@@ -1013,10 +1244,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseMove);
                 base.Events.AddHandler(EventMouseMove, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseMove);
                 base.Events.RemoveHandler(EventMouseMove, value);
             }
         }
@@ -1025,10 +1258,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseUp);
                 base.Events.AddHandler(EventMouseUp, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseUp);
                 base.Events.RemoveHandler(EventMouseUp, value);
             }
         }
@@ -1039,10 +1274,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMouseWheel);
                 base.Events.AddHandler(EventMouseWheel, value);
             }
             remove
             {
+                RemoveJsEvent(EventMouseWheel);
                 base.Events.RemoveHandler(EventMouseWheel, value);
             }
         }
@@ -1051,10 +1288,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventMove);
                 base.Events.AddHandler(EventMove, value);
             }
             remove
             {
+                RemoveJsEvent(EventMove);
                 base.Events.RemoveHandler(EventMove, value);
             }
         }
@@ -1064,11 +1303,13 @@ namespace System.Windows.Forms
             [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
             add
             {
+                AddJsEvent(EventPreviewKeyDown);
                 base.Events.AddHandler(EventPreviewKeyDown, value);
             }
             [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
             remove
             {
+                RemoveJsEvent(EventPreviewKeyDown);
                 base.Events.RemoveHandler(EventPreviewKeyDown, value);
             }
         }
@@ -1078,10 +1319,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventResize);
                 base.Events.AddHandler(EventResize, value);
             }
             remove
             {
+                RemoveJsEvent(EventResize);
                 base.Events.RemoveHandler(EventResize, value);
             }
         }
@@ -1090,10 +1333,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventChangeUICues);
                 base.Events.AddHandler(EventChangeUICues, value);
             }
             remove
             {
+                RemoveJsEvent(EventChangeUICues);
                 base.Events.RemoveHandler(EventChangeUICues, value);
             }
         }
@@ -1102,10 +1347,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventStyleChanged);
                 base.Events.AddHandler(EventStyleChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventStyleChanged);
                 base.Events.RemoveHandler(EventStyleChanged, value);
             }
         }
@@ -1114,10 +1361,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventSystemColorsChanged);
                 base.Events.AddHandler(EventSystemColorsChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventSystemColorsChanged);
                 base.Events.RemoveHandler(EventSystemColorsChanged, value);
             }
         }
@@ -1126,10 +1375,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventValidating);
                 base.Events.AddHandler(EventValidating, value);
             }
             remove
             {
+                RemoveJsEvent(EventValidating);
                 base.Events.RemoveHandler(EventValidating, value);
             }
         }
@@ -1138,10 +1389,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventValidated);
                 base.Events.AddHandler(EventValidated, value);
             }
             remove
             {
+                RemoveJsEvent(EventValidated);
                 base.Events.RemoveHandler(EventValidated, value);
             }
         }
@@ -1150,10 +1403,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventParent);
                 base.Events.AddHandler(EventParent, value);
             }
             remove
             {
+                RemoveJsEvent(EventParent);
                 base.Events.RemoveHandler(EventParent, value);
             }
         }
@@ -1162,10 +1417,12 @@ namespace System.Windows.Forms
         {
             add
             {
+                AddJsEvent(EventImeModeChanged);
                 base.Events.AddHandler(EventImeModeChanged, value);
             }
             remove
             {
+                RemoveJsEvent(EventImeModeChanged);
                 base.Events.RemoveHandler(EventImeModeChanged, value);
             }
         }
@@ -1325,7 +1582,7 @@ namespace System.Windows.Forms
         public Control Parent;
         public IntPtr Handle;
         public int internalIndex;
-        public string identifier = "";
+        internal string WebviewIdentifier = "";
         public Color ForeColor;
         public Color BackColor = Color.FromKnownColor(KnownColor.Control);
         public bool AutoSize;
@@ -1477,29 +1734,29 @@ namespace System.Windows.Forms
 
         public void Invalidate(bool invalidateChildren)
         {
-            //if (IsHandleCreated)
-            //{
-            //    if (invalidateChildren)
-            //    {
-            //        SafeNativeMethods.RedrawWindow(new HandleRef(window, Handle),
-            //                                       null, NativeMethods.NullHandleRef,
-            //                                       NativeMethods.RDW_INVALIDATE |
-            //                                       NativeMethods.RDW_ERASE |
-            //                                       NativeMethods.RDW_ALLCHILDREN);
-            //    }
-            //    else
-            //    {
-            //        // It's safe to invoke InvalidateRect from a separate thread.
-            //        using (new MultithreadSafeCallScope())
-            //        {
-            //            SafeNativeMethods.InvalidateRect(new HandleRef(window, Handle),
-            //                                             null,
-            //                                             (controlStyle & ControlStyles.Opaque) != ControlStyles.Opaque);
-            //        }
-            //    }
+            if (IsHandleCreated)
+            {
+                //if (invalidateChildren)
+                //{
+                //    SafeNativeMethods.RedrawWindow(new HandleRef(window, Handle),
+                //                                   null, NativeMethods.NullHandleRef,
+                //                                   NativeMethods.RDW_INVALIDATE |
+                //                                   NativeMethods.RDW_ERASE |
+                //                                   NativeMethods.RDW_ALLCHILDREN);
+                //}
+                //else
+                //{
+                //    // It's safe to invoke InvalidateRect from a separate thread.
+                //    using (new MultithreadSafeCallScope())
+                //    {
+                //        SafeNativeMethods.InvalidateRect(new HandleRef(window, Handle),
+                //                                         null,
+                //                                         (controlStyle & ControlStyles.Opaque) != ControlStyles.Opaque);
+                //    }
+                //}
 
-            //    NotifyInvalidate(this.ClientRectangle);
-            //}
+                //NotifyInvalidate(this.ClientRectangle);
+            }
         }
 
         internal Drawing.Size clientSize;
@@ -1635,6 +1892,17 @@ namespace System.Windows.Forms
             }
         }
 
+        [
+Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+]
+        public Rectangle ClientRectangle
+        {
+            get
+            {
+                return new Rectangle(0, 0, clientWidth, clientHeight);
+            }
+        }
         IArrangedElement IArrangedElement.Container => throw new NotImplementedException();
 
         public ArrangedElementCollection Children => throw new NotImplementedException();
@@ -1683,27 +1951,27 @@ namespace System.Windows.Forms
 
             if (left != "")
             {
-                script += $"document.getElementById(\"{identifier}\").style.left=\"{left}\";";
+                script += $"document.getElementById(\"{WebviewIdentifier}\").style.left=\"{left}\";";
             }
             if (right != "")
             {
-                script += $"document.getElementById(\"{identifier}\").style.right=\"{right}\";";
+                script += $"document.getElementById(\"{WebviewIdentifier}\").style.right=\"{right}\";";
             }
             if (top != "")
             {
-                script += $"document.getElementById(\"{identifier}\").style.top=\"{top}\";";
+                script += $"document.getElementById(\"{WebviewIdentifier}\").style.top=\"{top}\";";
             }
             if (bottom != "")
             {
-                script += $"document.getElementById(\"{identifier}\").style.bottom=\"{bottom}\";";
+                script += $"document.getElementById(\"{WebviewIdentifier}\").style.bottom=\"{bottom}\";";
             }
             if (height != "")
             {
-                script += $"document.getElementById(\"{identifier}\").style.height=\"{height}\";";
+                script += $"document.getElementById(\"{WebviewIdentifier}\").style.height=\"{height}\";";
             }
             if (width != "")
             {
-                script += $"document.getElementById(\"{identifier}\").style.width=\"{width}\";";
+                script += $"document.getElementById(\"{WebviewIdentifier}\").style.width=\"{width}\";";
             }
             await Page.RunScript(script);
         }
@@ -1711,12 +1979,12 @@ namespace System.Windows.Forms
         internal string ScriptClearCssLocationAndSize()
         {
             string script = "";
-            script += $"document.getElementById(\"{identifier}\").style.removeProperty('width');";
-            script += $"document.getElementById(\"{identifier}\").style.removeProperty('height');";
-            script += $"document.getElementById(\"{identifier}\").style.removeProperty('top');";
-            script += $"document.getElementById(\"{identifier}\").style.removeProperty('bottom');";
-            script += $"document.getElementById(\"{identifier}\").style.removeProperty('left');";
-            script += $"document.getElementById(\"{identifier}\").style.removeProperty('right');";
+            script += $"document.getElementById(\"{WebviewIdentifier}\").style.removeProperty('width');";
+            script += $"document.getElementById(\"{WebviewIdentifier}\").style.removeProperty('height');";
+            script += $"document.getElementById(\"{WebviewIdentifier}\").style.removeProperty('top');";
+            script += $"document.getElementById(\"{WebviewIdentifier}\").style.removeProperty('bottom');";
+            script += $"document.getElementById(\"{WebviewIdentifier}\").style.removeProperty('left');";
+            script += $"document.getElementById(\"{WebviewIdentifier}\").style.removeProperty('right');";
             return script;
         }
 
@@ -1829,7 +2097,7 @@ namespace System.Windows.Forms
         {
             for (int i = 0; i < Controls.Count; i++)
             {
-                Controls[i].identifier = identifier + "-";
+                Controls[i].WebviewIdentifier = WebviewIdentifier + "-";
                 Controls[i].Parent = this;
                 Controls[i].PerformLayout();
             }
@@ -2031,7 +2299,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBindingContextChanged(EventArgs e)
+        internal virtual void OnBindingContextChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             if (Properties.GetObject(PropBindings) != null)
@@ -2058,7 +2326,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             }
         }
 
-        protected virtual void OnAutoSizeChanged(EventArgs e)
+        internal virtual void OnAutoSizeChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler eh = Events[EventAutoSizeChanged] as EventHandler;
@@ -2069,7 +2337,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBackColorChanged(EventArgs e)
+        internal virtual void OnBackColorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             //if (GetAnyDisposingInHierarchy())
@@ -2113,7 +2381,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBackgroundImageChanged(EventArgs e)
+        internal virtual void OnBackgroundImageChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             //if (GetAnyDisposingInHierarchy())
@@ -2143,7 +2411,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnBackgroundImageLayoutChanged(EventArgs e)
+        internal virtual void OnBackgroundImageLayoutChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             //if (GetAnyDisposingInHierarchy())
@@ -2161,7 +2429,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnCausesValidationChanged(EventArgs e)
+        internal virtual void OnCausesValidationChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler eh = Events[EventCausesValidation] as EventHandler;
@@ -2180,7 +2448,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnContextMenuChanged(EventArgs e)
+        internal virtual void OnContextMenuChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler eh = Events[EventContextMenu] as EventHandler;
@@ -2191,7 +2459,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnContextMenuStripChanged(EventArgs e)
+        internal virtual void OnContextMenuStripChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler eh = Events[EventContextMenuStrip] as EventHandler;
@@ -2202,7 +2470,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnCursorChanged(EventArgs e)
+        internal virtual void OnCursorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler eh = Events[EventCursor] as EventHandler;
@@ -2225,7 +2493,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnDockChanged(EventArgs e)
+        internal virtual void OnDockChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler eh = Events[EventDock] as EventHandler;
@@ -2236,7 +2504,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnEnabledChanged(EventArgs e)
+        internal virtual void OnEnabledChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             //if (GetAnyDisposingInHierarchy())
@@ -2244,18 +2512,18 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             //    return;
             //}
 
-            //if (IsHandleCreated)
-            //{
-            //    SafeNativeMethods.EnableWindow(new HandleRef(this, Handle), Enabled);
+            if (IsHandleCreated)
+            {
+                //SafeNativeMethods.EnableWindow(new HandleRef(this, Handle), Enabled);
 
-            //    // User-paint controls should repaint when their enabled state changes
-            //    //
-            //    if (GetStyle(ControlStyles.UserPaint))
-            //    {
-            //        Invalidate();
-            //        Update();
-            //    }
-            //}
+                // User-paint controls should repaint when their enabled state changes
+                //
+                if (GetStyle(ControlStyles.UserPaint))
+                {
+                    Invalidate();
+                    //Update();
+                }
+            }
 
             //EventHandler eh = Events[EventEnabled] as EventHandler;
             //if (eh != null)
@@ -2282,7 +2550,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnFontChanged(EventArgs e)
+        internal virtual void OnFontChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             // bail if disposing
@@ -2303,10 +2571,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             ////
             //DisposeFontHandle();
 
-            //if (IsHandleCreated && !GetStyle(ControlStyles.UserPaint))
-            //{
-            //    SetWindowFont();
-            //}
+            if (IsHandleCreated && !GetStyle(ControlStyles.UserPaint))
+            {
+                //SetWindowFont();
+            }
 
             //EventHandler eh = Events[EventFont] as EventHandler;
             //if (eh != null)
@@ -2334,7 +2602,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnForeColorChanged(EventArgs e)
+        internal virtual void OnForeColorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             //if (GetAnyDisposingInHierarchy())
@@ -2364,7 +2632,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnRightToLeftChanged(EventArgs e)
+        internal virtual void OnRightToLeftChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             //if (GetAnyDisposingInHierarchy())
@@ -2398,12 +2666,12 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnNotifyMessage(Message m)
+        internal virtual void OnNotifyMessage(Message m)
         {
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentBackColorChanged(EventArgs e)
+        internal virtual void OnParentBackColorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             Color backColor = Properties.GetColor(PropBackColor);
@@ -2414,14 +2682,14 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentBackgroundImageChanged(EventArgs e)
+        internal virtual void OnParentBackgroundImageChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             OnBackgroundImageChanged(e);
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentBindingContextChanged(EventArgs e)
+        internal virtual void OnParentBindingContextChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             if (Properties.GetObject(PropBindingManager) == null)
@@ -2431,7 +2699,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentCursorChanged(EventArgs e)
+        internal virtual void OnParentCursorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             if (Properties.GetObject(PropCursor) == null)
@@ -2441,7 +2709,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentEnabledChanged(EventArgs e)
+        internal virtual void OnParentEnabledChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             if (GetState(STATE_ENABLED))
@@ -2451,7 +2719,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnParentFontChanged(EventArgs e)
+        internal virtual void OnParentFontChanged(EventArgs e)
         {
             Contract.Requires(e != null);
             if (Properties.GetObject(PropFont) == null)
@@ -2471,15 +2739,15 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
 
             // use SetParent directly so as to not raise ParentChanged events
             Control parent = ParentInternal;
-            //if (parent != null)
-            //{
-            //    if (IsHandleCreated)
-            //    {
-            //        UnsafeNativeMethods.SetParent(new HandleRef(this, this.Handle), new HandleRef(parent, parent.Handle));
-            //        UpdateZOrder();
-            //    }
-            //}
-            //SetState(STATE_PARENTRECREATING, false);
+            if (parent != null)
+            {
+                if (IsHandleCreated)
+                {
+                    //UnsafeNativeMethods.SetParent(new HandleRef(this, this.Handle), new HandleRef(parent, parent.Handle));
+                    //UpdateZOrder();
+                }
+            }
+            SetState(STATE_PARENTRECREATING, false);
 
             //if (ReflectParent == ParentInternal)
             //{
@@ -2504,10 +2772,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             // should help improve recreate perf.
 
             // use SetParent directly so as to not raise ParentChanged events
-            //if (IsHandleCreated)
-            //{
-            //    Application.ParkHandle(new HandleRef(this, this.Handle), this.DpiAwarenessContext);
-            //}
+            if (IsHandleCreated)
+            {
+                //Application.ParkHandle(new HandleRef(this, this.Handle), this.DpiAwarenessContext);
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -2756,123 +3024,119 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         internal virtual void OnHandleCreated(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (this.IsHandleCreated)
-            //{
+            if (this.IsHandleCreated)
+            {
 
-            //    // Setting fonts is for some reason incredibly expensive.
-            //    // (Even if you exclude font handle creation)
-            //    if (!GetStyle(ControlStyles.UserPaint))
-            //    {
-            //        SetWindowFont();
-            //    }
+                // Setting fonts is for some reason incredibly expensive.
+                // (Even if you exclude font handle creation)
+                if (!GetStyle(ControlStyles.UserPaint))
+                {
+                    //SetWindowFont();
+                }
 
-            //    if (DpiHelper.EnableDpiChangedMessageHandling && !(typeof(Form).IsAssignableFrom(this.GetType())))
-            //    {
-            //        int old = deviceDpi;
-            //        deviceDpi = (int)UnsafeNativeMethods.GetDpiForWindow(new HandleRef(this, HandleInternal));
-            //        if (old != deviceDpi)
-            //        {
-            //            RescaleConstantsForDpi(old, deviceDpi);
-            //        }
-            //    }
+                //if (DpiHelper.EnableDpiChangedMessageHandling && !(typeof(Form).IsAssignableFrom(this.GetType())))
+                //{
+                //    int old = deviceDpi;
+                //    deviceDpi = (int)UnsafeNativeMethods.GetDpiForWindow(new HandleRef(this, HandleInternal));
+                //    if (old != deviceDpi)
+                //    {
+                //        RescaleConstantsForDpi(old, deviceDpi);
+                //    }
+                //}
 
-            //    // Restore dragdrop status. Ole Initialize happens
-            //    // when the ThreadContext in Application is created
-            //    //
-            //    SetAcceptDrops(AllowDrop);
+                ////
+                //SetAcceptDrops(AllowDrop);
 
-            //    Region region = (Region)Properties.GetObject(PropRegion);
-            //    if (region != null)
-            //    {
-            //        IntPtr regionHandle = GetHRgn(region);
+                //Region region = (Region)Properties.GetObject(PropRegion);
+                //if (region != null)
+                //{
+                //    IntPtr regionHandle = GetHRgn(region);
 
-            //        try
-            //        {
-            //            if (IsActiveX)
-            //            {
-            //                regionHandle = ActiveXMergeRegion(regionHandle);
-            //            }
+                //    try
+                //    {
+                //        if (IsActiveX)
+                //        {
+                //            regionHandle = ActiveXMergeRegion(regionHandle);
+                //        }
 
-            //            if (UnsafeNativeMethods.SetWindowRgn(new HandleRef(this, Handle), new HandleRef(this, regionHandle), SafeNativeMethods.IsWindowVisible(new HandleRef(this, Handle))) != 0)
-            //            {
-            //                //The HWnd owns the region.
-            //                regionHandle = IntPtr.Zero;
-            //            }
-            //        }
-            //        finally
-            //        {
-            //            if (regionHandle != IntPtr.Zero)
-            //            {
-            //                SafeNativeMethods.DeleteObject(new HandleRef(null, regionHandle));
-            //            }
-            //        }
-            //    }
+                //        if (UnsafeNativeMethods.SetWindowRgn(new HandleRef(this, Handle), new HandleRef(this, regionHandle), SafeNativeMethods.IsWindowVisible(new HandleRef(this, Handle))) != 0)
+                //        {
+                //            //The HWnd owns the region.
+                //            regionHandle = IntPtr.Zero;
+                //        }
+                //    }
+                //    finally
+                //    {
+                //        if (regionHandle != IntPtr.Zero)
+                //        {
+                //            SafeNativeMethods.DeleteObject(new HandleRef(null, regionHandle));
+                //        }
+                //    }
+                //}
 
-            //    // Update accessbility information.
-            //    //
-            //    ControlAccessibleObject accObj = Properties.GetObject(PropAccessibility) as ControlAccessibleObject;
-            //    ControlAccessibleObject ncAccObj = Properties.GetObject(PropNcAccessibility) as ControlAccessibleObject;
+                ////
+                //ControlAccessibleObject accObj = Properties.GetObject(PropAccessibility) as ControlAccessibleObject;
+                //ControlAccessibleObject ncAccObj = Properties.GetObject(PropNcAccessibility) as ControlAccessibleObject;
 
-            //    // Cache Handle in a local before asserting so we minimize code running under the Assert.
-            //    IntPtr handle = Handle;
+                // Cache Handle in a local before asserting so we minimize code running under the Assert.
+                IntPtr handle = Handle;
 
-            //    // Reviewed  : ControlAccessibleObject.set_Handle demands UnmanagedCode permission for public use, it doesn't
-            //    //             expose any security vulnerability indirectly. The sec Assert is safe.
-            //    //
-            //    IntSecurity.UnmanagedCode.Assert();
+                // Reviewed  : ControlAccessibleObject.set_Handle demands UnmanagedCode permission for public use, it doesn't
+                //             expose any security vulnerability indirectly. The sec Assert is safe.
+                //
+                //IntSecurity.UnmanagedCode.Assert();
 
-            //    try
-            //    {
-            //        if (accObj != null)
-            //        {
-            //            accObj.Handle = handle;
-            //        }
-            //        if (ncAccObj != null)
-            //        {
-            //            ncAccObj.Handle = handle;
-            //        }
-            //    }
-            //    finally
-            //    {
-            //        CodeAccessPermission.RevertAssert();
-            //    }
+                try
+                {
+                    //if (accObj != null)
+                    //{
+                    //    accObj.Handle = handle;
+                    //}
+                    //if (ncAccObj != null)
+                    //{
+                    //    ncAccObj.Handle = handle;
+                    //}
+                }
+                finally
+                {
+                    CodeAccessPermission.RevertAssert();
+                }
 
-            //    // Set the window text from the Text property.
-            //    //
-            //    if (text != null && text.Length != 0)
-            //    {
-            //        UnsafeNativeMethods.SetWindowText(new HandleRef(this, Handle), text);
-            //    }
+                // Set the window text from the Text property.
+                //
+                if (text != null && text.Length != 0)
+                {
+                    //UnsafeNativeMethods.SetWindowText(new HandleRef(this, Handle), text);
+                }
 
-            //    if (!(this is ScrollableControl) && !IsMirrored && GetState2(STATE2_SETSCROLLPOS) && !GetState2(STATE2_HAVEINVOKED))
-            //    {
-            //        BeginInvoke(new EventHandler(this.OnSetScrollPosition));
-            //        SetState2(STATE2_HAVEINVOKED, true);
-            //        SetState2(STATE2_SETSCROLLPOS, false);
-            //    }
+                //if (!(this is ScrollableControl) && !IsMirrored && GetState2(STATE2_SETSCROLLPOS) && !GetState2(STATE2_HAVEINVOKED))
+                //{
+                //    BeginInvoke(new EventHandler(this.OnSetScrollPosition));
+                //    SetState2(STATE2_HAVEINVOKED, true);
+                //    SetState2(STATE2_SETSCROLLPOS, false);
+                //}
 
-            //    // Listen to UserPreferenceChanged if the control is top level and interested in the notification.
-            //    if (GetState2(STATE2_INTERESTEDINUSERPREFERENCECHANGED))
-            //    {
-            //        ListenToUserPreferenceChanged(GetTopLevel());
-            //    }
-            //}
+                //if (GetState2(STATE2_INTERESTEDINUSERPREFERENCECHANGED))
+                //{
+                //    ListenToUserPreferenceChanged(GetTopLevel());
+                //}
+            }
 
-            //EventHandler handler = (EventHandler)Events[EventHandleCreated];
-            //if (handler != null) handler(this, e);
+            EventHandler handler = (EventHandler)Events[EventHandleCreated];
+            if (handler != null) handler(this, e);
 
-            //if (this.IsHandleCreated)
-            //{
-            //    // Now, repost the thread callback message if we found it.  We should do
-            //    // this last, so we're as close to the same state as when the message
-            //    // was placed.
-            //    //
-            //    if (GetState(STATE_THREADMARSHALLPENDING))
-            //    {
-            //        UnsafeNativeMethods.PostMessage(new HandleRef(this, Handle), threadCallbackMessage, IntPtr.Zero, IntPtr.Zero);
-            //        SetState(STATE_THREADMARSHALLPENDING, false);
-            //    }
-            //}
+            if (this.IsHandleCreated)
+            {
+                // Now, repost the thread callback message if we found it.  We should do
+                // this last, so we're as close to the same state as when the message
+                // was placed.
+                //
+                if (GetState(STATE_THREADMARSHALLPENDING))
+                {
+                    //UnsafeNativeMethods.PostMessage(new HandleRef(this, Handle), threadCallbackMessage, IntPtr.Zero, IntPtr.Zero);
+                    SetState(STATE_THREADMARSHALLPENDING, false);
+                }
+            }
         }
 
         internal void OnSetScrollPosition(object sender, EventArgs e)
@@ -3240,7 +3504,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             Browsable(true),
             EditorBrowsable(EditorBrowsableState.Always)
         ]
-        protected virtual void OnDpiChangedBeforeParent(EventArgs e)
+        internal virtual void OnDpiChangedBeforeParent(EventArgs e)
         {
             Contract.Requires(e != null);
             ((EventHandler)Events[EventDpiChangedBeforeParent])?.Invoke(this, e);
@@ -3250,14 +3514,14 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             Browsable(true),
             EditorBrowsable(EditorBrowsableState.Always)
         ]
-        protected virtual void OnDpiChangedAfterParent(EventArgs e)
+        internal virtual void OnDpiChangedAfterParent(EventArgs e)
         {
             Contract.Requires(e != null);
             ((EventHandler)Events[EventDpiChangedAfterParent])?.Invoke(this, e);
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseHover(EventArgs e)
+        internal virtual void OnMouseHover(EventArgs e)
         {
             Contract.Requires(e != null);
             EventHandler handler = (EventHandler)Events[EventMouseHover];
@@ -3265,7 +3529,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseMove(MouseEventArgs e)
+        internal virtual void OnMouseMove(MouseEventArgs e)
         {
             Contract.Requires(e != null);
             MouseEventHandler handler = (MouseEventHandler)Events[EventMouseMove];
@@ -3273,7 +3537,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseUp(MouseEventArgs e)
+        internal virtual void OnMouseUp(MouseEventArgs e)
         {
             Contract.Requires(e != null);
             MouseEventHandler handler = (MouseEventHandler)Events[EventMouseUp];
@@ -3281,7 +3545,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnMouseWheel(MouseEventArgs e)
+        internal virtual void OnMouseWheel(MouseEventArgs e)
         {
             Contract.Requires(e != null);
             MouseEventHandler handler = (MouseEventHandler)Events[EventMouseWheel];
@@ -3289,7 +3553,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnPaint(PaintEventArgs e)
+        internal virtual void OnPaint(PaintEventArgs e)
         {
             Contract.Requires(e != null);
             PaintEventHandler handler = (PaintEventHandler)Events[EventPaint];
@@ -3297,7 +3561,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        protected virtual void OnPaintBackground(PaintEventArgs pevent)
+        internal virtual void OnPaintBackground(PaintEventArgs pevent)
         {
             Contract.Requires(pevent != null);
             // We need the true client rectangle as clip rectangle causes
@@ -3314,18 +3578,18 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             Contract.Requires(e != null);
             //if (!RenderTransparent) return;
 
-            //if (this.IsHandleCreated)
-            //{
-            //    // move invalid rect into child space
-            //    Rectangle cliprect = e.InvalidRect;
-            //    Point offs = this.Location;
-            //    cliprect.Offset(-offs.X, -offs.Y);
-            //    cliprect = Rectangle.Intersect(this.ClientRectangle, cliprect);
+            if (this.IsHandleCreated)
+            {
+                // move invalid rect into child space
+                Rectangle cliprect = e.InvalidRect;
+                Point offs = this.Location;
+                cliprect.Offset(-offs.X, -offs.Y);
+                cliprect = Rectangle.Intersect(this.ClientRectangle, cliprect);
 
-            //    // if we don't intersect at all, do nothing
-            //    if (cliprect.IsEmpty) return;
-            //    this.Invalidate(cliprect);
-            //}
+                // if we don't intersect at all, do nothing
+                if (cliprect.IsEmpty) return;
+                //this.Invalidate(cliprect);
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -3448,11 +3712,12 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                     break;
             }
 
-            //if (IsHandleCreated)
-            //{
-            //    return (unchecked((int)(long)SendMessage(NativeMethods.WM_GETDLGCODE, 0, 0)) & mask) != 0;
-            //}
-            //else
+            if (IsHandleCreated)
+            {
+                //return (unchecked((int)(long)SendMessage(NativeMethods.WM_GETDLGCODE, 0, 0)) & mask) != 0;
+                return false;
+            }
+            else
             {
                 return false;
             }
@@ -3474,6 +3739,17 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         {
             get { return Drawing.Size.Empty; }
         }
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public bool IsHandleCreated
+        {
+            //get { return window.Handle != IntPtr.Zero; }
+            get { return !string.IsNullOrEmpty(WebviewIdentifier); }
+        }
+
         protected virtual ImeMode DefaultImeMode
         {
             get { return ImeMode.Inherit; }
@@ -3544,12 +3820,80 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             }
         }
 
+        internal virtual bool SupportsUiaProviders
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected void UpdateStyles()
         {
             //UpdateStylesCore();
 
             OnStyleChanged(EventArgs.Empty);
+        }
+
+        [
+        DefaultValue(true),
+        DispId(NativeMethods.ActiveX.DISPID_TABSTOP),
+        ]
+        public bool TabStop
+        {
+            get
+            {
+                return TabStopInternal;
+            }
+            set
+            {
+                if (TabStop != value)
+                {
+                    TabStopInternal = value;
+                    //if (IsHandleCreated) SetWindowStyle(NativeMethods.WS_TABSTOP, value);
+                    OnTabStopChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        // Grab out the logical of setting TABSTOP state, so that derived class could use this.
+        internal bool TabStopInternal
+        {
+            get
+            {
+                return (state & STATE_TABSTOP) != 0;
+            }
+            set
+            {
+                if (TabStopInternal != value)
+                {
+                    SetState(STATE_TABSTOP, value);
+                }
+            }
+        }
+
+        protected void SetAutoSizeMode(AutoSizeMode mode)
+        {
+            CommonProperties.SetAutoSizeMode(this, mode);
+        }
+
+        protected AutoSizeMode GetAutoSizeMode()
+        {
+            return CommonProperties.GetAutoSizeMode(this);
+        }
+
+        public virtual LayoutEngine LayoutEngine
+        {
+            get { return DefaultLayout.Instance; }
+        }
+
+        [UIPermission(SecurityAction.InheritanceDemand, Window = UIPermissionWindow.AllWindows)]
+        [UIPermission(SecurityAction.LinkDemand, Window = UIPermissionWindow.AllWindows)]
+        internal virtual bool ProcessDialogKey(Keys keyData)
+        {
+            Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "Control.ProcessDialogKey " + keyData.ToString());
+            return parent == null ? false : parent.ProcessDialogKey(keyData);
         }
 
         [ListBindable(false), ComVisible(false)]
@@ -3604,7 +3948,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 }
 
                 if (indexToRemove == -1)
-                    return; // Il controllo non è stato trovato
+                    return;
 
                 Control[] newControls = new Control[controls.Length - 1];
                 for (int i = 0, j = 0; i < controls.Length; i++)
@@ -3619,7 +3963,6 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 count = controls.Length;
             }
 
-
             public Control this[int index]
             {
                 get
@@ -3632,6 +3975,22 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                     count = controls.Length;
                 }
             }
+
+            public virtual void Clear()
+            {
+                controls = new Control[0];
+                count = 0;
+                lastAccessedIndex = -1;
+            }
+
+            public virtual bool IsReadOnly
+            {
+                get
+                {
+                    return false; // Assume this collection is not read-only by default
+                }
+            }
         }
+
     }
 }

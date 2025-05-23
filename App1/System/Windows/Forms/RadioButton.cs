@@ -30,17 +30,15 @@ namespace System.Windows.Forms
             string style = "";
             string script = "";
 
-            identifier += Name;
+            WebviewIdentifier += Name;
                         
             style += $"font: 8pt Microsoft Sans Serif;";
             style += $"color: {System.Drawing.ColorTranslator.ToHtml(ForeColor)};";
             style += CssLocationAndSize();
 
-            script += $"document.getElementById('{identifier}').addEventListener('click', function() {{ eventHandler('{identifier}', 'Click');}});​";
-            script += $"document.getElementById('{identifier}').addEventListener('mouseenter', function() {{ eventHandler('{identifier}', 'MouseEnter');}});​";
-            script += $"document.getElementById('{identifier}').addEventListener('mouseleave', function() {{ eventHandler('{identifier}', 'MouseLeave');}});​";
+            script += preLayoutScriptString;
 
-            await Page.Add(Parent.identifier, "innerHTML", $"'<div class=\"option-button\" style=\"{style}\" id=\"{identifier}\"><input type=\"radio\" id=\"{identifier}-input\" name=\"{Parent.identifier}-option\" value=\"test\"><label for=\"{identifier}-input\">{Text}</label></div>';".Replace("\u200B", ""));
+            await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<div class=\"option-button\" style=\"{style}\" id=\"{WebviewIdentifier}\"><input type=\"radio\" id=\"{WebviewIdentifier}-input\" name=\"{Parent.WebviewIdentifier}-option\" value=\"test\"><label for=\"{WebviewIdentifier}-input\">{Text}</label></div>';".Replace("\u200B", ""));
 
             await Page.RunScript(script);
 

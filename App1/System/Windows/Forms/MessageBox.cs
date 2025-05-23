@@ -1,32 +1,17 @@
 ﻿using App1;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace System.Windows.Forms
 {
     public class MessageBox
     {
         private const int IDOK = 1;
-
         private const int IDCANCEL = 2;
-
         private const int IDABORT = 3;
-
         private const int IDRETRY = 4;
-
         private const int IDIGNORE = 5;
-
         private const int IDYES = 6;
-
         private const int IDNO = 7;
-
         private const int HELP_BUTTON = 16384;
 
         [ThreadStatic]
@@ -311,6 +296,7 @@ namespace System.Windows.Forms
 
             switch (buttons)
             {
+                // Need for system aware translation!
                 case MessageBoxButtons.OK:
                     Btn1 = "OK";
                     break;

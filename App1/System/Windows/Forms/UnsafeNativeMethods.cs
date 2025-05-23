@@ -1143,6 +1143,12 @@ namespace System.Windows.Forms
         //[ResourceExposure(ResourceScope.None)]
         //public static extern int GetSystemMetrics(int nIndex);
 
+        public static int GetSystemMetrics(int nIndex)
+        {
+            //Dummy
+            return 0;
+        }
+
         //[DllImport(ExternDll.User32, ExactSpelling = true, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern int GetSystemMetricsForDpi(int nIndex, uint dpi);
@@ -1163,22 +1169,47 @@ namespace System.Windows.Forms
         //[DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool SystemParametersInfo(int nAction, int nParam, ref NativeMethods.RECT rc, int nUpdate);
+        public static bool SystemParametersInfo(int nAction, int nParam, ref NativeMethods.RECT rc, int nUpdate)
+        {
+            // dummy
+            return false;
+        }
         //[DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool SystemParametersInfo(int nAction, int nParam, ref int value, int ignore);
+        public static bool SystemParametersInfo(int nAction, int nParam, ref int value, int ignore)
+        {
+            // dummy
+            return false;
+        }
         //[DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool SystemParametersInfo(int nAction, int nParam, ref bool value, int ignore);
+        public static bool SystemParametersInfo(int nAction, int nParam, ref bool value, int ignore)
+        {
+            // dummy
+            return false;
+        }
         //[DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool SystemParametersInfo(int nAction, int nParam, ref NativeMethods.HIGHCONTRAST_I rc, int nUpdate);
+        public static bool SystemParametersInfo(int nAction, int nParam, ref NativeMethods.HIGHCONTRAST_I rc, int nUpdate)
+        {
+            // dummy
+            return false;
+        }
         //[DllImport(ExternDll.User32, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool SystemParametersInfo(int nAction, int nParam, [In, Out] NativeMethods.NONCLIENTMETRICS metrics, int nUpdate);
+        public static bool SystemParametersInfo(int nAction, int nParam, [In, Out] NativeMethods.NONCLIENTMETRICS metrics, int nUpdate)
+        {
+            // dummy
+            return false;
+        }
 
         //[DllImport(ExternDll.User32, SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
         //[ResourceExposure(ResourceScope.None)]
-        public static extern bool SystemParametersInfoForDpi(int nAction, int nParam, [In, Out] NativeMethods.NONCLIENTMETRICS metrics, int nUpdate, uint dpi);
+        //public static extern bool SystemParametersInfoForDpi(int nAction, int nParam, [In, Out] NativeMethods.NONCLIENTMETRICS metrics, int nUpdate, uint dpi);
 
         //public static bool TrySystemParametersInfoForDpi(int nAction, int nParam, [In, Out] NativeMethods.NONCLIENTMETRICS metrics, int nUpdate, uint dpi)
         //{
@@ -1670,7 +1701,11 @@ namespace System.Windows.Forms
         //[DllImport(ExternDll.Kernel32, ExactSpelling = true, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool GetSystemPowerStatus([In, Out] ref NativeMethods.SYSTEM_POWER_STATUS systemPowerStatus);
-
+        public static bool GetSystemPowerStatus([In, Out] ref NativeMethods.SYSTEM_POWER_STATUS systemPowerStatus)
+        {
+            // dummy
+            return false;
+        }
         //[DllImport(ExternDll.Powrprof, ExactSpelling = true, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]
         //public static extern bool SetSuspendState(bool hiberate, bool forceCritical, bool disableWakeEvent);

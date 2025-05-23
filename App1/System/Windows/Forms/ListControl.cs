@@ -618,7 +618,7 @@
             return base.IsInputKey(keyData);
         }
 
-        protected override void OnBindingContextChanged(EventArgs e)
+        internal override void OnBindingContextChanged(EventArgs e)
         {
             SetDataConnection(dataSource, displayMember, true);
 
@@ -626,7 +626,7 @@
         }
 
 
-        protected virtual void OnDataSourceChanged(EventArgs e)
+        internal virtual void OnDataSourceChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_DATASOURCECHANGED] as EventHandler;
             if (eh != null)
@@ -635,7 +635,7 @@
             }
         }
 
-        protected virtual void OnDisplayMemberChanged(EventArgs e)
+        internal virtual void OnDisplayMemberChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_DISPLAYMEMBERCHANGED] as EventHandler;
             if (eh != null)
@@ -644,40 +644,40 @@
             }
         }
 
-        protected virtual void OnFormat(ListControlConvertEventArgs e)
+        internal virtual void OnFormat(ListControlConvertEventArgs e)
         {
             ListControlConvertEventHandler eh = Events[EVENT_FORMAT] as ListControlConvertEventHandler;
             if (eh != null)
                 eh(this, e);
         }
 
-        protected virtual void OnFormatInfoChanged(EventArgs e)
+        internal virtual void OnFormatInfoChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_FORMATINFOCHANGED] as EventHandler;
             if (eh != null)
                 eh(this, e);
         }
 
-        protected virtual void OnFormatStringChanged(EventArgs e)
+        internal virtual void OnFormatStringChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_FORMATSTRINGCHANGED] as EventHandler;
             if (eh != null)
                 eh(this, e);
         }
 
-        protected virtual void OnFormattingEnabledChanged(EventArgs e)
+        internal virtual void OnFormattingEnabledChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_FORMATTINGENABLEDCHANGED] as EventHandler;
             if (eh != null)
                 eh(this, e);
         }
 
-        protected virtual void OnSelectedIndexChanged(EventArgs e)
+        internal virtual void OnSelectedIndexChanged(EventArgs e)
         {
             OnSelectedValueChanged(EventArgs.Empty);
         }
 
-        protected virtual void OnValueMemberChanged(EventArgs e)
+        internal virtual void OnValueMemberChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_VALUEMEMBERCHANGED] as EventHandler;
             if (eh != null)
@@ -686,7 +686,7 @@
             }
         }
 
-        protected virtual void OnSelectedValueChanged(EventArgs e)
+        internal virtual void OnSelectedValueChanged(EventArgs e)
         {
             EventHandler eh = Events[EVENT_SELECTEDVALUECHANGED] as EventHandler;
             if (eh != null)
