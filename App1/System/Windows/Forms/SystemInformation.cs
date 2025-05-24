@@ -287,21 +287,21 @@
             {
                 // SECREVIEW : This assert is safe since we created the NONCLIENTMETRICS struct.
                 //
-                //IntSecurity.ObjectFromWin32Handle.Assert();
-                //try
-                //{
-                //    menuFont = Font.FromLogFont(data.lfMenuFont);
-                //}
-                //catch
-                //{
-                //    // menu font is not true type.  Default to standard control font.
-                //    //
-                //    menuFont = Control.DefaultFont;
-                //}
-                //finally
-                //{
-                //    CodeAccessPermission.RevertAssert();
-                //}
+                IntSecurity.ObjectFromWin32Handle.Assert();
+                try
+                {
+                    //menuFont = Font.FromLogFont(data.lfMenuFont);
+                }
+                catch
+                {
+                    // menu font is not true type.  Default to standard control font.
+                    //
+                    //menuFont = Control.DefaultFont;
+                }
+                finally
+                {
+                    //CodeAccessPermission.RevertAssert();
+                }
             }
             return menuFont;
         }
@@ -393,8 +393,7 @@
         {
             get
             {
-                //Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "SensitiveSystemInformation Demanded");
-                //IntSecurity.SensitiveSystemInformation.Demand();
+                IntSecurity.SensitiveSystemInformation.Demand();
                 return UnsafeNativeMethods.GetSystemMetrics(NativeMethods.SM_DEBUG) != 0;
             }
         }
@@ -506,7 +505,7 @@
         {
             get
             {
-                //IntSecurity.SensitiveSystemInformation.Demand();
+                IntSecurity.SensitiveSystemInformation.Demand();
                 return UnsafeNativeMethods.GetSystemMetrics(NativeMethods.SM_SECURE) != 0;
             }
         }
@@ -633,8 +632,7 @@
         {
             get
             {
-                //Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "SensitiveSystemInformation Demanded");
-                //IntSecurity.SensitiveSystemInformation.Demand();
+                IntSecurity.SensitiveSystemInformation.Demand();
                 return (BootMode)UnsafeNativeMethods.GetSystemMetrics(NativeMethods.SM_CLEANBOOT);
             }
         }
@@ -791,7 +789,7 @@
         {
             get
             {
-                //IntSecurity.SensitiveSystemInformation.Demand();
+                IntSecurity.SensitiveSystemInformation.Demand();
 
                 StringBuilder sb = new StringBuilder(256);
                 //UnsafeNativeMethods.GetComputerName(sb, new int[] { sb.Capacity });
@@ -846,8 +844,7 @@
         {
             get
             {
-                //Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "SensitiveSystemInformation Demanded");
-                //IntSecurity.SensitiveSystemInformation.Demand();
+                IntSecurity.SensitiveSystemInformation.Demand();
 
                 StringBuilder sb = new StringBuilder(256);
                 //UnsafeNativeMethods.GetUserName(sb, new int[] { sb.Capacity });

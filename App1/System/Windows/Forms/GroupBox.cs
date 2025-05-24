@@ -23,7 +23,7 @@ namespace System.Windows.Forms
             titlestyle += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
             style += CssLocationAndSize();
 
-            script += $"document.getElementById('{WebviewIdentifier}').addEventListener('click', function() {{ eventHandler('{WebviewIdentifier}', 'Click');}});​";
+            script += preLayoutScriptString;
 
             await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<div id=\"{WebviewIdentifier}\" style=\"{style}\" class=\"frame\"><div id=\"{WebviewIdentifier}-title\" style=\"{titlestyle}\" class=\"frame-title\">{Text}</div></div>';".Replace("\u200B", ""));
 

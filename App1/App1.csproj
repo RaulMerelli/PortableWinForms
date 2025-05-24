@@ -167,6 +167,8 @@
     <Compile Include="System\Windows\Forms\AmbientProperties.cs" />
     <Compile Include="System\Windows\Forms\AnchorStyles.cs" />
     <Compile Include="System\Windows\Forms\Appearance.cs" />
+    <Compile Include="System\Windows\Forms\Application.cs" />
+    <Compile Include="System\Windows\Forms\ApplicationContext.cs" />
     <Compile Include="System\Windows\Forms\ApplicationExtender.cs" />
     <Compile Include="System\Windows\Forms\ArrangeDirection.cs" />
     <Compile Include="System\Windows\Forms\ArrangeStartingPosition.cs" />
@@ -227,6 +229,7 @@
     <Compile Include="System\Windows\Forms\ControlUpdateMode.cs" />
     <Compile Include="System\Windows\Forms\ConvertEventArgs.cs" />
     <Compile Include="System\Windows\Forms\ConvertEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\CreateParams.cs" />
     <Compile Include="System\Windows\Forms\CurrencyManager.cs" />
     <Compile Include="System\Windows\Forms\Cursor.cs" />
     <Compile Include="System\Windows\Forms\CursorConverter.cs" />
@@ -237,6 +240,7 @@
     <Compile Include="System\Windows\Forms\DataSourceUpdateMode.cs" />
     <Compile Include="System\Windows\Forms\DialogResult.cs" />
     <Compile Include="System\Windows\Forms\DockStyle.cs" />
+    <Compile Include="System\Windows\Forms\DpiAwarenessContext.cs" />
     <Compile Include="System\Windows\Forms\DragAction.cs" />
     <Compile Include="System\Windows\Forms\DragDropEffects.cs" />
     <Compile Include="System\Windows\Forms\DragEventArgs.cs" />
@@ -263,6 +267,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\Windows\Forms\Formatter.cs" />
     <Compile Include="System\Windows\Forms\FormBorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\FormClosedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\FormClosedEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\FormClosingEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\FormClosingEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\FormCollection.cs" />
     <Compile Include="System\Windows\Forms\FormStartPosition.cs" />
     <Compile Include="System\Windows\Forms\FormWindowState.cs" />
     <Compile Include="System\Windows\Forms\GiveFeedbackEventArgs.cs" />
@@ -281,9 +290,17 @@
     <Compile Include="System\Windows\Forms\IFeatureSupport.cs" />
     <Compile Include="System\Windows\Forms\ImageLayout.cs" />
     <Compile Include="System\Windows\Forms\ImeMode.cs" />
+    <Compile Include="System\Windows\Forms\IMessageFilter.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguage.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguageChangedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguageChangingEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguageCollection.cs" />
+    <Compile Include="System\Windows\Forms\Internal\ApplyGraphicsProperties.cs" />
     <Compile Include="System\Windows\Forms\Internal\IntNativeMethods.cs" />
     <Compile Include="System\Windows\Forms\Internal\IntTextFormatFlags.cs" />
+    <Compile Include="System\Windows\Forms\Internal\TextPaddingOptions.cs" />
     <Compile Include="System\Windows\Forms\Internal\WindowsFontQuality.cs" />
+    <Compile Include="System\Windows\Forms\IntSecurity.cs" />
     <Compile Include="System\Windows\Forms\InvalidateEventArgs.cs" />
     <Compile Include="System\Windows\Forms\InvalidateEventHandler.cs" />
     <Compile Include="System\Windows\Forms\ItemChangedEventArgs.cs" />
@@ -352,6 +369,7 @@
     <Compile Include="System\Windows\Forms\MouseEventArgs.cs" />
     <Compile Include="System\Windows\Forms\MouseEventHandler.cs" />
     <Compile Include="System\Windows\Forms\NativeMethods.cs" />
+    <Compile Include="System\Windows\Forms\NativeWindow.cs" />
     <Compile Include="System\Windows\Forms\NumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -411,9 +429,14 @@
     <Compile Include="System\Windows\Forms\UICuesEventArgs.cs" />
     <Compile Include="System\Windows\Forms\UICuesEventHandler.cs" />
     <Compile Include="System\Windows\Forms\UnsafeNativeMethods.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleElement.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleInformation.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleState.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleTypesAndProperties.cs" />
     <Compile Include="System\Windows\Forms\WebBrowserEncryptionLevel.cs" />
     <Compile Include="System\Windows\Forms\WebBrowserReadyState.cs" />
     <Compile Include="System\Windows\Forms\WindowsFormsUtils.cs" />
+    <Compile Include="System\Windows\Forms\WindowsGraphicsWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

@@ -245,7 +245,7 @@ namespace System.Windows.Forms
 
                     try
                     {
-                        //IntSecurity.WindowAdornmentModification.Demand();
+                        IntSecurity.WindowAdornmentModification.Demand();
                     }
                     catch (SecurityException)
                     {
@@ -390,7 +390,7 @@ namespace System.Windows.Forms
                     bool oldLayered = (formState[FormStateLayered] == 1);
                     if (value != Color.Empty)
                     {
-                        //IntSecurity.TransparentWindows.Demand();
+                        IntSecurity.TransparentWindows.Demand();
                         AllowTransparency = true;
                         formState[FormStateLayered] = 1;
                     }
@@ -800,6 +800,38 @@ namespace System.Windows.Forms
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void OnClosing(CancelEventArgs e)
+        {
+            CancelEventHandler handler = (CancelEventHandler)Events[EVENT_CLOSING];
+            if (handler != null) handler(this, e);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void OnClosed(EventArgs e)
+        {
+            EventHandler handler = (EventHandler)Events[EVENT_CLOSED];
+            if (handler != null) handler(this, e);
+        }
+
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void OnFormClosing(FormClosingEventArgs e)
+        {
+            FormClosingEventHandler handler = (FormClosingEventHandler)Events[EVENT_FORMCLOSING];
+            if (handler != null) handler(this, e);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void OnFormClosed(FormClosedEventArgs e)
+        {
+            //Remove the form from Application.OpenForms (nothing happens if isn't present)
+            Application.OpenFormsInternalRemove(this);
+
+            FormClosedEventHandler handler = (FormClosedEventHandler)Events[EVENT_FORMCLOSED];
+            if (handler != null) handler(this, e);
+        }
+
         public event EventHandler ResizeBegin
         {
             add
@@ -835,6 +867,75 @@ namespace System.Windows.Forms
                 Events.RemoveHandler(EVENT_LOAD, value);
             }
         }
+
+        [
+        Browsable(false),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public Form[] OwnedForms
+        {
+            get
+            {
+                Form[] ownedForms = (Form[])Properties.GetObject(PropOwnedForms);
+                int ownedFormsCount = Properties.GetInteger(PropOwnedFormsCount);
+
+                Form[] result = new Form[ownedFormsCount];
+                if (ownedFormsCount > 0)
+                {
+                    Array.Copy(ownedForms, 0, result, 0, ownedFormsCount);
+                }
+
+                return result;
+            }
+        }
+
+        internal bool RaiseFormClosingOnAppExit()
+        {
+            FormClosingEventArgs e = new FormClosingEventArgs(CloseReason.ApplicationExitCall, false);
+            // e.Cancel = !Validate(true);    This would cause a breaking change between v2.0 and v1.0/v1.1 in case validation fails.
+            if (!Modal)
+            {
+                /* This is not required because Application.ExitPrivate() loops through all forms in the Application.OpenForms collection
+                // Fire FormClosing event on all MDI children
+                if (IsMdiContainer) {
+                    FormClosingEventArgs fce = new FormClosingEventArgs(CloseReason.MdiFormClosing, e.Cancel);
+                    foreach(Form mdiChild in MdiChildren) {
+                        if (mdiChild.IsHandleCreated) {
+                            mdiChild.OnFormClosing(fce);
+                            if (fce.Cancel) {
+                                e.Cancel = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                */
+
+                // Fire FormClosing event on all the forms that this form owns and are not in the Application.OpenForms collection
+                // This is to be consistent with what WmClose does.
+                int ownedFormsCount = Properties.GetInteger(PropOwnedFormsCount);
+                if (ownedFormsCount > 0)
+                {
+                    Form[] ownedForms = this.OwnedForms;
+                    FormClosingEventArgs fce = new FormClosingEventArgs(CloseReason.FormOwnerClosing, false);
+                    for (int i = ownedFormsCount - 1; i >= 0; i--)
+                    {
+                        if (ownedForms[i] != null && !Application.OpenFormsInternal.Contains(ownedForms[i]))
+                        {
+                            ownedForms[i].OnFormClosing(fce);
+                            if (fce.Cancel)
+                            {
+                                e.Cancel = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            OnFormClosing(e);
+            return e.Cancel;
+        }
+
 
         async void create()
         {

@@ -24,14 +24,14 @@
 
         void ICollection.CopyTo(Array ar, int index)
         {
-            //IntSecurity.UnmanagedCode.Demand();
+            IntSecurity.UnmanagedCode.Demand();
             ScrubWeakRefs();
             listManagers.CopyTo(ar, index);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            //IntSecurity.UnmanagedCode.Demand();
+            IntSecurity.UnmanagedCode.Demand();
             ScrubWeakRefs();
             return listManagers.GetEnumerator();
         }
@@ -271,7 +271,7 @@
             else
                 wRef.Target = bindingManagerBase;
 
-            //IntSecurity.UnmanagedCode.Demand();
+            IntSecurity.UnmanagedCode.Demand();
             ScrubWeakRefs();
             // Return the final binding manager
             return bindingManagerBase;

@@ -81,7 +81,7 @@
 
         public Cursor(IntPtr handle)
         {
-            //IntSecurity.UnmanagedCode.Demand();
+            IntSecurity.UnmanagedCode.Demand();
             if (handle == IntPtr.Zero)
             {
                 throw new ArgumentException("InvalidGDIHandle");
@@ -130,7 +130,7 @@
                 if (!value.IsEmpty)
                 {
                     //Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "AdjustCursorClip Demanded");
-                    //IntSecurity.AdjustCursorClip.Demand();
+                    IntSecurity.AdjustCursorClip.Demand();
                 }
                 ClipInternal = value;
             }
@@ -158,21 +158,21 @@
             }
         }
 
-        //public static Cursor Current
-        //{
-        //    get
-        //    {
-        //        return CurrentInternal;
-        //    }
+        public static Cursor Current
+        {
+            get
+            {
+                return CurrentInternal;
+            }
 
-        //    set
-        //    {
-        //        IntSecurity.ModifyCursor.Demand();
-        //        CurrentInternal = value;
-        //    }
-        //}
+            set
+            {
+                IntSecurity.ModifyCursor.Demand();
+                CurrentInternal = value;
+            }
+        }
 
-        //internal static Cursor CurrentInternal
+        internal static Cursor CurrentInternal;
         //{
         //    get
         //    {
@@ -487,8 +487,8 @@
 
         public static void Hide()
         {
-            //Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "AdjustCursorClip Demanded");
-            //IntSecurity.AdjustCursorClip.Demand();
+            Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "AdjustCursorClip Demanded");
+            IntSecurity.AdjustCursorClip.Demand();
 
             //UnsafeNativeMethods.ShowCursor(false);
         }

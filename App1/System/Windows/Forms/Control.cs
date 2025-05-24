@@ -13,6 +13,7 @@ using System.Runtime.Versioning;
 using System.Security;
 using System.Security.Permissions;
 using System.ServiceModel.Channels;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Layout;
@@ -1435,6 +1436,21 @@ namespace System.Windows.Forms
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual Drawing.Size SizeFromClientSize(Drawing.Size clientSize)
+        {
+            return SizeFromClientSize(clientSize.Width, clientSize.Height);
+        }
+
+        internal Drawing.Size SizeFromClientSize(int width, int height)
+        {
+            NativeMethods.RECT rect = new NativeMethods.RECT(0, 0, width, height);
+
+            //CreateParams cp = CreateParams;
+            //AdjustWindowRectEx(ref rect, cp.Style, HasMenu, cp.ExStyle);
+            return rect.Size;
+        }
+
         static Control()
         {
             EventAutoSizeChanged = new object();
@@ -1585,7 +1601,7 @@ namespace System.Windows.Forms
         internal string WebviewIdentifier = "";
         public Color ForeColor;
         public Color BackColor = Color.FromKnownColor(KnownColor.Control);
-        public bool AutoSize;
+        
         public Point AutoScrollOffset;
         public ImageLayout BackgroundImageLayout;
         public BindingContext BindingContext;
@@ -1627,6 +1643,35 @@ namespace System.Windows.Forms
         public Drawing.Size PreferredSize
         {
             get { return GetPreferredSize(Drawing.Size.Empty); }
+        }
+
+        [RefreshProperties(RefreshProperties.All)]
+        [Localizable(true)]
+        [DefaultValue(CommonProperties.DefaultAutoSize)]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public virtual bool AutoSize
+        {
+            get { return CommonProperties.GetAutoSize(this); }
+            set
+            {
+                if (value != AutoSize)
+                {
+                    CommonProperties.SetAutoSize(this, value);
+                    if (ParentInternal != null)
+                    {
+                        // DefaultLayout does not keep anchor information until it needs to.  When
+                        // AutoSize became a common property, we could no longer blindly call into
+                        // DefaultLayout, so now we do a special InitLayout just for DefaultLayout.
+                        if (value && ParentInternal.LayoutEngine == DefaultLayout.Instance)
+                        {
+                            ParentInternal.LayoutEngine.InitLayout(this, BoundsSpecified.Size);
+                        }
+                        LayoutTransaction.DoLayout(ParentInternal, this, PropertyNames.AutoSize);
+                    }
+
+                    OnAutoSizeChanged(EventArgs.Empty);
+                }
+            }
         }
 
         [
@@ -1703,7 +1748,7 @@ namespace System.Windows.Forms
             {
                 // demand security permission for this condition.
                 // this will throw security exception in semi-trust.
-                //IntSecurity.UnmanagedCode.Demand();
+                IntSecurity.UnmanagedCode.Demand();
             }
             controlStyle = value ? controlStyle | flag : controlStyle & ~flag;
         }
@@ -1812,6 +1857,11 @@ namespace System.Windows.Forms
                     }
                 }
             }
+        }
+
+        internal virtual Drawing.Size GetPreferredSizeCore(Drawing.Size proposedSize)
+        {
+            return CommonProperties.GetSpecifiedBounds(this).Size;
         }
 
         internal Drawing.Size size;
@@ -3084,7 +3134,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 // Reviewed  : ControlAccessibleObject.set_Handle demands UnmanagedCode permission for public use, it doesn't
                 //             expose any security vulnerability indirectly. The sec Assert is safe.
                 //
-                //IntSecurity.UnmanagedCode.Assert();
+                IntSecurity.UnmanagedCode.Assert();
 
                 try
                 {
@@ -3116,10 +3166,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 //    SetState2(STATE2_SETSCROLLPOS, false);
                 //}
 
-                //if (GetState2(STATE2_INTERESTEDINUSERPREFERENCECHANGED))
-                //{
-                //    ListenToUserPreferenceChanged(GetTopLevel());
-                //}
+                if (GetState2(STATE2_INTERESTEDINUSERPREFERENCECHANGED))
+                {
+                    //ListenToUserPreferenceChanged(GetTopLevel());
+                }
             }
 
             EventHandler handler = (EventHandler)Events[EventHandleCreated];
@@ -3723,6 +3773,217 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             }
         }
 
+        internal virtual string WindowText
+        {
+            get
+            {
+
+                if (!IsHandleCreated)
+                {
+                    if (text == null)
+                    {
+                        return "";
+                    }
+                    else
+                    {
+                        return text;
+                    }
+                }
+
+                using (new MultithreadSafeCallScope())
+                {
+
+                    // it's okay to call GetWindowText cross-thread.
+                    //
+                    int textLen = 0;
+                    //int textLen = SafeNativeMethods.GetWindowTextLength(new HandleRef(window, Handle));
+
+                    // Check to see if the system supports DBCS character
+                    // if so, double the length of the buffer.
+                    if (SystemInformation.DbcsEnabled)
+                    {
+                        textLen = (textLen * 2) + 1;
+                    }
+                    StringBuilder sb = new StringBuilder(textLen + 1);
+                    //UnsafeNativeMethods.GetWindowText(new HandleRef(window, Handle), sb, sb.Capacity);
+                    return sb.ToString();
+                }
+            }
+            set
+            {
+                if (value == null) value = "";
+                if (!WindowText.Equals(value))
+                {
+                    if (IsHandleCreated)
+                    {
+                        //UnsafeNativeMethods.SetWindowText(new HandleRef(window, Handle), value);
+                    }
+                    else
+                    {
+                        if (value.Length == 0)
+                        {
+                            text = null;
+                        }
+                        else
+                        {
+                            text = value;
+                        }
+                    }
+                }
+            }
+        }
+
+        private sealed class MultithreadSafeCallScope : IDisposable
+        {
+            // Use local stack variable rather than a refcount since we're
+            // guaranteed that these 'scopes' are properly nested.
+            private bool resultedInSet;
+
+            internal MultithreadSafeCallScope()
+            {
+                // Only access the thread-local stuff if we're going to be
+                // checking for illegal thread calling (no need to incur the
+                // expense otherwise).
+                if (checkForIllegalCrossThreadCalls && !inCrossThreadSafeCall)
+                {
+                    inCrossThreadSafeCall = true;
+                    resultedInSet = true;
+                }
+                else
+                {
+                    resultedInSet = false;
+                }
+            }
+
+            void IDisposable.Dispose()
+            {
+                if (resultedInSet)
+                {
+                    inCrossThreadSafeCall = false;
+                }
+            }
+        }
+
+
+        [
+        Localizable(true),
+        Bindable(true),
+        DispId(NativeMethods.ActiveX.DISPID_TEXT),
+        ]
+        public virtual string Text
+        {
+            get
+            {
+                if (CacheTextInternal)
+                {
+                    return (text == null) ? "" : text;
+                }
+                else
+                {
+                    return WindowText;
+                }
+            }
+
+            set
+            {
+                if (value == null)
+                {
+                    value = "";
+                }
+
+                if (value == Text)
+                {
+                    return;
+                }
+
+                if (CacheTextInternal)
+                {
+                    text = value;
+                }
+                WindowText = value;
+                OnTextChanged(EventArgs.Empty);
+
+                //if (this.IsMnemonicsListenerAxSourced)
+                //{
+                //    for (Control ctl = this; ctl != null; ctl = ctl.ParentInternal)
+                //    {
+                //        ActiveXImpl activeXImpl = (ActiveXImpl)ctl.Properties.GetObject(PropActiveXImpl);
+                //        if (activeXImpl != null)
+                //        {
+                //            activeXImpl.UpdateAccelTable();
+                //            break;
+                //        }
+                //    }
+                //}
+
+            }
+        }
+
+        internal bool CacheTextInternal
+        {
+            get
+            {
+
+                // check if we're caching text.
+                //
+                bool found;
+                int cacheTextCounter = Properties.GetInteger(PropCacheTextCount, out found);
+
+                return cacheTextCounter > 0 || GetStyle(ControlStyles.CacheText);
+            }
+            set
+            {
+
+                // if this control always cachest text or the handle hasn't been created,
+                // just bail.
+                //
+                if (GetStyle(ControlStyles.CacheText) || !IsHandleCreated)
+                {
+                    return;
+                }
+
+                // otherwise, get the state and update the cache if necessary.
+                //
+                bool found;
+                int cacheTextCounter = Properties.GetInteger(PropCacheTextCount, out found);
+
+                if (value)
+                {
+                    if (cacheTextCounter == 0)
+                    {
+                        Properties.SetObject(PropCacheTextField, text);
+                        if (text == null)
+                        {
+                            text = WindowText;
+                        }
+                    }
+                    cacheTextCounter++;
+                }
+                else
+                {
+                    cacheTextCounter--;
+                    if (cacheTextCounter == 0)
+                    {
+                        text = (string)Properties.GetObject(PropCacheTextField, out found);
+                    }
+                }
+                Properties.SetInteger(PropCacheTextCount, cacheTextCounter);
+            }
+        }
+
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public bool RecreatingHandle
+        {
+            get
+            {
+                return (state & STATE_RECREATE) != 0;
+            }
+        }
+
         [
         Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
         DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
@@ -3895,6 +4156,48 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "Control.ProcessDialogKey " + keyData.ToString());
             return parent == null ? false : parent.ProcessDialogKey(keyData);
         }
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public bool IsDisposed
+        {
+            get
+            {
+                return GetState(STATE_DISPOSED);
+            }
+        }
+
+        [
+        DefaultValue(false),
+        EditorBrowsable(EditorBrowsableState.Always),
+        Browsable(true),
+        ]
+        public bool UseWaitCursor
+        {
+            get { return GetState(STATE_USEWAITCURSOR); }
+            set
+            {
+                if (GetState(STATE_USEWAITCURSOR) != value)
+                {
+                    SetState(STATE_USEWAITCURSOR, value);
+                    ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+
+                    if (controlsCollection != null)
+                    {
+                        // PERFNOTE: This is more efficient than using Foreach.  Foreach
+                        // forces the creation of an array subset enum each time we
+                        // enumerate
+                        for (int i = 0; i < controlsCollection.Count; i++)
+                        {
+                            controlsCollection[i].UseWaitCursor = value;
+                        }
+                    }
+                }
+            }
+        }
+
 
         [ListBindable(false), ComVisible(false)]
         public class ControlCollection

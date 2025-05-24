@@ -24,19 +24,19 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 - Anchor (All controls)
 
 ### Implemented events
-- Click (Button, TextBox, Label, CheckBox, RadioButton)
 - TextChanged (TextBox)
 - Resize (Form)
 - ResizeBegin (Form)
 - ResizeEnd (Form)
 - Move (Form)
-- MouseEnter (Button, TextBox, Label, CheckBox, RadioButton)
-- MouseLeave (Button, TextBox, Label, CheckBox, RadioButton)
-- MouseDown (Button, TextBox, Label, CheckBox, RadioButton)
-- MouseClick (Button, TextBox, Label, CheckBox, RadioButton)
-- MouseDoubleClick (Button, TextBox, Label, CheckBox, RadioButton)
-- MouseUp (Button, TextBox, Label, CheckBox, RadioButton)
-- MouseMove (Button, TextBox, Label, CheckBox, RadioButton)
+- Click (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseEnter (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseLeave (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseDown (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseClick (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseDoubleClick (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseUp (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- MouseMove (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
 
 An example is provided (Form1), showcasing what this project is currently able to do.
 

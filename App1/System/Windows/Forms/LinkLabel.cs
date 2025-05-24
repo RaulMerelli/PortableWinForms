@@ -882,7 +882,7 @@
                     // SECREVIEW: This assert is required because the call to Select will generate a call to SetActiveControl which have a demand,
                     //            it is safe since no input from user code is processed while setting the active control originated this way.
                     //
-                    //IntSecurity.ModifyFocus.Assert();
+                    IntSecurity.ModifyFocus.Assert();
 
                     // Set focus on first link.  
                     // This will raise the OnGotFocus event again but it will not be processed because processingOnGotFocus is true.
