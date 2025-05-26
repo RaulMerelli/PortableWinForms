@@ -25,6 +25,8 @@ namespace winformtest
         private void TextBox2_Click(object sender, EventArgs e)
         {
             textBox2.Text = "You clicked me!";
+            Form2 form = new Form2();
+            form.Show();
         }
 
         private void Label1_Click(object sender, EventArgs e)

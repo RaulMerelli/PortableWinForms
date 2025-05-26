@@ -39,9 +39,11 @@ namespace App1
                 }
                 if (args.IsSuccess)
                 {
+                    Page.defaultLcid = await Page.GetLcidFromWebViewAsync();
                     //Application.EnableVisualStyles();
                     //Application.SetCompatibleTextRenderingDefault(false);
-                    new Form1();
+                    //new Form1();
+                    winformtest.Program.InternalMain();
                     await Page.pContainer.CoreWebView2.Profile.ClearBrowsingDataAsync();
                 }
             }

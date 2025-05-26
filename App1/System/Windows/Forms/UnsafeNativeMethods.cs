@@ -162,13 +162,17 @@ namespace System.Windows.Forms
 
     using IComDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
     using Microsoft.CodeAnalysis;
+    using System.Threading.Tasks;
 
     [
     SuppressUnmanagedCodeSecurity()
     ]
     internal static class UnsafeNativeMethods
     {
-
+        internal static int GetSystemDefaultLCID()
+        {
+            return App1.Page.defaultLcid;
+        }
         //[DllImport(ExternDll.Shlwapi, CharSet = CharSet.Unicode, ExactSpelling = true)]
         //[ResourceExposure(ResourceScope.None)]
         //internal static extern uint SHLoadIndirectString(string pszSource, StringBuilder pszOutBuf, uint cchOutBuf, IntPtr ppvReserved);

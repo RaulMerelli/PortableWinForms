@@ -129,10 +129,17 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="EventReturn.cs" />
+    <Compile Include="Form2.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Form2.Designer.cs">
+      <DependentUpon>Form2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Microsoft\Win32\UserPreferenceCategory.cs" />
     <Compile Include="Microsoft\Win32\UserPreferenceChangedEventArgs.cs" />
     <Compile Include="Microsoft\Win32\UserPreferenceChangedEventHandler.cs" />
     <Compile Include="Page.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="System\ComponentModel\CompModeSwitches.cs" />
     <Compile Include="System\Drawing2D\MatrixOrder.cs" />
     <Compile Include="System\Drawing\Color.cs" />
@@ -157,6 +164,7 @@
     <Compile Include="System\Drawing\StringFormatFlags.cs" />
     <Compile Include="System\Drawing\StringTrimming.cs" />
     <Compile Include="System\Drawing\SystemColors.cs" />
+    <Compile Include="System\Drawing\SystemFonts.cs" />
     <Compile Include="System\Drawing\Text\HotkeyPrefix.cs" />
     <Compile Include="System\Drawing\Text\TextRenderingHint.cs" />
     <Compile Include="System\Internal\GPRECT.cs" />
@@ -170,6 +178,9 @@
     <Compile Include="System\Windows\Forms\Application.cs" />
     <Compile Include="System\Windows\Forms\ApplicationContext.cs" />
     <Compile Include="System\Windows\Forms\ApplicationExtender.cs" />
+    <Compile Include="System\Windows\Forms\ArrangedElement.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\ArrangeDirection.cs" />
     <Compile Include="System\Windows\Forms\ArrangeStartingPosition.cs" />
     <Compile Include="System\Windows\Forms\ArrowDirection.cs" />
@@ -178,6 +189,7 @@
     <Compile Include="System\Windows\Forms\AutoCompleteStringCollection.cs" />
     <Compile Include="System\Windows\Forms\AutoScaleMode.cs" />
     <Compile Include="System\Windows\Forms\AutoSizeMode.cs" />
+    <Compile Include="System\Windows\Forms\AutoValidate.cs" />
     <Compile Include="System\Windows\Forms\BaseCollection.cs" />
     <Compile Include="System\Windows\Forms\Binding.cs" />
     <Compile Include="System\Windows\Forms\BindingCompleteContext.cs" />
@@ -216,6 +228,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="System\Windows\Forms\CommonDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ContainerControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="System\Windows\Forms\ContentAlignment.cs" />
@@ -279,12 +294,15 @@
     <Compile Include="System\Windows\Forms\GroupBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="System\Windows\Forms\HandledMouseEventArgs.cs" />
     <Compile Include="System\Windows\Forms\HelpEventArgs.cs" />
     <Compile Include="System\Windows\Forms\HelpEventHandler.cs" />
     <Compile Include="System\Windows\Forms\HelpInfo.cs" />
     <Compile Include="System\Windows\Forms\HelpNavigator.cs" />
+    <Compile Include="System\Windows\Forms\HScrollProperties.cs" />
     <Compile Include="System\Windows\Forms\IBindableComponent.cs" />
     <Compile Include="System\Windows\Forms\IButtonControl.cs" />
+    <Compile Include="System\Windows\Forms\IContainerControl.cs" />
     <Compile Include="System\Windows\Forms\ICurrencyManagerProvider.cs" />
     <Compile Include="System\Windows\Forms\IDataObject.cs" />
     <Compile Include="System\Windows\Forms\IFeatureSupport.cs" />
@@ -405,6 +423,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="System\Windows\Forms\ScrollBars.cs" />
+    <Compile Include="System\Windows\Forms\ScrollProperties.cs" />
     <Compile Include="System\Windows\Forms\SecurityUtils.cs" />
     <Compile Include="System\Windows\Forms\StringSource.cs" />
     <Compile Include="System\Windows\Forms\SystemInformation.cs" />
@@ -429,12 +448,15 @@
     <Compile Include="System\Windows\Forms\UICuesEventArgs.cs" />
     <Compile Include="System\Windows\Forms\UICuesEventHandler.cs" />
     <Compile Include="System\Windows\Forms\UnsafeNativeMethods.cs" />
+    <Compile Include="System\Windows\Forms\ValidationConstraints.cs" />
     <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleElement.cs" />
     <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleInformation.cs" />
     <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleState.cs" />
     <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleTypesAndProperties.cs" />
+    <Compile Include="System\Windows\Forms\VScrollProperties.cs" />
     <Compile Include="System\Windows\Forms\WebBrowserEncryptionLevel.cs" />
     <Compile Include="System\Windows\Forms\WebBrowserReadyState.cs" />
+    <Compile Include="System\Windows\Forms\WindowsFormsSynchronizationContext.cs" />
     <Compile Include="System\Windows\Forms\WindowsFormsUtils.cs" />
     <Compile Include="System\Windows\Forms\WindowsGraphicsWrapper.cs" />
   </ItemGroup>
@@ -527,7 +549,6 @@
       <Version>9.0.5</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="html\css\jspanel\jspanel.css.new" />
   </ItemGroup>

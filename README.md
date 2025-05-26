@@ -5,7 +5,7 @@ This is a really work in progress project that aims to create a reimplementation
 
 Basically the plan is to use *WebView2* as a rendering sandbox to draw the forms and the relative controls. In the backend remains plain WinForms C#, using the same `System.Windows.Forms` namespace, the `form.designer.cs` file, the `form.cs` file and its relatives events.
 
-At the current state "something" works, only with *EnabledVisualStyles* disabled (not yet implemented) and other manual touches:
+At the current state "something" works, by importing a form designed with the only supported elements, an adjusted entrypoint and minimal manual touches.
 
 ### Partially drawn controls
 - Form
@@ -38,10 +38,11 @@ At the current state "something" works, only with *EnabledVisualStyles* disabled
 - MouseUp (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
 - MouseMove (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
 
-An example is provided (Form1), showcasing what this project is currently able to do.
+An example is provided (Form1 + Form2), showcasing what this project is currently able to do.
 
 Windows management is provided by the great JavaScript library jsPanel, with some minor custom edits to better fit the project.
-Dialog icons are from KDE/oxygen-icons
+Dialog icons are from KDE/oxygen-icons.
+Most of the source code comes from referencesource.microsoft.com, edited to avoid calls to GDI+ and all other native Windows DLLs and redirecting instead to the browser instance.
 
 It works also on Xbox (tested Xbox Series S), but there are some more issues than running it on Windows:
 - Cursors
@@ -60,4 +61,5 @@ At the current stage the code quality is really low (aside from Microsoft unchan
 ## Major obstacles
 - System.Drawing dependencies on libgdiplus.
 - Everything must be reimplemented manually, slowing down the develpement.
-- Do not get sued by Microsoft. I would love to include for example "Microsoft Sans Serif" for Xbox compatibility, but it is not allowed. The same also applies for icons and styles. Classic style should be allowed, as it is used also by Wine and others, right?
+- Do not get sued by Microsoft. I would love to include for example "Microsoft Sans Serif" for Xbox compatibility, but it is not allowed. The same also applies for icons and styles. Classic style I think it is allowed, as it is used also by Wine and others, right?
+- My spare time (early stage is the perfect time to join the project if you want!). This project may pause and then resume after months of inactivity without other maintainers than me.

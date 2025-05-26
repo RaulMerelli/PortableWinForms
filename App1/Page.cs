@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Windows.Data.Json;
 
@@ -8,6 +9,7 @@ namespace App1
     public static class Page
     {
         static public WebView2 pContainer;
+        static internal int defaultLcid;
 
         public static async Task<string> RunScript(string script)
         {
@@ -44,5 +46,33 @@ namespace App1
         {
             return int.Parse(JsonValue.Parse(await RunScript(script)).GetString());
         }
+
+        internal static async Task<int> GetLcidFromWebViewAsync()
+        {
+            if (pContainer?.CoreWebView2 != null)
+            {
+                try
+                {
+                    string languageJson = await pContainer.CoreWebView2.ExecuteScriptAsync("navigator.language");
+                    string language = languageJson.Trim('"');
+
+                    var culture = new CultureInfo(language);
+                    if (culture.IsNeutralCulture)
+                    {
+                        culture = CultureInfo.CreateSpecificCulture(culture.Name);
+                    }
+
+                    return culture.LCID; 
+                }
+                catch
+                {
+                    return 1033; // fallback
+                }
+            }
+
+            return 1033;
+        }
+
+
     }
 }

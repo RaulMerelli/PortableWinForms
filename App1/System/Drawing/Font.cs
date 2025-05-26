@@ -65,7 +65,7 @@ namespace System.Drawing
 
         public float Size => fontSize;
 
-        /*[Browsable(false)]
+        [Browsable(false)]
         public float SizeInPoints
         {
             get
@@ -75,29 +75,57 @@ namespace System.Drawing
                     return Size;
                 }
 
-                IntPtr dC = UnsafeNativeMethods.GetDC(NativeMethods.NullHandleRef);
-                try
-                {
-                    using (Graphics graphics = Graphics.FromHdcInternal(dC))
-                    {
-                        float num = (float)((double)graphics.DpiY / 72.0);
-                        float height = GetHeight(graphics);
-                        float num2 = height * (float)FontFamily.GetEmHeight(Style) / (float)FontFamily.GetLineSpacing(Style);
-                        return num2 / num;
-                    }
-                }
-                finally
-                {
-                    UnsafeNativeMethods.ReleaseDC(NativeMethods.NullHandleRef, new HandleRef(null, dC));
-                }
+                // Simulated DPI (standard for Windows)
+                float dpiY = 96f;
+
+                // Convert pixels/inch to points
+                float pixelsPerPoint = dpiY / 72f;
+
+                // Simulated GetHeight() - assume Size is in current Unit
+                float height = Size; // or some scaled value depending on Unit
+
+                // Simulated font metrics
+                float emHeight = 2048f;      // Common for TrueType
+                float lineSpacing = 2355f;   // Example value; varies by font
+
+                float fontSizeInFontUnits = height * emHeight / lineSpacing;
+
+                return fontSizeInFontUnits / pixelsPerPoint;
             }
-        }*/
+        }
+
+        //public float SizeInPoints
+        //{
+        //    get
+        //    {
+        //        if (Unit == GraphicsUnit.Point)
+        //        {
+        //            return Size;
+        //        }
+
+        //        //IntPtr dC = UnsafeNativeMethods.GetDC(NativeMethods.NullHandleRef);
+        //        try
+        //        {
+        //            using (Graphics graphics = Graphics.FromHdcInternal(dC))
+        //            {
+        //                float num = (float)((double)graphics.DpiY / 72.0);
+        //                float height = GetHeight(graphics);
+        //                float num2 = height * (float)FontFamily.GetEmHeight(Style) / (float)FontFamily.GetLineSpacing(Style);
+        //                return num2 / num;
+        //            }
+        //        }
+        //        finally
+        //        {
+        //            //UnsafeNativeMethods.ReleaseDC(NativeMethods.NullHandleRef, new HandleRef(null, dC));
+        //        }
+        //    }
+        //}
 
         public GraphicsUnit Unit => fontUnit;
-        /*
+
         [Browsable(false)]
         public int Height => (int)Math.Ceiling(GetHeight());
-        */
+
         [Browsable(false)]
         public bool IsSystemFont => !string.IsNullOrEmpty(systemFontName);
 
@@ -558,54 +586,90 @@ namespace System.Drawing
 
             return intPtr;
         }
+        */
 
-        public float GetHeight(Graphics graphics)
-        {
-            if (graphics == null)
-            {
-                throw new ArgumentNullException("graphics");
-            }
+        //public float GetHeight(Graphics graphics)
+        //{
+        //    if (graphics == null)
+        //    {
+        //        throw new ArgumentNullException("graphics");
+        //    }
 
-            float size;
-            int num = SafeNativeMethods.Gdip.GdipGetFontHeight(new HandleRef(this, NativeFont), new HandleRef(graphics, graphics.NativeGraphics), out size);
-            if (num != 0)
-            {
-                throw SafeNativeMethods.Gdip.StatusException(num);
-            }
+        //    float size;
+        //    int num = SafeNativeMethods.Gdip.GdipGetFontHeight(new HandleRef(this, NativeFont), new HandleRef(graphics, graphics.NativeGraphics), out size);
+        //    if (num != 0)
+        //    {
+        //        throw SafeNativeMethods.Gdip.StatusException(num);
+        //    }
 
-            return size;
-        }
+        //    return size;
+        //}
 
-        
         public float GetHeight()
         {
-            IntPtr dC = UnsafeNativeMethods.GetDC(NativeMethods.NullHandleRef);
-            float num = 0f;
-            try
-            {
-                using (Graphics graphics = Graphics.FromHdcInternal(dC))
-                {
-                    return GetHeight(graphics);
-                }
-            }
-            finally
-            {
-                UnsafeNativeMethods.ReleaseDC(NativeMethods.NullHandleRef, new HandleRef(null, dC));
-            }
-        }
+            // Simula la logica interna di GetHeight(Graphics graphics)
 
-        public float GetHeight(float dpi)
-        {
-            float size;
-            int num = SafeNativeMethods.Gdip.GdipGetFontHeightGivenDPI(new HandleRef(this, NativeFont), dpi, out size);
-            if (num != 0)
+            // DPI standard (ad es. per schermo)
+            float dpiY = 96f;
+
+            // Conversione da punti a pixel: 1 punto = 1/72 pollice
+            float pixelsPerPoint = dpiY / 72f;
+
+            // Supponiamo che Size sia la dimensione del font in "Unit"
+            float sizeInPoints;
+
+            if (Unit == GraphicsUnit.Point)
             {
-                throw SafeNativeMethods.Gdip.StatusException(num);
+                sizeInPoints = Size;
+            }
+            else
+            {
+                // Simula conversione a punti
+                // Puoi raffinare questo in base al tipo di unità (pixel, mm, ecc.)
+                sizeInPoints = Size / pixelsPerPoint;
             }
 
-            return size;
+            // Metriche simulate del font
+            float emHeight = 2048f;
+            float lineSpacing = 2355f;
+
+            // Calcolo dell'altezza in pixel
+            float height = sizeInPoints * lineSpacing / emHeight;
+
+            // Converti di nuovo in pixel reali (dipende dall'obiettivo)
+            return height * pixelsPerPoint;
         }
-        */
+
+
+        //public float GetHeight()
+        //{
+        //    //IntPtr dC = UnsafeNativeMethods.GetDC(NativeMethods.NullHandleRef);
+        //    float num = 0f;
+        //    try
+        //    {
+        //        using (Graphics graphics = Graphics.FromHdcInternal(dC))
+        //        {
+        //            return GetHeight(graphics);
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        //UnsafeNativeMethods.ReleaseDC(NativeMethods.NullHandleRef, new HandleRef(null, dC));
+        //    }
+        //}
+
+        //public float GetHeight(float dpi)
+        //{
+        //    float size;
+        //    int num = SafeNativeMethods.Gdip.GdipGetFontHeightGivenDPI(new HandleRef(this, NativeFont), dpi, out size);
+        //    if (num != 0)
+        //    {
+        //        throw SafeNativeMethods.Gdip.StatusException(num);
+        //    }
+
+        //    return size;
+        //}
+
         internal void SetSystemFontName(string systemFontName)
         {
             this.systemFontName = systemFontName;

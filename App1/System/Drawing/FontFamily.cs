@@ -105,18 +105,6 @@ namespace System.Drawing
             Dispose(disposing: false);
         }
 
-        //
-        // Riepilogo:
-        //     Indica se l'oggetto specificato è un oggetto System.Drawing.FontFamily ed è identico
-        //     a questo oggetto System.Drawing.FontFamily.
-        //
-        // Parametri:
-        //   obj:
-        //     Oggetto da sottoporre a test.
-        //
-        // Valori restituiti:
-        //     true se obj è un oggetto System.Drawing.FontFamily ed è uguale a System.Drawing.FontFamily;
-        //     in caso contrario false.
         public override bool Equals(object obj)
         {
             if (obj == this)
@@ -132,32 +120,16 @@ namespace System.Drawing
             return fontFamily.NativeFamily == NativeFamily;
         }
 
-        //
-        // Riepilogo:
-        //     Converte la classe System.Drawing.FontFamily in una rappresentazione in forma
-        //     di stringa leggibile.
-        //
-        // Valori restituiti:
-        //     Stringa che rappresenta questo oggetto System.Drawing.FontFamily.
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentCulture, "[{0}: Name={1}]", GetType().Name, Name);
         }
 
-        //
-        // Riepilogo:
-        //     Ottiene un codice hash per System.Drawing.FontFamily.
-        //
-        // Valori restituiti:
-        //     Codice hash per System.Drawing.FontFamily.
         public override int GetHashCode()
         {
             return GetName(0).GetHashCode();
         }
 
-        //
-        // Riepilogo:
-        //     Rilascia tutte le risorse utilizzate da questo oggetto System.Drawing.FontFamily.
         public void Dispose()
         {
             Dispose(disposing: true);

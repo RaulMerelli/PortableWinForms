@@ -3,8 +3,6 @@
     partial class Form1
     {
         private System.ComponentModel.IContainer components = null;
-
-        /*
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -13,8 +11,7 @@
             }
             base.Dispose(disposing);
         }
-        */
-
+        
         #region Codice generato da Progettazione Windows Form
 
         private void InitializeComponent()

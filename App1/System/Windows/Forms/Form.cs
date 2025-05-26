@@ -12,7 +12,7 @@ using System.Security;
 
 namespace System.Windows.Forms
 {
-    public class Form : Control
+    public class Form : ContainerControl
     {
         private static readonly object EVENT_ACTIVATED = new object();
         private static readonly object EVENT_CLOSING = new object();
@@ -592,13 +592,13 @@ namespace System.Windows.Forms
         {
             get
             {
-                return base.size;
+                return base.Size;
             }
             set
             {
                 if (value != base.Size)
                 {
-                    base.size = value;
+                    base.Size = value;
                     if (layoutPerformed)
                     {
                         Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].resize({{width:{value.Width},height:{value.Height}}});");
@@ -629,6 +629,83 @@ namespace System.Windows.Forms
         public bool UseCompatibleTextRendering = true;
         public SizeF AutoScaleDimensions;
         public AutoScaleMode AutoScaleMode;
+
+        protected override void UpdateDefaultButton()
+        {
+            ContainerControl cc = this;
+
+            while (cc.ActiveControl is ContainerControl)
+            {
+                cc = cc.ActiveControl as ContainerControl;
+                Debug.Assert(cc != null);
+
+                if (cc is Form)
+                {
+                    // VSWhidbey#291004: Don't allow a parent form to get its default button from a child form,
+                    // otherwise the two forms will 'compete' for the Enter key and produce unpredictable results.
+                    // This is aimed primarily at fixing the behavior of MDI container forms.
+                    cc = this;
+                    break;
+                }
+            }
+
+            if (cc.ActiveControl is IButtonControl)
+            {
+                SetDefaultButton((IButtonControl)cc.ActiveControl);
+            }
+            else
+            {
+                SetDefaultButton(AcceptButton);
+            }
+        }
+
+        [
+        DefaultValue(null),
+        ]
+        public IButtonControl AcceptButton
+        {
+            get
+            {
+                return (IButtonControl)Properties.GetObject(PropAcceptButton);
+            }
+            set
+            {
+                if (AcceptButton != value)
+                {
+                    Properties.SetObject(PropAcceptButton, value);
+                    UpdateDefaultButton();
+
+                    // this was removed as it breaks any accept button that isn't
+                    // an OK, like in the case of wizards 'next' button.  it was
+                    // added as a fix to 47209...which has been reactivated.
+                    /*
+                    if (acceptButton != null && acceptButton.DialogResult == DialogResult.None) {
+                        acceptButton.DialogResult = DialogResult.OK;
+                    }
+                    */
+                }
+            }
+        }
+
+        private void SetDefaultButton(IButtonControl button)
+        {
+            IButtonControl defaultButton = (IButtonControl)Properties.GetObject(PropDefaultButton);
+
+            if (defaultButton != button)
+            {
+                if (defaultButton != null) defaultButton.NotifyDefault(false);
+                Properties.SetObject(PropDefaultButton, button);
+                if (button != null) button.NotifyDefault(true);
+            }
+        }
+
+        internal Form OwnerInternal
+        {
+            get
+            {
+                return (Form)Properties.GetObject(PropOwner);
+            }
+        }
 
         [DefaultValue(true)        ]
         public bool MinimizeBox
@@ -725,7 +802,7 @@ namespace System.Windows.Forms
                             string hstr = (await Page.RunScript($"$(document.getElementById('{WebviewIdentifier}')).parent().closest('.jsPanel')[0].style.height")).Replace("px", "").Replace("\"", "");
                             int w = (int)double.Parse(wstr, CultureInfo.InvariantCulture);
                             int h = (int)double.Parse(hstr, CultureInfo.InvariantCulture);
-                            size = new Size(w, h);
+                            Size = new Size(w, h);
                             if (eventReturn.eventName == "ResizeBegin")
                             {
                                 form.OnResizeBegin(EventArgs.Empty);

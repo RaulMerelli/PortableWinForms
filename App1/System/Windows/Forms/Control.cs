@@ -1,5 +1,5 @@
 ﻿using App1;
-using JsonProperties;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design;
@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security;
@@ -17,7 +19,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Layout;
-using Windows.UI.Xaml;
+using System.Xml.Linq;
 
 namespace System.Windows.Forms
 {
@@ -310,7 +312,181 @@ namespace System.Windows.Forms
         public bool Enabled;
         public string Name;
         public int TabIndex;
-        public ControlCollection Controls = new ControlCollection();
+        public Control() : this(true)
+        {
+        }
+
+        internal Control(bool autoInstallSyncContext) : base()
+        {
+            propertyStore = new PropertyStore();
+
+            //DpiHelper.InitializeDpiHelperForWinforms();
+            // Initialize DPI to the value on the primary screen, we will have the correct value when the Handle is created.
+            //deviceDpi = DpiHelper.DeviceDpi;
+
+            //window = new ControlNativeWindow(this);
+            RequiredScalingEnabled = true;
+            //RequiredScaling = BoundsSpecified.All;
+            tabIndex = -1;
+
+            state = STATE_VISIBLE | STATE_ENABLED | STATE_TABSTOP | STATE_CAUSESVALIDATION;
+            state2 = STATE2_INTERESTEDINUSERPREFERENCECHANGED;
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
+                     ControlStyles.StandardClick |
+                     ControlStyles.StandardDoubleClick |
+                     ControlStyles.UseTextForAccessibility |
+                     ControlStyles.Selectable, true);
+
+            // We baked the "default default" margin and min size into CommonProperties
+            // so that in the common case the PropertyStore would be empty.  If, however,
+            // someone overrides these Default* methads, we need to write the default
+            // value into the PropertyStore in the ctor.
+            //
+            if (DefaultMargin != CommonProperties.DefaultMargin)
+            {
+                Margin = DefaultMargin;
+            }
+            if (DefaultMinimumSize != CommonProperties.DefaultMinimumSize)
+            {
+                MinimumSize = DefaultMinimumSize;
+            }
+            if (DefaultMaximumSize != CommonProperties.DefaultMaximumSize)
+            {
+                MaximumSize = DefaultMaximumSize;
+            }
+
+            // Compute our default size.
+            //
+            Size defaultSize = DefaultSize;
+            width = defaultSize.Width;
+            height = defaultSize.Height;
+
+            // DefaultSize may have hit GetPreferredSize causing a PreferredSize to be cached.  The
+            // PreferredSize may change as a result of the current size.  Since a  SetBoundsCore did
+            // not happen, so we need to clear the preferredSize cache manually.
+            CommonProperties.xClearPreferredSizeCache(this);
+
+            if (width != 0 && height != 0)
+            {
+                NativeMethods.RECT rect = new NativeMethods.RECT();
+                rect.left = rect.right = rect.top = rect.bottom = 0;
+
+                //CreateParams cp = CreateParams;
+
+                //AdjustWindowRectEx(ref rect, cp.Style, false, cp.ExStyle);
+                clientWidth = width - (rect.right - rect.left);
+                clientHeight = height - (rect.bottom - rect.top);
+            }
+
+
+            // Set up for async operations on this thread.
+            if (autoInstallSyncContext)
+            {
+                WindowsFormsSynchronizationContext.InstallIfNeeded();
+            }
+        }
+
+        public Control(string text) : this((Control)null, text)
+        {
+        }
+
+        public Control(string text, int left, int top, int width, int height) :
+                    this((Control)null, text, left, top, width, height)
+        {
+        }
+
+        public Control(Control parent, string text) : this()
+        {
+            this.Parent = parent;
+            this.Text = text;
+        }
+
+        public Control(Control parent, string text, int left, int top, int width, int height) : this(parent, text)
+        {
+            this.Location = new Point(left, top);
+            this.Size = new Size(width, height);
+        }
+
+        [Localizable(true)]
+        public Padding Margin
+        {
+            get { return CommonProperties.GetMargin(this); }
+            set
+            {
+                // This should be done here rather than in the property store as
+                // some IArrangedElements actually support negative padding.
+                value = LayoutUtils.ClampNegativePaddingToZero(value);
+
+                // SetMargin causes a layout as a side effect.
+                if (value != Margin)
+                {
+                    CommonProperties.SetMargin(this, value);
+                    OnMarginChanged(EventArgs.Empty);
+                }
+                Debug.Assert(Margin == value, "Error detected while setting Margin.");
+            }
+        }
+
+
+        //public Object Invoke(Delegate method, params Object[] args)
+        //{
+        //    using (new MultithreadSafeCallScope())
+        //    {
+        //        Control marshaler = FindMarshalingControl();
+        //        return marshaler.MarshaledInvoke(this, method, args, true);
+        //    }
+        //}
+
+        private Control FindMarshalingControl()
+        {
+            lock (this)
+            {
+                Control c = this;
+
+                while (c != null && !c.IsHandleCreated)
+                {
+                    Control p = c.ParentInternal;
+                    c = p;
+                }
+
+                if (c == null)
+                {
+                    // No control with a created handle.  We
+                    // just use our own control.  MarshaledInvoke
+                    // will throw an exception because there
+                    // is no handle.
+                    //
+                    c = this;
+                }
+                else
+                {
+                    Debug.Assert(c.IsHandleCreated, "FindMarshalingControl chose a bad control.");
+                }
+
+                return (Control)c;
+            }
+        }
+
+        [
+        Browsable(false),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Content),
+        ]
+        public ControlCollection Controls
+        {
+            get
+            {
+                ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+
+                if (controlsCollection == null)
+                {
+                    controlsCollection = CreateControlsInstance();
+                    Properties.SetObject(PropControlsCollection, controlsCollection);
+                }
+                return controlsCollection;
+            }
+        }
+
         internal List<string[]> preLayoutScript = new List<string[]>();
 
         internal string preLayoutScriptString
@@ -423,6 +599,125 @@ namespace System.Windows.Forms
             else
             {
                 preLayoutScript.Add(script);
+            }
+        }
+
+
+        [
+        Localizable(true),
+        ]
+        public Size Size
+        {
+            get
+            {
+                return new Size(width, height);
+            }
+            set
+            {
+                SetBounds(x, y, value.Width, value.Height, BoundsSpecified.Size);
+            }
+        }
+
+        // Set/reset by ContainerControl.AssignActiveControlInternal
+        internal bool BecomingActiveControl
+        {
+            get
+            {
+                return GetState2(STATE2_BECOMINGACTIVECONTROL);
+            }
+            set
+            {
+                if (value != this.BecomingActiveControl)
+                {
+                    Application.ThreadContext.FromCurrent().ActivatingControl = (value) ? this : null;
+                    SetState2(STATE2_BECOMINGACTIVECONTROL, value);
+                }
+            }
+        }
+
+        [UIPermission(SecurityAction.InheritanceDemand, Window = UIPermissionWindow.AllWindows)]
+        [UIPermission(SecurityAction.LinkDemand, Window = UIPermissionWindow.AllWindows)]
+        protected internal virtual bool ProcessMnemonic(char charCode)
+        {
+#if DEBUG
+            Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "Control.ProcessMnemonic [0x" + ((int)charCode).ToString("X", CultureInfo.InvariantCulture) + "]");
+#endif
+            return false;
+        }
+
+        [UIPermission(SecurityAction.InheritanceDemand, Window = UIPermissionWindow.AllWindows)]
+        [UIPermission(SecurityAction.LinkDemand, Window = UIPermissionWindow.AllWindows)]
+        protected virtual bool ProcessDialogChar(char charCode)
+        {
+            Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "Control.ProcessDialogChar [" + charCode.ToString() + "]");
+            return parent == null ? false : parent.ProcessDialogChar(charCode);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        public void Scale(SizeF factor)
+        {
+
+            // VSWhidbey 501184:
+            // manually call ScaleControl recursively instead of the internal scale method
+            // when someone calls this method, they really do want to do some sort of 
+            // zooming feature, as opposed to AutoScale.
+            using (new LayoutTransaction(this, this, PropertyNames.Bounds, false))
+            {
+                //ScaleControl(factor, factor, this);
+                if (ScaleChildren)
+                {
+                    ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+                    if (controlsCollection != null)
+                    {
+                        // PERFNOTE: This is more efficient than using Foreach.  Foreach
+                        // forces the creation of an array subset enum each time we
+                        // enumerate
+                        for (int i = 0; i < controlsCollection.Count; i++)
+                        {
+                            Control c = controlsCollection[i];
+                            c.Scale(factor);
+                        }
+                    }
+                }
+            }
+
+            LayoutTransaction.DoLayout(this, this, PropertyNames.Bounds);
+
+        }
+
+        internal virtual bool CanProcessMnemonic()
+        {
+            if (!this.Enabled || !this.Visible)
+            {
+                return false;
+            }
+
+            if (this.parent != null)
+            {
+                return this.parent.CanProcessMnemonic();
+            }
+
+            return true;
+        }
+
+        internal virtual void Scale(SizeF includedFactor, SizeF excludedFactor, Control requestingControl)
+        {
+            // When we scale, we are establishing new baselines for the
+            // positions of all controls.  Therefore, we should resume(false).
+            using (new LayoutTransaction(this, this, PropertyNames.Bounds, false))
+            {
+                //ScaleControl(includedFactor, excludedFactor, requestingControl);
+                //ScaleChildControls(includedFactor, excludedFactor, requestingControl);
+            }
+            LayoutTransaction.DoLayout(this, this, PropertyNames.Bounds);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual bool ScaleChildren
+        {
+            get
+            {
+                return true;
             }
         }
 
@@ -1594,8 +1889,565 @@ namespace System.Windows.Forms
             }
         }
 
-        public bool Visible = true;
-        public Control Parent;
+        [
+        Localizable(true),
+        ]
+        public bool Visible
+        {
+            get
+            {
+                return GetVisibleCore();
+            }
+            set
+            {
+                SetVisibleCore(value);
+            }
+        }
+
+
+        internal virtual bool GetVisibleCore()
+        {
+            // We are only visible if our parent is visible
+            if (!GetState(STATE_VISIBLE))
+                return false;
+            else if (ParentInternal == null)
+                return true;
+            else
+                return ParentInternal.GetVisibleCore();
+        }
+
+        public bool Contains(Control ctl)
+        {
+            while (ctl != null)
+            {
+                ctl = ctl.ParentInternal;
+                if (ctl == null)
+                {
+                    return false;
+                }
+                if (ctl == this)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        internal virtual Control GetFirstChildControlInTabOrder(bool forward)
+        {
+
+            ControlCollection ctlControls = (ControlCollection)this.Properties.GetObject(PropControlsCollection);
+
+            Control found = null;
+            if (ctlControls != null)
+            {
+                if (forward)
+                {
+                    for (int c = 0; c < ctlControls.Count; c++)
+                    {
+                        if (found == null || found.tabIndex > ctlControls[c].tabIndex)
+                        {
+                            found = ctlControls[c];
+                        }
+                    }
+                }
+                else
+                {
+
+                    // Cycle through the controls in reverse z-order looking for the one with the highest
+                    // tab index.
+                    //
+                    for (int c = ctlControls.Count - 1; c >= 0; c--)
+                    {
+                        if (found == null || found.tabIndex < ctlControls[c].tabIndex)
+                        {
+                            found = ctlControls[c];
+                        }
+                    }
+                }
+            }
+            return found;
+
+        }
+
+        public Control GetNextControl(Control ctl, bool forward)
+        {
+            if (!Contains(ctl))
+            {
+                ctl = this;
+            }
+
+            if (forward)
+            {
+                ControlCollection ctlControls = (ControlCollection)ctl.Properties.GetObject(PropControlsCollection);
+
+                if (ctlControls != null && ctlControls.Count > 0 && (ctl == this || !IsFocusManagingContainerControl(ctl)))
+                {
+                    Control found = ctl.GetFirstChildControlInTabOrder(/*forward=*/true);
+                    if (found != null)
+                    {
+                        return found;
+                    }
+                }
+
+                while (ctl != this)
+                {
+                    int targetIndex = ctl.tabIndex;
+                    bool hitCtl = false;
+                    Control found = null;
+                    Control p = ctl.parent;
+
+                    // Cycle through the controls in z-order looking for the one with the next highest
+                    // tab index.  Because there can be dups, we have to start with the existing tab index and
+                    // remember to exclude the current control.
+                    //
+                    int parentControlCount = 0;
+
+                    ControlCollection parentControls = (ControlCollection)p.Properties.GetObject(PropControlsCollection);
+
+                    if (parentControls != null)
+                    {
+                        parentControlCount = parentControls.Count;
+                    }
+
+                    for (int c = 0; c < parentControlCount; c++)
+                    {
+
+                        // The logic for this is a bit lengthy, so I have broken it into separate
+                        // caluses:
+
+                        // We are not interested in ourself.
+                        //
+                        if (parentControls[c] != ctl)
+                        {
+
+                            // We are interested in controls with >= tab indexes to ctl.  We must include those
+                            // controls with equal indexes to account for duplicate indexes.
+                            //
+                            if (parentControls[c].tabIndex >= targetIndex)
+                            {
+
+                                // Check to see if this control replaces the "best match" we've already
+                                // found.
+                                //
+                                if (found == null || found.tabIndex > parentControls[c].tabIndex)
+                                {
+
+                                    // Finally, check to make sure that if this tab index is the same as ctl,
+                                    // that we've already encountered ctl in the z-order.  If it isn't the same,
+                                    // than we're more than happy with it.
+                                    //
+                                    if (parentControls[c].tabIndex != targetIndex || hitCtl)
+                                    {
+                                        found = parentControls[c];
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // We track when we have encountered "ctl".  We never want to select ctl again, but
+                            // we want to know when we've seen it in case we find another control with the same tab index.
+                            //
+                            hitCtl = true;
+                        }
+                    }
+
+                    if (found != null)
+                    {
+                        return found;
+                    }
+
+                    ctl = ctl.parent;
+                }
+            }
+            else
+            {
+                if (ctl != this)
+                {
+
+                    int targetIndex = ctl.tabIndex;
+                    bool hitCtl = false;
+                    Control found = null;
+                    Control p = ctl.parent;
+
+                    // Cycle through the controls in reverse z-order looking for the next lowest tab index.  We must
+                    // start with the same tab index as ctl, because there can be dups.
+                    //
+                    int parentControlCount = 0;
+
+                    ControlCollection parentControls = (ControlCollection)p.Properties.GetObject(PropControlsCollection);
+
+                    if (parentControls != null)
+                    {
+                        parentControlCount = parentControls.Count;
+                    }
+
+                    for (int c = parentControlCount - 1; c >= 0; c--)
+                    {
+
+                        // The logic for this is a bit lengthy, so I have broken it into separate
+                        // caluses:
+
+                        // We are not interested in ourself.
+                        //
+                        if (parentControls[c] != ctl)
+                        {
+
+                            // We are interested in controls with <= tab indexes to ctl.  We must include those
+                            // controls with equal indexes to account for duplicate indexes.
+                            //
+                            if (parentControls[c].tabIndex <= targetIndex)
+                            {
+
+                                // Check to see if this control replaces the "best match" we've already
+                                // found.
+                                //
+                                if (found == null || found.tabIndex < parentControls[c].tabIndex)
+                                {
+
+                                    // Finally, check to make sure that if this tab index is the same as ctl,
+                                    // that we've already encountered ctl in the z-order.  If it isn't the same,
+                                    // than we're more than happy with it.
+                                    //
+                                    if (parentControls[c].tabIndex != targetIndex || hitCtl)
+                                    {
+                                        found = parentControls[c];
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // We track when we have encountered "ctl".  We never want to select ctl again, but
+                            // we want to know when we've seen it in case we find another control with the same tab index.
+                            //
+                            hitCtl = true;
+                        }
+                    }
+
+                    // If we were unable to find a control we should return the control's parent.  However, if that parent is us, return
+                    // NULL.
+                    //
+                    if (found != null)
+                    {
+                        ctl = found;
+                    }
+                    else
+                    {
+                        if (p == this)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return p;
+                        }
+                    }
+                }
+
+                // We found a control.  Walk into this control to find the proper sub control within it to select.
+                //
+                ControlCollection ctlControls = (ControlCollection)ctl.Properties.GetObject(PropControlsCollection);
+
+                while (ctlControls != null && ctlControls.Count > 0 && (ctl == this || !IsFocusManagingContainerControl(ctl)))
+                {
+                    Control found = ctl.GetFirstChildControlInTabOrder(/*forward=*/false);
+                    if (found != null)
+                    {
+                        ctl = found;
+                        ctlControls = (ControlCollection)ctl.Properties.GetObject(PropControlsCollection);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return ctl == this ? null : ctl;
+        }
+
+        private Control GetNextSelectableControl(Control ctl, bool forward, bool tabStopOnly, bool nested, bool wrap)
+        {
+            if (!Contains(ctl) || !nested && ctl.parent != this) ctl = null;
+
+            bool alreadyWrapped = false;
+            Control start = ctl;
+            do
+            {
+                ctl = GetNextControl(ctl, forward);
+                if (ctl == null)
+                {
+                    if (!wrap) break;
+                    if (alreadyWrapped)
+                    {
+                        return null; //VSWhidbey 423098 prevent infinite wrapping.
+                    }
+                    alreadyWrapped = true;
+                }
+                else
+                {
+                    if (ctl.CanSelect
+                        && (!tabStopOnly || ctl.TabStop)
+                        && (nested || ctl.parent == this))
+                    {
+
+                        //if (AccessibilityImprovements.Level3 && ctl.parent is ToolStrip)
+                        //{
+                        //    continue;
+                        //}
+                        return ctl;
+                    }
+                }
+            } while (ctl != start);
+            return null;
+        }
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public bool CanSelect
+        {
+            // We implement this to allow only AxHost to override canSelectCore, but still
+            // expose the method publicly
+            //
+            get
+            {
+                return CanSelectCore();
+            }
+        }
+
+        internal virtual bool CanSelectCore()
+        {
+            if ((controlStyle & ControlStyles.Selectable) != ControlStyles.Selectable)
+            {
+                return false;
+            }
+
+            for (Control ctl = this; ctl != null; ctl = ctl.parent)
+            {
+                if (!ctl.Enabled || !ctl.Visible)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void Select()
+        {
+            Select(false, false);
+        }
+
+        protected virtual void Select(bool directed, bool forward)
+        {
+            IContainerControl c = GetContainerControlInternal();
+
+            if (c != null)
+            {
+                c.ActiveControl = this;
+            }
+        }
+
+        public bool SelectNextControl(Control ctl, bool forward, bool tabStopOnly, bool nested, bool wrap)
+        {
+            Control nextSelectableControl = this.GetNextSelectableControl(ctl, forward, tabStopOnly, nested, wrap);
+            if (nextSelectableControl != null)
+            {
+                nextSelectableControl.Select(true, forward);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        internal bool SelectNextControlInternal(Control ctl, bool forward, bool tabStopOnly, bool nested, bool wrap)
+        {
+            return SelectNextControl(ctl, forward, tabStopOnly, nested, wrap);
+        }
+
+        private void SelectNextIfFocused()
+        {
+            // V#32437 - We want to move focus away from hidden controls, so this
+            //           function was added.
+            //
+            if (ContainsFocus && ParentInternal != null)
+            {
+                IContainerControl c = ParentInternal.GetContainerControlInternal();
+
+                if (c != null)
+                {
+                    // SECREVIEW : Control.SelectNextControl generates a call to ContainerControl.ActiveControl which demands
+                    //             ModifyFocus permission, the demand is to prevent DOS attacks but it doesn't expose a sec
+                    //             vulnerability indirectly.  So it is safe to call the internal version of SelectNextControl here.
+                    //
+                    ((Control)c).SelectNextControlInternal(this, true, true, true, true);
+                }
+            }
+        }
+
+        internal virtual bool IsContainerControl
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public IContainerControl GetContainerControl()
+        {
+            Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "GetParent Demanded");
+            IntSecurity.GetParent.Demand();
+            return GetContainerControlInternal();
+        }
+
+        private static bool IsFocusManagingContainerControl(Control ctl)
+        {
+            return ((ctl.controlStyle & ControlStyles.ContainerControl) == ControlStyles.ContainerControl && ctl is IContainerControl);
+        }
+
+        // SECURITY WARNING: This method bypasses a security demand. Use with caution!
+        internal IContainerControl GetContainerControlInternal()
+        {
+            Control c = this;
+
+            // VsWhidbey 434959 : Refer to IsContainerControl property for more details.            
+            if (c != null && IsContainerControl)
+            {
+                c = c.ParentInternal;
+            }
+            while (c != null && (!IsFocusManagingContainerControl(c)))
+            {
+                c = c.ParentInternal;
+            }
+            return (IContainerControl)c;
+        }
+
+        protected virtual void SetVisibleCore(bool value)
+        {
+            try
+            {
+                System.Internal.HandleCollector.SuspendCollect();
+
+                if (GetVisibleCore() != value)
+                {
+                    if (!value)
+                    {
+                        SelectNextIfFocused();
+                    }
+
+                    bool fireChange = false;
+
+                    if (GetTopLevel())
+                    {
+
+                        // The processing of WmShowWindow will set the visibility
+                        // bit and call CreateControl()
+                        //
+                        if (IsHandleCreated || value)
+                        {
+                            //SafeNativeMethods.ShowWindow(new HandleRef(this, Handle), value ? ShowParams : NativeMethods.SW_HIDE);
+                            PerformLayout();
+                        }
+                    }
+                    else if (IsHandleCreated || value && parent != null && parent.Created)
+                    {
+
+                        // We want to mark the control as visible so that CreateControl
+                        // knows that we are going to be displayed... however in case
+                        // an exception is thrown, we need to back the change out.
+                        //
+                        SetState(STATE_VISIBLE, value);
+                        fireChange = true;
+                        try
+                        {
+                            //if (value) CreateControl();
+                            //SafeNativeMethods.SetWindowPos(new HandleRef(window, Handle),
+                            //                               NativeMethods.NullHandleRef,
+                            //                               0, 0, 0, 0,
+                            //                               NativeMethods.SWP_NOSIZE
+                            //                               | NativeMethods.SWP_NOMOVE
+                            //                               | NativeMethods.SWP_NOZORDER
+                            //                               | NativeMethods.SWP_NOACTIVATE
+                            //                               | (value ? NativeMethods.SWP_SHOWWINDOW : NativeMethods.SWP_HIDEWINDOW));
+                        }
+                        catch
+                        {
+                            SetState(STATE_VISIBLE, !value);
+                            throw;
+                        }
+                    }
+                    if (GetVisibleCore() != value)
+                    {
+                        SetState(STATE_VISIBLE, value);
+                        fireChange = true;
+                    }
+
+                    if (fireChange)
+                    {
+                        // We do not do this in the OnPropertyChanged event for visible
+                        // Lots of things could cause us to become visible, including a
+                        // parent window.  We do not want to indescriminiately layout
+                        // due to this, but we do want to layout if the user changed
+                        // our visibility.
+                        //
+
+                        using (new LayoutTransaction(parent, this, PropertyNames.Visible))
+                        {
+                            OnVisibleChanged(EventArgs.Empty);
+                        }
+                    }
+                    UpdateRoot();
+                }
+                else
+                { // value of Visible property not changed, but raw bit may have
+
+                    if (!GetState(STATE_VISIBLE) && !value && IsHandleCreated)
+                    {
+                        // PERF - setting Visible=false twice can get us into this else block
+                        // which makes us process WM_WINDOWPOS* messages - make sure we've already 
+                        // visible=false - if not, make it so.
+                        //if (!SafeNativeMethods.IsWindowVisible(new HandleRef(this, this.Handle)))
+                        //{
+                        //    // we're already invisible - bail.
+                        //    return;
+                        //}
+                    }
+
+                    SetState(STATE_VISIBLE, value);
+
+                    // If the handle is already created, we need to update the window style.
+                    // This situation occurs when the parent control is not currently visible,
+                    // but the child control has already been created.
+                    //
+                    if (IsHandleCreated)
+                    {
+
+                        //SafeNativeMethods.SetWindowPos(
+                        //                                  new HandleRef(window, Handle), NativeMethods.NullHandleRef, 0, 0, 0, 0, NativeMethods.SWP_NOSIZE |
+                        //                                  NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE |
+                        //                                  (value ? NativeMethods.SWP_SHOWWINDOW : NativeMethods.SWP_HIDEWINDOW));
+                        PerformLayout();
+                    }
+                }
+            }
+            finally
+            {
+                System.Internal.HandleCollector.ResumeCollect();
+            }
+        }
+
+        private void UpdateRoot()
+        {
+            //window.LockReference(GetTopLevel() && Visible);
+        }
+
         public IntPtr Handle;
         public int internalIndex;
         internal string WebviewIdentifier = "";
@@ -1604,8 +2456,88 @@ namespace System.Windows.Forms
         
         public Point AutoScrollOffset;
         public ImageLayout BackgroundImageLayout;
-        public BindingContext BindingContext;
-        public Rectangle Bounds;
+
+
+        protected virtual bool CanEnableIme
+        {
+            get
+            {
+                // Note: If overriding this property make sure to add the Debug tracing code and call this method (base.CanEnableIme).
+
+                Debug.Indent();
+                Debug.WriteLineIf(CompModSwitches.ImeMode.Level >= TraceLevel.Info, string.Format(CultureInfo.CurrentCulture, "Inside get_CanEnableIme(), value = {0}, this = {1}", ImeSupported, this));
+                Debug.Unindent();
+
+                return ImeSupported;
+            }
+        }
+
+        private bool ImeSupported
+        {
+            get
+            {
+                return DefaultImeMode != ImeMode.Disable;
+            }
+        }
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public virtual BindingContext BindingContext
+        {
+            get
+            {
+                return BindingContextInternal;
+            }
+            set
+            {
+                BindingContextInternal = value;
+            }
+        }
+
+
+        internal BindingContext BindingContextInternal
+        {
+            get
+            {
+                // See if we have locally overridden the binding manager.
+                //
+                BindingContext context = (BindingContext)Properties.GetObject(PropBindingManager);
+                if (context != null)
+                {
+                    return context;
+                }
+
+                // Otherwise, see if the parent has one for us.
+                //
+                Control p = ParentInternal;
+                if (p != null && p.CanAccessProperties)
+                {
+                    return p.BindingContext;
+                }
+
+                // Otherwise, we have no binding manager available.
+                //
+                return null;
+            }
+            set
+            {
+                BindingContext oldContext = (BindingContext)Properties.GetObject(PropBindingManager);
+                BindingContext newContext = value;
+
+                if (oldContext != newContext)
+                {
+                    Properties.SetObject(PropBindingManager, newContext);
+
+                    // the property change will wire up the bindings.
+                    //
+                    OnBindingContextChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        //public Rectangle Bounds;
         public bool CanFocus;
         public bool Capture;
         public bool CausesValidation;
@@ -1637,6 +2569,22 @@ namespace System.Windows.Forms
         private RightToLeft DefaultRightToLeft
         {
             get { return RightToLeft.No; }
+        }
+
+        public static Font DefaultFont
+        {
+            [ResourceExposure(ResourceScope.None)]
+            [ResourceConsumption(ResourceScope.Process, ResourceScope.Process)]
+            get
+            {
+                if (defaultFont == null)
+                {
+                    defaultFont = SystemFonts.DefaultFont;
+                    Debug.Assert(defaultFont != null, "defaultFont wasn't set!");
+                }
+
+                return defaultFont;
+            }
         }
 
         [Browsable(false)]
@@ -1701,6 +2649,25 @@ namespace System.Windows.Forms
                         LayoutTransaction.DoLayout(this, this, PropertyNames.Padding);
                     }
                 }
+            }
+        }
+
+        [
+        Browsable(false),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public Control Parent
+        {
+            get
+            {
+                Debug.WriteLineIf(IntSecurity.SecurityDemand.TraceVerbose, "GetParent Demanded");
+                IntSecurity.GetParent.Demand();
+
+                return ParentInternal;
+            }
+            set
+            {
+                ParentInternal = value;
             }
         }
 
@@ -1864,27 +2831,28 @@ namespace System.Windows.Forms
             return CommonProperties.GetSpecifiedBounds(this).Size;
         }
 
-        internal Drawing.Size size;
-        public Drawing.Size Size
+        public void Show()
+        {
+            Visible = true;
+        }
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public Rectangle Bounds
         {
             get
             {
-                return size;
+                return new Rectangle(x, y, width, height);
             }
+
             set
             {
-                if (value != size)
-                {
-                    size = value;
-                    if (layoutPerformed)
-                    {
-                        ApplyLocationAndSize();
-                    }
-                }
+                SetBounds(value.X, value.Y, value.Width, value.Height, BoundsSpecified.All);
             }
         }
 
-        Rectangle IArrangedElement.Bounds => throw new NotImplementedException();
 
         [
         Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
@@ -1943,9 +2911,9 @@ namespace System.Windows.Forms
         }
 
         [
-Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
-DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-]
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
         public Rectangle ClientRectangle
         {
             get
@@ -1953,9 +2921,27 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 return new Rectangle(0, 0, clientWidth, clientHeight);
             }
         }
-        IArrangedElement IArrangedElement.Container => throw new NotImplementedException();
+        IArrangedElement IArrangedElement.Container
+        {
+            get
+            {
+                // This is safe because the IArrangedElement interface is internal
+                return ParentInternal;
+            }
+        }
 
-        public ArrangedElementCollection Children => throw new NotImplementedException();
+        ArrangedElementCollection IArrangedElement.Children
+        {
+            get
+            {
+                ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+                if (controlsCollection == null)
+                {
+                    return ArrangedElementCollection.Empty;
+                }
+                return controlsCollection;
+            }
+        }
 
         internal bool layoutPerformed = false;
 
@@ -1972,6 +2958,25 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         private void ResetVisible()
         {
             Visible = true;
+        }
+
+        [
+        Browsable(false),
+        EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public bool IsMirrored
+        {
+            get
+            {
+                if (!IsHandleCreated)
+                {
+                    //CreateParams cp = CreateParams;
+                    //SetState(STATE_MIRRORED, (cp.ExStyle & NativeMethods.WS_EX_LAYOUTRTL) != 0);
+                    SetState(STATE_MIRRORED, false);
+                }
+                return GetState(STATE_MIRRORED);
+            }
         }
 
         public void ResumeLayout()
@@ -2147,11 +3152,12 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         {
             for (int i = 0; i < Controls.Count; i++)
             {
-                Controls[i].WebviewIdentifier = WebviewIdentifier + "-";
-                Controls[i].Parent = this;
+                Controls[i].WebviewIdentifier = WebviewIdentifier + "-"; 
+                //Controls[i].Parent = this; // Custom removed, original code by Microsoft assign the Parent fine when adding in ControlCollection Controls
                 Controls[i].PerformLayout();
             }
         }
+
         public void SetBounds(int x, int y, int width, int height)
         {
             //if (this.x != x || this.y != y || this.width != width ||
@@ -2172,26 +3178,224 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
 
         public void SetBounds(int x, int y, int width, int height, BoundsSpecified specified)
         {
-            //if ((specified & BoundsSpecified.X) == BoundsSpecified.None) x = this.x;
-            //if ((specified & BoundsSpecified.Y) == BoundsSpecified.None) y = this.y;
-            //if ((specified & BoundsSpecified.Width) == BoundsSpecified.None) width = this.width;
-            //if ((specified & BoundsSpecified.Height) == BoundsSpecified.None) height = this.height;
-            //if (this.x != x || this.y != y || this.width != width ||
-            //    this.height != height)
-            //{
-            //    SetBoundsCore(x, y, width, height, specified);
+            if ((specified & BoundsSpecified.X) == BoundsSpecified.None) x = this.x;
+            if ((specified & BoundsSpecified.Y) == BoundsSpecified.None) y = this.y;
+            if ((specified & BoundsSpecified.Width) == BoundsSpecified.None) width = this.width;
+            if ((specified & BoundsSpecified.Height) == BoundsSpecified.None) height = this.height;
+            if (this.x != x || this.y != y || this.width != width ||
+                this.height != height)
+            {
+                SetBoundsCore(x, y, width, height, specified);
 
-            //    // WM_WINDOWPOSCHANGED will trickle down to an OnResize() which will
-            //    // have refreshed the interior layout or the resized control.  We only need to layout
-            //    // the parent.  This happens after InitLayout has been invoked.
-            //    LayoutTransaction.DoLayout(ParentInternal, this, PropertyNames.Bounds);
-            //}
-            //else
-            //{
-            //    // Still need to init scaling.
-            //    InitScaling(specified);
-            //}
+                // WM_WINDOWPOSCHANGED will trickle down to an OnResize() which will
+                // have refreshed the interior layout or the resized control.  We only need to layout
+                // the parent.  This happens after InitLayout has been invoked.
+                LayoutTransaction.DoLayout(ParentInternal, this, PropertyNames.Bounds);
+            }
+            else
+            {
+                // Still need to init scaling.
+                //InitScaling(specified);
+            }
         }
+
+        // GetPreferredSize and SetBoundsCore call this method to allow controls to self impose
+        // constraints on their size.
+        internal Size ApplySizeConstraints(Size proposedSize)
+        {
+            return ApplyBoundsConstraints(0, 0, proposedSize.Width, proposedSize.Height).Size;
+        }
+
+        internal virtual Rectangle ApplyBoundsConstraints(int suggestedX, int suggestedY, int proposedWidth, int proposedHeight)
+        {
+
+            // COMPAT: 529991 - in Everett we would allow you to set negative values in pre-handle mode
+            // in Whidbey, if you've set Min/Max size we will constrain you to 0,0.  Everett apps didnt 
+            // have min/max size on control, which is why this works.
+            if (MaximumSize != Size.Empty || MinimumSize != Size.Empty)
+            {
+                Size maximumSize = LayoutUtils.ConvertZeroToUnbounded(MaximumSize);
+                Rectangle newBounds = new Rectangle(suggestedX, suggestedY, 0, 0);
+
+                // Clip the size to maximum and inflate it to minimum as necessary.
+                newBounds.Size = LayoutUtils.IntersectSizes(new Size(proposedWidth, proposedHeight), maximumSize);
+                newBounds.Size = LayoutUtils.UnionSizes(newBounds.Size, MinimumSize);
+
+                return newBounds;
+            }
+
+            return new Rectangle(suggestedX, suggestedY, proposedWidth, proposedHeight);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            // SetWindowPos below sends a WmWindowPositionChanged (not posts) so we immediately
+            // end up in WmWindowPositionChanged which may cause the parent to layout.  We need to
+            // suspend/resume to defer the parent from laying out until after InitLayout has been called
+            // to update the layout engine's state with the new control bounds.
+            if (ParentInternal != null)
+            {
+                ParentInternal.SuspendLayout();
+            }
+            try
+            {
+                if (this.x != x || this.y != y || this.width != width || this.height != height)
+                {
+                    CommonProperties.UpdateSpecifiedBounds(this, x, y, width, height, specified);
+
+                    // Provide control with an opportunity to apply self imposed constraints on its size.
+                    Rectangle adjustedBounds = ApplyBoundsConstraints(x, y, width, height);
+                    width = adjustedBounds.Width;
+                    height = adjustedBounds.Height;
+                    x = adjustedBounds.X;
+                    y = adjustedBounds.Y;
+
+                    if (!IsHandleCreated)
+                    {
+                        // Handle is not created, just record our new position and we're done.
+                        UpdateBounds(x, y, width, height);
+                    }
+                    else
+                    {
+                        if (!GetState(STATE_SIZELOCKEDBYOS))
+                        {
+                            int flags = NativeMethods.SWP_NOZORDER | NativeMethods.SWP_NOACTIVATE;
+
+                            if (this.x == x && this.y == y)
+                            {
+                                flags |= NativeMethods.SWP_NOMOVE;
+                            }
+                            if (this.width == width && this.height == height)
+                            {
+                                flags |= NativeMethods.SWP_NOSIZE;
+                            }
+
+                            //
+                            // Give a chance for derived controls to do what they want, just before we resize.
+                            OnBoundsUpdate(x, y, width, height);
+
+                            //SafeNativeMethods.SetWindowPos(new HandleRef(window, Handle), NativeMethods.NullHandleRef, x, y, width, height, flags);
+                            this.x = x;
+                            this.y = y;
+                            this.width = width;
+                            this.height = height;
+
+                            if (layoutPerformed)
+                            {
+                                ApplyLocationAndSize();
+                            }
+
+                            // NOTE: SetWindowPos causes a WM_WINDOWPOSCHANGED which is processed
+                            // synchonously so we effectively end up in UpdateBounds immediately following
+                            // SetWindowPos.
+                            //
+                            //UpdateBounds(x, y, width, height);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+
+                // Initialize the scaling engine.
+                //InitScaling(specified);
+
+                if (ParentInternal != null)
+                {
+                    // Some layout engines (DefaultLayout) base their PreferredSize on
+                    // the bounds of their children.  If we change change the child bounds, we
+                    // need to clear their PreferredSize cache.  The semantics of SetBoundsCore
+                    // is that it does not cause a layout, so we just clear.
+                    CommonProperties.xClearPreferredSizeCache(ParentInternal);
+
+                    // Cause the current control to initialize its layout (e.g., Anchored controls
+                    // memorize their distance from their parent's edges).  It is your parent's
+                    // LayoutEngine which manages your layout, so we call into the parent's
+                    // LayoutEngine.
+                    ParentInternal.LayoutEngine.InitLayout(this, specified);
+                    ParentInternal.ResumeLayout( /* performLayout = */ true);
+                }
+            }
+        }
+
+        // Give a chance for derived controls to do what they want, just before we resize.
+        internal virtual void OnBoundsUpdate(int x, int y, int width, int height)
+        {
+        }
+
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected internal void UpdateBounds()
+        {
+            //NativeMethods.RECT rect = new NativeMethods.RECT();
+            //UnsafeNativeMethods.GetClientRect(new HandleRef(window, InternalHandle), ref rect);
+            //int clientWidth = rect.right;
+            //int clientHeight = rect.bottom;
+            //UnsafeNativeMethods.GetWindowRect(new HandleRef(window, InternalHandle), ref rect);
+            //if (!GetTopLevel())
+            //{
+            //    UnsafeNativeMethods.MapWindowPoints(NativeMethods.NullHandleRef, new HandleRef(null, UnsafeNativeMethods.GetParent(new HandleRef(window, InternalHandle))), ref rect, 2);
+            //}
+
+            //UpdateBounds(rect.left, rect.top, rect.right - rect.left,
+            //             rect.bottom - rect.top, clientWidth, clientHeight);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected void UpdateBounds(int x, int y, int width, int height)
+        {
+            Debug.Assert(!IsHandleCreated, "Don't call this method when handle is created!!");
+
+            // reverse-engineer the AdjustWindowRectEx call to figure out
+            // the appropriate clientWidth and clientHeight
+            NativeMethods.RECT rect = new NativeMethods.RECT();
+            rect.left = rect.right = rect.top = rect.bottom = 0;
+
+            //CreateParams cp = CreateParams;
+
+            //AdjustWindowRectEx(ref rect, cp.Style, false, cp.ExStyle);
+            int clientWidth = width - (rect.right - rect.left);
+            int clientHeight = height - (rect.bottom - rect.top);
+            UpdateBounds(x, y, width, height, clientWidth, clientHeight);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected void UpdateBounds(int x, int y, int width, int height, int clientWidth, int clientHeight)
+        {
+            bool newLocation = this.x != x || this.y != y;
+            bool newSize = this.Width != width || this.Height != height ||
+                           this.clientWidth != clientWidth || this.clientHeight != clientHeight;
+
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.clientWidth = clientWidth;
+            this.clientHeight = clientHeight;
+
+
+            if (layoutPerformed)
+            {
+                ApplyLocationAndSize();
+            }
+
+            if (newLocation)
+            {
+                OnLocationChanged(EventArgs.Empty);
+            }
+            if (newSize)
+            {
+                OnSizeChanged(EventArgs.Empty);
+                OnClientSizeChanged(EventArgs.Empty);
+
+                // Clear PreferredSize cache for this control
+                CommonProperties.xClearPreferredSizeCache(this);
+                LayoutTransaction.DoLayout(ParentInternal, this, PropertyNames.Bounds);
+
+            }
+        }
+
         void IArrangedElement.SetBounds(Rectangle bounds, BoundsSpecified specified)
         {
             ISite site = Site;
@@ -2262,52 +3466,52 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         {
             Drawing.Size prefSize;
 
-            //if (GetState(STATE_DISPOSING | STATE_DISPOSED))
-            //{
-            //    // if someone's asking when we're disposing just return what we last had.
-            //    prefSize = CommonProperties.xGetPreferredSizeCache(this);
-            //}
-            //else
-            //{
-            //    // Switch Size.Empty to maximum possible values
-            //    proposedSize = LayoutUtils.ConvertZeroToUnbounded(proposedSize);
+            if (GetState(STATE_DISPOSING | STATE_DISPOSED))
+            {
+                // if someone's asking when we're disposing just return what we last had.
+                prefSize = CommonProperties.xGetPreferredSizeCache(this);
+            }
+            else
+            {
+                // Switch Size.Empty to maximum possible values
+                proposedSize = LayoutUtils.ConvertZeroToUnbounded(proposedSize);
 
-            //    // Force proposedSize to be within the elements constraints.  (This applies
-            //    // minimumSize, maximumSize, etc.)
-            //    proposedSize = ApplySizeConstraints(proposedSize);
-            //    if (GetState2(STATE2_USEPREFERREDSIZECACHE))
-            //    {
-            //        Drawing.Size cachedSize = CommonProperties.xGetPreferredSizeCache(this);
+                // Force proposedSize to be within the elements constraints.  (This applies
+                // minimumSize, maximumSize, etc.)
+                proposedSize = ApplySizeConstraints(proposedSize);
+                if (GetState2(STATE2_USEPREFERREDSIZECACHE))
+                {
+                    Drawing.Size cachedSize = CommonProperties.xGetPreferredSizeCache(this);
 
-            //        // If the "default" preferred size is being requested, and we have a cached value for it, return it.
-            //        // 
-            //        if (!cachedSize.IsEmpty && (proposedSize == LayoutUtils.MaxSize))
-            //        {
-            //            return cachedSize;
-            //        }
-            //    }
+                    // If the "default" preferred size is being requested, and we have a cached value for it, return it.
+                    // 
+                    if (!cachedSize.IsEmpty && (proposedSize == LayoutUtils.MaxSize))
+                    {
+                        return cachedSize;
+                    }
+                }
 
-            //    CacheTextInternal = true;
-            //    try
-            //    {
-            //        prefSize = GetPreferredSizeCore(proposedSize);
-            //    }
-            //    finally
-            //    {
-            //        CacheTextInternal = false;
-            //    }
+                CacheTextInternal = true;
+                try
+                {
+                    prefSize = GetPreferredSizeCore(proposedSize);
+                }
+                finally
+                {
+                    CacheTextInternal = false;
+                }
 
-            //    // There is no guarantee that GetPreferredSizeCore() return something within
-            //    // proposedSize, so we apply the element's constraints again.
-            //    prefSize = ApplySizeConstraints(prefSize);
+                // There is no guarantee that GetPreferredSizeCore() return something within
+                // proposedSize, so we apply the element's constraints again.
+                prefSize = ApplySizeConstraints(prefSize);
 
-            //    // If the "default" preferred size was requested, cache the computed value.
-            //    // 
-            //    if (GetState2(STATE2_USEPREFERREDSIZECACHE) && proposedSize == LayoutUtils.MaxSize)
-            //    {
-            //        CommonProperties.xSetPreferredSizeCache(this, prefSize);
-            //    }
-            //}
+                // If the "default" preferred size was requested, cache the computed value.
+                // 
+                if (GetState2(STATE2_USEPREFERREDSIZECACHE) && proposedSize == LayoutUtils.MaxSize)
+                {
+                    CommonProperties.xSetPreferredSizeCache(this, prefSize);
+                }
+            }
             return prefSize;
         }
 
@@ -2317,9 +3521,9 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [
-Browsable(false), EditorBrowsable(EditorBrowsableState.Always),
-DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-]
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Always),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
         public int Width
         {
             get
@@ -2333,9 +3537,9 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         }
 
         [
-Browsable(false), EditorBrowsable(EditorBrowsableState.Always),
-DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-]
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Always),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
         public int Height
         {
             get
@@ -2371,7 +3575,7 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 // enumerate
                 for (int i = 0; i < controlsCollection.Count; i++)
                 {
-                    //controlsCollection[i].OnParentBindingContextChanged(e);
+                    controlsCollection[i].OnParentBindingContextChanged(e);
                 }
             }
         }
@@ -2390,10 +3594,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         internal virtual void OnBackColorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
             object backBrush = Properties.GetObject(PropBackBrush);
             if (backBrush != null)
@@ -2434,10 +3638,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         internal virtual void OnBackgroundImageChanged(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
             Invalidate();
 
@@ -2464,10 +3668,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         internal virtual void OnBackgroundImageLayoutChanged(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
             Invalidate();
 
@@ -2557,10 +3761,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         internal virtual void OnEnabledChanged(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
             if (IsHandleCreated)
             {
@@ -2575,23 +3779,23 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
                 }
             }
 
-            //EventHandler eh = Events[EventEnabled] as EventHandler;
-            //if (eh != null)
-            //{
-            //    eh(this, e);
-            //}
+            EventHandler eh = Events[EventEnabled] as EventHandler;
+            if (eh != null)
+            {
+                eh(this, e);
+            }
 
-            //ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
-            //if (controlsCollection != null)
-            //{
-            //    // PERFNOTE: This is more efficient than using Foreach.  Foreach
-            //    // forces the creation of an array subset enum each time we
-            //    // enumerate
-            //    for (int i = 0; i < controlsCollection.Count; i++)
-            //    {
-            //        controlsCollection[i].OnParentEnabledChanged(e);
-            //    }
-            //}
+            ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+            if (controlsCollection != null)
+            {
+                // PERFNOTE: This is more efficient than using Foreach.  Foreach
+                // forces the creation of an array subset enum each time we
+                // enumerate
+                for (int i = 0; i < controlsCollection.Count; i++)
+                {
+                    controlsCollection[i].OnParentEnabledChanged(e);
+                }
+            }
         }
 
         // Refer VsWhidbey : 515910 & 269769
@@ -2605,60 +3809,58 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             Contract.Requires(e != null);
             // bail if disposing
             //
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
-            //Invalidate();
+            Invalidate();
 
-            //if (Properties.ContainsInteger(PropFontHeight))
-            //{
-            //    Properties.SetInteger(PropFontHeight, -1);
-            //}
+            if (Properties.ContainsInteger(PropFontHeight))
+            {
+                Properties.SetInteger(PropFontHeight, -1);
+            }
 
-
-            ////
-            //DisposeFontHandle();
+            DisposeFontHandle();
 
             if (IsHandleCreated && !GetStyle(ControlStyles.UserPaint))
             {
                 //SetWindowFont();
             }
 
-            //EventHandler eh = Events[EventFont] as EventHandler;
-            //if (eh != null)
-            //{
-            //    eh(this, e);
-            //}
+            EventHandler eh = Events[EventFont] as EventHandler;
+            if (eh != null)
+            {
+                eh(this, e);
+            }
 
-            //ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
-            //using (new LayoutTransaction(this, this, PropertyNames.Font, false))
-            //{
-            //    if (controlsCollection != null)
-            //    {
-            //        // This may have changed the sizes of our children.
-            //        // PERFNOTE: This is more efficient than using Foreach.  Foreach
-            //        // forces the creation of an array subset enum each time we
-            //        // enumerate
-            //        for (int i = 0; i < controlsCollection.Count; i++)
-            //        {
-            //            controlsCollection[i].OnParentFontChanged(e);
-            //        }
-            //    }
-            //}
+            ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+            using (new LayoutTransaction(this, this, PropertyNames.Font, false))
+            {
+                if (controlsCollection != null)
+                {
+                    // This may have changed the sizes of our children.
+                    // PERFNOTE: This is more efficient than using Foreach.  Foreach
+                    // forces the creation of an array subset enum each time we
+                    // enumerate
+                    for (int i = 0; i < controlsCollection.Count; i++)
+                    {
+                        controlsCollection[i].OnParentFontChanged(e);
+                    }
+                }
+            }
 
-            //LayoutTransaction.DoLayout(this, this, PropertyNames.Font);
+            LayoutTransaction.DoLayout(this, this, PropertyNames.Font);
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         internal virtual void OnForeColorChanged(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
             Invalidate();
 
@@ -2685,10 +3887,10 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         internal virtual void OnRightToLeftChanged(EventArgs e)
         {
             Contract.Requires(e != null);
-            //if (GetAnyDisposingInHierarchy())
-            //{
-            //    return;
-            //}
+            if (GetAnyDisposingInHierarchy())
+            {
+                return;
+            }
 
             // update the scroll position when the handle has been created
             // MUST SET THIS BEFORE CALLING RecreateHandle!!!
@@ -2886,52 +4088,52 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             }
             Contract.EndContractBlock();
 
-            //if (GetStyle(ControlStyles.UserPaint))
-            //{
-            //    // Theme support on Windows XP requires that we paint the background
-            //    // and foreground to support semi-transparent children
-            //    //
-            //    PaintWithErrorHandling(e, PaintLayerBackground);
-            //    e.ResetGraphics();
-            //    PaintWithErrorHandling(e, PaintLayerForeground);
-            //}
-            //else
-            //{
-            //    PrintPaintEventArgs ppev = e as PrintPaintEventArgs;
-            //    Message m;
-            //    bool releaseDC = false;
-            //    IntPtr hdc = IntPtr.Zero;
+            if (GetStyle(ControlStyles.UserPaint))
+            {
+                // Theme support on Windows XP requires that we paint the background
+                // and foreground to support semi-transparent children
+                //
+                //PaintWithErrorHandling(e, PaintLayerBackground);
+                //e.ResetGraphics();
+                //PaintWithErrorHandling(e, PaintLayerForeground);
+            }
+            else
+            {
+                //PrintPaintEventArgs ppev = e as PrintPaintEventArgs;
+                //Message m;
+                //bool releaseDC = false;
+                //IntPtr hdc = IntPtr.Zero;
 
-            //    if (ppev == null)
-            //    {
-            //        IntPtr flags = (IntPtr)(NativeMethods.PRF_CHILDREN | NativeMethods.PRF_CLIENT | NativeMethods.PRF_ERASEBKGND | NativeMethods.PRF_NONCLIENT);
-            //        hdc = e.HDC;
+                //if (ppev == null)
+                //{
+                //    IntPtr flags = (IntPtr)(NativeMethods.PRF_CHILDREN | NativeMethods.PRF_CLIENT | NativeMethods.PRF_ERASEBKGND | NativeMethods.PRF_NONCLIENT);
+                //    hdc = e.HDC;
 
-            //        if (hdc == IntPtr.Zero)
-            //        {
-            //            // a manually created paintevent args
-            //            hdc = e.Graphics.GetHdc();
-            //            releaseDC = true;
-            //        }
-            //        m = Message.Create(this.Handle, NativeMethods.WM_PRINTCLIENT, hdc, flags);
-            //    }
-            //    else
-            //    {
-            //        m = ppev.Message;
-            //    }
+                //    if (hdc == IntPtr.Zero)
+                //    {
+                //        // a manually created paintevent args
+                //        hdc = e.Graphics.GetHdc();
+                //        releaseDC = true;
+                //    }
+                //    m = Message.Create(this.Handle, NativeMethods.WM_PRINTCLIENT, hdc, flags);
+                //}
+                //else
+                //{
+                //    m = ppev.Message;
+                //}
 
-            //    try
-            //    {
-            //        DefWndProc(ref m);
-            //    }
-            //    finally
-            //    {
-            //        if (releaseDC)
-            //        {
-            //            e.Graphics.ReleaseHdcInternal(hdc);
-            //        }
-            //    }
-            //}
+                //try
+                //{
+                //    DefWndProc(ref m);
+                //}
+                //finally
+                //{
+                //    if (releaseDC)
+                //    {
+                //        e.Graphics.ReleaseHdcInternal(hdc);
+                //    }
+                //}
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -2961,21 +4163,21 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
         {
             Contract.Requires(e != null);
             bool visible = this.Visible;
-            //if (visible)
-            //{
-            //    UnhookMouseEvent();
-            //    trackMouseEvent = null;
-            //}
-            //if (parent != null && visible && !Created)
-            //{
-            //    bool isDisposing = GetAnyDisposingInHierarchy();
-            //    if (!isDisposing)
-            //    {
-            //        // Usually the control is created by now, but in a few corner cases
-            //        // exercised by the PropertyGrid dropdowns, it isn't
-            //        CreateControl();
-            //    }
-            //}
+            if (visible)
+            {
+                //UnhookMouseEvent();
+                trackMouseEvent = null;
+            }
+            if (parent != null && visible && !Created)
+            {
+                bool isDisposing = GetAnyDisposingInHierarchy();
+                if (!isDisposing)
+                {
+                    // Usually the control is created by now, but in a few corner cases
+                    // exercised by the PropertyGrid dropdowns, it isn't
+                    //CreateControl();
+                }
+            }
 
             EventHandler eh = Events[EventVisible] as EventHandler;
             if (eh != null)
@@ -3435,18 +4637,16 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             LayoutEventHandler handler = (LayoutEventHandler)Events[EventLayout];
             if (handler != null) handler(this, levent);
 
-            //bool parentRequiresLayout = LayoutEngine.Layout(this, levent);
+            bool parentRequiresLayout = LayoutEngine.Layout(this, levent);
 
-
-
-            //if (parentRequiresLayout && ParentInternal != null)
-            //{
-            //    // LayoutEngine.Layout can return true to request that our parent resize us because
-            //    // we did not have enough room for our contents.  We can not just call PerformLayout
-            //    // because this container is currently suspended.  PerformLayout will check this state
-            //    // flag and PerformLayout on our parent.
-            //    ParentInternal.SetState(STATE_LAYOUTISDIRTY, true);
-            //}
+            if (parentRequiresLayout && ParentInternal != null)
+            {
+                // LayoutEngine.Layout can return true to request that our parent resize us because
+                // we did not have enough room for our contents.  We can not just call PerformLayout
+                // because this container is currently suspended.  PerformLayout will check this state
+                // flag and PerformLayout on our parent.
+                ParentInternal.SetState(STATE_LAYOUTISDIRTY, true);
+            }
         }
 
         internal virtual void OnLayoutResuming(bool performLayout)
@@ -4169,6 +5369,172 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             }
         }
 
+        protected bool GetTopLevel()
+        {
+            return (state & STATE_TOPLEVEL) != 0;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected void UpdateZOrder()
+        {
+            if (parent != null)
+            {
+                parent.UpdateChildZOrder(this);
+            }
+        }
+
+        private void UpdateChildZOrder(Control ctl)
+        {
+            if (!IsHandleCreated || !ctl.IsHandleCreated || ctl.parent != this) return;
+            IntPtr prevHandle = (IntPtr)NativeMethods.HWND_TOP;
+            for (int i = this.Controls.GetChildIndex(ctl); --i >= 0;)
+            {
+                Control c = Controls[i];
+                if (c.IsHandleCreated && c.parent == this)
+                {
+                    prevHandle = c.Handle;
+                    break;
+                }
+            }
+            //if (UnsafeNativeMethods.GetWindow(new HandleRef(ctl.window, ctl.Handle), NativeMethods.GW_HWNDPREV) != prevHandle)
+            //{
+            //    state |= STATE_NOZORDER;
+            //    try
+            //    {
+            //        SafeNativeMethods.SetWindowPos(new HandleRef(ctl.window, ctl.Handle), new HandleRef(null, prevHandle), 0, 0, 0, 0,
+            //                                       NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE);
+            //    }
+            //    finally
+            //    {
+            //        state &= ~STATE_NOZORDER;
+            //    }
+            //}
+        }
+
+        internal bool PerformContainerValidation(ValidationConstraints validationConstraints)
+        {
+            bool failed = false;
+
+            // For every child control of this container control...
+            foreach (Control c in Controls)
+            {
+
+                // First, if the control is a container, recurse into its descendants.
+                if ((validationConstraints & ValidationConstraints.ImmediateChildren) != ValidationConstraints.ImmediateChildren &&
+                    c.ShouldPerformContainerValidation() &&
+                    c.PerformContainerValidation(validationConstraints))
+                {
+                    failed = true;
+                }
+
+                // Next, use input flags to decide whether to validate the control itself
+                if ((validationConstraints & ValidationConstraints.Selectable) == ValidationConstraints.Selectable && !c.GetStyle(ControlStyles.Selectable) ||
+                    (validationConstraints & ValidationConstraints.Enabled) == ValidationConstraints.Enabled && !c.Enabled ||
+                    (validationConstraints & ValidationConstraints.Visible) == ValidationConstraints.Visible && !c.Visible ||
+                    (validationConstraints & ValidationConstraints.TabStop) == ValidationConstraints.TabStop && !c.TabStop)
+                {
+                    continue;
+                }
+
+                // Finally, perform validation on the control itself
+                if (c.PerformControlValidation(true))
+                {
+                    failed = true;
+                }
+            }
+
+            return failed;
+        }
+
+        internal static AutoValidate GetAutoValidateForControl(Control control)
+        {
+            ContainerControl parent = control.ParentContainerControl;
+            return (parent != null) ? parent.AutoValidate : AutoValidate.EnablePreventFocusChange;
+        }
+
+        internal ContainerControl ParentContainerControl
+        {
+            get
+            {
+                for (Control c = this.ParentInternal; c != null; c = c.ParentInternal)
+                {
+                    if (c is ContainerControl)
+                    {
+                        return c as ContainerControl;
+                    }
+                }
+
+                return null;
+            }
+        }
+
+        // Used by form to notify the control that it has been "entered"
+        //
+        internal void NotifyEnter()
+        {
+            Debug.WriteLineIf(Control.FocusTracing.TraceVerbose, "Control::NotifyEnter() - " + this.Name);
+            OnEnter(EventArgs.Empty);
+        }
+
+        // Used by form to notify the control that it has been "left"
+        //
+        internal void NotifyLeave()
+        {
+            Debug.WriteLineIf(Control.FocusTracing.TraceVerbose, "Control::NotifyLeave() - " + this.Name);
+            OnLeave(EventArgs.Empty);
+        }
+
+        [UIPermission(SecurityAction.Demand, Window = UIPermissionWindow.AllWindows)]
+        public Form FindForm()
+        {
+            return FindFormInternal();
+        }
+
+        // SECURITY WARNING: This method bypasses a security demand. Use with caution!
+        internal Form FindFormInternal()
+        {
+            Control cur = this;
+            while (cur != null && !(cur is Form))
+            {
+                cur = cur.ParentInternal;
+            }
+            return (Form)cur;
+        }
+
+        internal bool IsTopMdiWindowClosing
+        {
+            set
+            {
+                SetState2(STATE2_TOPMDIWINDOWCLOSING, value);
+            }
+            get
+            {
+                return GetState2(STATE2_TOPMDIWINDOWCLOSING);
+            }
+        }
+
+        internal bool IsLayoutSuspended
+        {
+            get
+            {
+                return layoutSuspendCount > 0;
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal bool ShouldAutoValidate
+        {
+            get
+            {
+                return GetAutoValidateForControl(this) != AutoValidate.Disable;
+            }
+        }
+
+        internal virtual bool ShouldPerformContainerValidation()
+        {
+            return GetStyle(ControlStyles.ContainerControl);
+        }
+
         [
         DefaultValue(false),
         EditorBrowsable(EditorBrowsableState.Always),
@@ -4198,102 +5564,1072 @@ DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
             }
         }
 
-
-        [ListBindable(false), ComVisible(false)]
-        public class ControlCollection
+        internal bool RequiredScalingEnabled
         {
+            get
+            {
+                return (requiredScaling & RequiredScalingEnabledMask) != 0;
+            }
+            set
+            {
+                byte scaling = (byte)(requiredScaling & RequiredScalingMask);
+                requiredScaling = scaling;
+                if (value) requiredScaling |= RequiredScalingEnabledMask;
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual ControlCollection CreateControlsInstance()
+        {
+            return new System.Windows.Forms.Control.ControlCollection(this);
+        }
+
+        public void SendToBack()
+        {
+            if (parent != null)
+            {
+                parent.Controls.SetChildIndex(this, -1);
+            }
+            else if (IsHandleCreated && GetTopLevel())
+            {
+                //SafeNativeMethods.SetWindowPos(new HandleRef(window, Handle), NativeMethods.HWND_BOTTOM, 0, 0, 0, 0,
+                //                               NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE);
+            }
+
+        }
+        internal static void CheckParentingCycle(Control bottom, Control toFind)
+        {
+            Form lastOwner = null;
+            Control lastParent = null;
+
+            for (Control ctl = bottom; ctl != null; ctl = ctl.ParentInternal)
+            {
+                lastParent = ctl;
+                if (ctl == toFind)
+                {
+                    throw new ArgumentException("CircularOwner");
+                }
+            }
+
+            if (lastParent != null)
+            {
+                if (lastParent is Form)
+                {
+                    Form f = (Form)lastParent;
+                    for (Form form = f; form != null; form = form.OwnerInternal)
+                    {
+                        lastOwner = form;
+                        if (form == toFind)
+                        {
+                            throw new ArgumentException("CircularOwner");
+                        }
+                    }
+                }
+            }
+
+            if (lastOwner != null)
+            {
+                if (lastOwner.ParentInternal != null)
+                {
+                    CheckParentingCycle(lastOwner.ParentInternal, toFind);
+                }
+            }
+        }
+
+        [
+        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
+        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
+        ]
+        public bool Disposing
+        {
+            get
+            {
+                return GetState(STATE_DISPOSING);
+            }
+        }
+
+        internal bool GetAnyDisposingInHierarchy()
+        {
+            Control up = this;
+            bool isDisposing = false;
+            while (up != null)
+            {
+                if (up.Disposing)
+                {
+                    isDisposing = true;
+                    break;
+                }
+                up = up.parent;
+            }
+            return isDisposing;
+        }
+
+        [
+        Localizable(true),
+        AmbientValue(RightToLeft.Inherit),
+        ]
+        public virtual RightToLeft RightToLeft
+        {
+            get
+            {
+                bool found;
+                int rightToLeft = Properties.GetInteger(PropRightToLeft, out found);
+                if (!found)
+                {
+                    rightToLeft = (int)RightToLeft.Inherit;
+                }
+
+                if (((RightToLeft)rightToLeft) == RightToLeft.Inherit)
+                {
+                    Control parent = ParentInternal;
+                    if (parent != null)
+                    {
+                        rightToLeft = (int)parent.RightToLeft;
+                    }
+                    else
+                    {
+                        rightToLeft = (int)DefaultRightToLeft;
+                    }
+                }
+                return (RightToLeft)rightToLeft;
+            }
+
+            set
+            {
+                //valid values are 0x0 to 0x2.
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)RightToLeft.No, (int)RightToLeft.Inherit))
+                {
+                    throw new InvalidEnumArgumentException("RightToLeft", (int)value, typeof(RightToLeft));
+                }
+
+                RightToLeft oldValue = RightToLeft;
+
+                if (Properties.ContainsInteger(PropRightToLeft) || value != RightToLeft.Inherit)
+                {
+                    Properties.SetInteger(PropRightToLeft, (int)value);
+                }
+
+                if (oldValue != RightToLeft)
+                {
+                    // Setting RTL on a container does not cause the container to change size.
+                    // Only the children need to have thier layout updated.
+                    using (new LayoutTransaction(this, this, PropertyNames.RightToLeft))
+                    {
+                        OnRightToLeftChanged(EventArgs.Empty);
+                    }
+                }
+            }
+        }
+
+        private AmbientProperties AmbientPropertiesService
+        {
+            get
+            {
+                bool contains;
+                AmbientProperties props = (AmbientProperties)Properties.GetObject(PropAmbientPropertiesService, out contains);
+                if (!contains)
+                {
+                    if (Site != null)
+                    {
+                        props = (AmbientProperties)Site.GetService(typeof(AmbientProperties));
+                    }
+                    else
+                    {
+                        props = (AmbientProperties)GetService(typeof(AmbientProperties));
+                    }
+
+                    if (props != null)
+                    {
+                        Properties.SetObject(PropAmbientPropertiesService, props);
+                    }
+                }
+                return props;
+            }
+        }
+
+        private Font GetParentFont()
+        {
+            if (ParentInternal != null && ParentInternal.CanAccessProperties)
+                return ParentInternal.Font;
+            else
+                return null;
+        }
+
+        private void DisposeFontHandle()
+        {
+            if (Properties.ContainsObject(PropFontHandleWrapper))
+            {
+                FontHandleWrapper fontHandle = Properties.GetObject(PropFontHandleWrapper) as FontHandleWrapper;
+                if (fontHandle != null)
+                {
+                    fontHandle.Dispose();
+                }
+                Properties.SetObject(PropFontHandleWrapper, null);
+            }
+        }
+
+        internal virtual bool CanAccessProperties
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        [
+        Localizable(true),
+        DispId(NativeMethods.ActiveX.DISPID_FONT),
+        AmbientValue(null),
+        ]
+        public virtual Font Font
+        {
+            [ResourceExposure(ResourceScope.None)]
+            [ResourceConsumption(ResourceScope.Process, ResourceScope.Process)]
+            get
+            {
+                Font font = (Font)Properties.GetObject(PropFont);
+                if (font != null)
+                {
+                    return font;
+                }
+
+                Font f = GetParentFont();
+                if (f != null)
+                {
+                    return f;
+                }
+
+                //if (IsActiveX)
+                //{
+                //    f = ActiveXAmbientFont;
+                //    if (f != null)
+                //    {
+                //        return f;
+                //    }
+                //}
+
+                AmbientProperties ambient = AmbientPropertiesService;
+                if (ambient != null && ambient.Font != null)
+                {
+                    return ambient.Font;
+                }
+
+                return DefaultFont;
+            }
+            set
+            {
+                Font local = (Font)Properties.GetObject(PropFont);
+                Font resolved = Font;
+
+                bool localChanged = false;
+                if (value == null)
+                {
+                    if (local != null)
+                    {
+                        localChanged = true;
+                    }
+                }
+                else
+                {
+                    if (local == null)
+                    {
+                        localChanged = true;
+                    }
+                    else
+                    {
+                        localChanged = !value.Equals(local);
+                    }
+                }
+
+                if (localChanged)
+                {
+                    // Store new local value
+                    //
+                    Properties.SetObject(PropFont, value);
+
+                    // We only fire the Changed event if the "resolved" value
+                    // changed, however we must update the font if the local
+                    // value changed...
+                    //
+                    if (!resolved.Equals(value))
+                    {
+                        // Cleanup any font handle wrapper...
+                        //
+                        DisposeFontHandle();
+
+                        if (Properties.ContainsInteger(PropFontHeight))
+                        {
+                            Properties.SetInteger(PropFontHeight, (value == null) ? -1 : value.Height);
+                        }
+
+                        // Font is an ambient property.  We need to layout our parent because Font may
+                        // change our size.  We need to layout ourselves because our children may change
+                        // size by inheriting the new value.
+                        //
+                        using (new LayoutTransaction(ParentInternal, this, PropertyNames.Font))
+                        {
+                            OnFontChanged(EventArgs.Empty);
+                        }
+                    }
+                    else
+                    {
+                        if (IsHandleCreated && !GetStyle(ControlStyles.UserPaint))
+                        {
+                            DisposeFontHandle();
+                            //SetWindowFont();
+                        }
+                    }
+                }
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void InitLayout()
+        {
+            LayoutEngine.InitLayout(this, BoundsSpecified.All);
+        }
+
+        internal virtual void AssignParent(Control value)
+        {
+
+            // Adopt the parent's required scaling bits
+            if (value != null)
+            {
+                RequiredScalingEnabled = value.RequiredScalingEnabled;
+            }
+
+            if (CanAccessProperties)
+            {
+                // Store the old values for these properties
+                //
+                Font oldFont = Font;
+                Color oldForeColor = ForeColor;
+                Color oldBackColor = BackColor;
+                RightToLeft oldRtl = RightToLeft;
+                bool oldEnabled = Enabled;
+                bool oldVisible = Visible;
+
+                // Update the parent
+                //
+                parent = value;
+                OnParentChanged(EventArgs.Empty);
+
+                if (GetAnyDisposingInHierarchy())
+                {
+                    return;
+                }
+
+                // Compare property values with new parent to old values
+                //
+                if (oldEnabled != Enabled)
+                {
+                    OnEnabledChanged(EventArgs.Empty);
+                }
+
+                // VSWhidbey 320131
+                // When a control seems to be going from invisible -> visible,
+                // yet its parent is being set to null and it's not top level, do not raise OnVisibleChanged.
+                bool newVisible = Visible;
+
+                if (oldVisible != newVisible && !(!oldVisible && newVisible && parent == null && !GetTopLevel()))
+                {
+                    OnVisibleChanged(EventArgs.Empty);
+                }
+                if (!oldFont.Equals(Font))
+                {
+                    OnFontChanged(EventArgs.Empty);
+                }
+                if (!oldForeColor.Equals(ForeColor))
+                {
+                    OnForeColorChanged(EventArgs.Empty);
+                }
+                if (!oldBackColor.Equals(BackColor))
+                {
+                    OnBackColorChanged(EventArgs.Empty);
+                }
+                if (oldRtl != RightToLeft)
+                {
+                    OnRightToLeftChanged(EventArgs.Empty);
+                }
+                if (Properties.GetObject(PropBindingManager) == null && this.Created)
+                {
+                    // We do not want to call our parent's BindingContext property here.
+                    // We have no idea if us or any of our children are using data binding,
+                    // and invoking the property would just create the binding manager, which
+                    // we don't need.  We just blindly notify that the binding manager has
+                    // changed, and if anyone cares, they will do the comparison at that time.
+                    //
+                    OnBindingContextChanged(EventArgs.Empty);
+                }
+            }
+            else
+            {
+                parent = value;
+                OnParentChanged(EventArgs.Empty);
+            }
+
+            SetState(STATE_CHECKEDHOST, false);
+            if (ParentInternal != null) ParentInternal.LayoutEngine.InitLayout(this, BoundsSpecified.All);
+        }
+
+
+        internal bool ValidationCancelled
+        {
+            set
+            {
+                SetState(STATE_VALIDATIONCANCELLED, value);
+            }
+            get
+            {
+                if (GetState(STATE_VALIDATIONCANCELLED))
+                {
+                    return true;
+                }
+                else
+                {
+                    Control parent = this.ParentInternal;
+                    if (parent != null)
+                    {
+                        return parent.ValidationCancelled;
+                    }
+
+                    return false;
+                }
+            }
+        }
+
+        internal virtual void NotifyValidationResult(object sender, CancelEventArgs ev)
+        {
+            this.ValidationCancelled = ev.Cancel;
+        }
+
+        internal bool IsDescendant(Control descendant)
+        {
+            Control control = descendant;
+            while (control != null)
+            {
+                if (control == this)
+                    return true;
+                control = control.ParentInternal;
+            }
+            return false;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected virtual void NotifyInvalidate(Rectangle invalidatedArea)
+        {
+            OnInvalidated(new InvalidateEventArgs(invalidatedArea));
+        }
+
+        // Used by form to notify the control that it is validating.
+        //
+        private bool NotifyValidating()
+        {
+            CancelEventArgs ev = new CancelEventArgs();
+            OnValidating(ev);
+            return ev.Cancel;
+        }
+
+        // Used by form to notify the control that it has been validated.
+        //
+        private void NotifyValidated()
+        {
+            OnValidated(EventArgs.Empty);
+        }
+
+        internal bool PerformControlValidation(bool bulkValidation)
+        {
+
+            // Skip validation for controls that don't support it
+            if (!this.CausesValidation)
+            {
+                return false;
+            }
+
+            // Raise the 'Validating' event. Stop now if handler cancels (ie. control is invalid).
+            // NOTE: Handler may throw an exception here, but we must not attempt to catch it.
+            if (this.NotifyValidating())
+            {
+                return true;
+            }
+
+            // Raise the 'Validated' event. Handlers may throw exceptions here too - but
+            // convert these to ThreadException events, unless the app is being debugged,
+            // or the control is being validated as part of a bulk validation operation.
+            if (bulkValidation /*|| NativeWindow.WndProcShouldBeDebuggable*/)
+            {
+                this.NotifyValidated();
+            }
+            else
+            {
+                try
+                {
+                    this.NotifyValidated();
+                }
+                catch (Exception e)
+                {
+                    Application.OnThreadException(e);
+                }
+            }
+
+            return false;
+        }
+
+        internal sealed class FontHandleWrapper : MarshalByRefObject, IDisposable
+        {
+            private IntPtr handle;
+
+            internal FontHandleWrapper(Font font)
+            {
+                //handle = font.ToHfont();
+                System.Internal.HandleCollector.Add(handle, NativeMethods.CommonHandles.GDI);
+            }
+
+            internal IntPtr Handle
+            {
+                get
+                {
+                    Debug.Assert(handle != IntPtr.Zero, "FontHandleWrapper disposed, but still being accessed");
+                    return handle;
+                }
+            }
+
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            private void Dispose(bool disposing)
+            {
+
+                if (handle != IntPtr.Zero)
+                {
+                    //SafeNativeMethods.DeleteObject(new HandleRef(this, handle));
+                    handle = IntPtr.Zero;
+                }
+
+            }
+
+            ~FontHandleWrapper()
+            {
+                Dispose(false);
+            }
+        }
+
+        [
+           ListBindable(false), ComVisible(false)
+        ]
+        public class ControlCollection : ArrangedElementCollection, IList, ICloneable
+        {
+
             private Control owner;
 
             private int lastAccessedIndex = -1;
-
-            public ControlCollection()
-            {
-            }
 
             public ControlCollection(Control owner)
             {
                 this.owner = owner;
             }
 
-            private int count = 0;
-            private Control[] controls = new Control[0];
-
-            public int Count { get => count; }
+            public virtual bool ContainsKey(string key)
+            {
+                return IsValidIndex(IndexOfKey(key));
+            }
 
             public virtual void Add(Control value)
             {
                 if (value == null)
                     return;
-                Control[] backupControls = controls;
-                controls = new Control[backupControls.Length + 1];
-                for (int i = 0; i < backupControls.Length; i++)
+                if (value.GetTopLevel())
                 {
-                    controls[i] = backupControls[i];
+                    throw new ArgumentException("TopLevelControlAdd");
                 }
-                controls[backupControls.Length] = value;
-                count = controls.Length;
+
+                // Verify that the control being added is on the same thread as
+                // us...or our parent chain.
+                //
+                //if (owner.CreateThreadId != value.CreateThreadId)
+                //{
+                //    throw new ArgumentException("AddDifferentThreads");
+                //}
+
+                CheckParentingCycle(owner, value);
+
+                if (value.parent == owner)
+                {
+                    value.SendToBack();
+                    return;
+                }
+
+                // Remove the new control from its old parent (if any)
+                //
+                if (value.parent != null)
+                {
+                    value.parent.Controls.Remove(value);
+                }
+
+                // Add the control
+                //
+                InnerList.Add(value);
+
+                if (value.tabIndex == -1)
+                {
+
+                    // Find the next highest tab index
+                    //
+                    int nextTabIndex = 0;
+                    for (int c = 0; c < (Count - 1); c++)
+                    {
+                        int t = this[c].TabIndex;
+                        if (nextTabIndex <= t)
+                        {
+                            nextTabIndex = t + 1;
+                        }
+                    }
+                    value.tabIndex = nextTabIndex;
+                }
+
+                // if we don't suspend layout, AssignParent will indirectly trigger a layout event
+                // before we're ready (AssignParent will fire a PropertyChangedEvent("Visible"), which calls PerformLayout)
+                //
+                owner.SuspendLayout();
+
+                try
+                {
+                    Control oldParent = value.parent;
+                    try
+                    {
+                        // AssignParent calls into user code - this could throw, which
+                        // would make us short-circuit the rest of the reparenting logic.
+                        // you could end up with a control half reparented.
+                        value.AssignParent(owner);
+                    }
+                    finally
+                    {
+                        if (oldParent != value.parent && (owner.state & STATE_CREATED) != 0)
+                        {
+                            //value.SetParentHandle(owner.InternalHandle);
+                            //if (value.Visible)
+                            //{
+                            //    value.CreateControl();
+                            //}
+                        }
+                    }
+
+                    value.InitLayout();
+                }
+                finally
+                {
+                    owner.ResumeLayout(false);
+                }
+
+                // Not putting in the finally block, as it would eat the original
+                // exception thrown from AssignParent if the following throws an exception.
+                LayoutTransaction.DoLayout(owner, value, PropertyNames.Parent);
+                owner.OnControlAdded(new ControlEventArgs(value));
+
+
+            }
+
+            int IList.Add(object control)
+            {
+                if (control is Control)
+                {
+                    Add((Control)control);
+                    return IndexOf((Control)control);
+                }
+                else
+                {
+                    throw new ArgumentException("ControlBadControl");
+                }
+            }
+
+            [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+            public virtual void AddRange(Control[] controls)
+            {
+                if (controls == null)
+                {
+                    throw new ArgumentNullException("controls");
+                }
+                if (controls.Length > 0)
+                {
+                    owner.SuspendLayout();
+                    try
+                    {
+                        for (int i = 0; i < controls.Length; ++i)
+                        {
+                            Add(controls[i]);
+                        }
+                    }
+                    finally
+                    {
+                        owner.ResumeLayout(true);
+                    }
+                }
+            }
+
+            object ICloneable.Clone()
+            {
+                // Use CreateControlInstance so we get the same type of ControlCollection, but whack the
+                // owner so adding controls to this new collection does not affect the control we cloned from.
+                ControlCollection ccOther = owner.CreateControlsInstance();
+
+                // We add using InnerList to prevent unnecessary parent cycle checks, etc.
+                ccOther.InnerList.AddRange(this);
+                return ccOther;
+            }
+
+            public bool Contains(Control control)
+            {
+                return InnerList.Contains(control);
+            }
+
+            public Control[] Find(string key, bool searchAllChildren)
+            {
+                if (String.IsNullOrEmpty(key))
+                {
+                    throw new System.ArgumentNullException("key", "FindKeyMayNotBeEmptyOrNull");
+                }
+
+                ArrayList foundControls = FindInternal(key, searchAllChildren, this, new ArrayList());
+
+                // Make this a stongly typed collection.
+                Control[] stronglyTypedFoundControls = new Control[foundControls.Count];
+                foundControls.CopyTo(stronglyTypedFoundControls, 0);
+
+                return stronglyTypedFoundControls;
+            }
+
+            private ArrayList FindInternal(string key, bool searchAllChildren, ControlCollection controlsToLookIn, ArrayList foundControls)
+            {
+                if ((controlsToLookIn == null) || (foundControls == null))
+                {
+                    return null;
+                }
+
+                try
+                {
+                    // Perform breadth first search - as it's likely people will want controls belonging
+                    // to the same parent close to each other.
+
+                    for (int i = 0; i < controlsToLookIn.Count; i++)
+                    {
+                        if (controlsToLookIn[i] == null)
+                        {
+                            continue;
+                        }
+
+                        if (WindowsFormsUtils.SafeCompareStrings(controlsToLookIn[i].Name, key, /* ignoreCase = */ true))
+                        {
+                            foundControls.Add(controlsToLookIn[i]);
+                        }
+                    }
+
+                    // Optional recurive search for controls in child collections.
+
+                    if (searchAllChildren)
+                    {
+                        for (int i = 0; i < controlsToLookIn.Count; i++)
+                        {
+                            if (controlsToLookIn[i] == null)
+                            {
+                                continue;
+                            }
+                            if ((controlsToLookIn[i].Controls != null) && controlsToLookIn[i].Controls.Count > 0)
+                            {
+                                // if it has a valid child collecion, append those results to our collection
+                                foundControls = FindInternal(key, searchAllChildren, controlsToLookIn[i].Controls, foundControls);
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    if (ClientUtils.IsSecurityOrCriticalException(e))
+                    {
+                        throw;
+                    }
+                }
+                return foundControls;
+            }
+
+            public override IEnumerator GetEnumerator()
+            {
+                return new ControlCollectionEnumerator(this);
+            }
+
+            public int IndexOf(Control control)
+            {
+                return InnerList.IndexOf(control);
+            }
+
+            public virtual int IndexOfKey(String key)
+            {
+                // Step 0 - Arg validation
+                if (String.IsNullOrEmpty(key))
+                {
+                    return -1; // we dont support empty or null keys.
+                }
+
+                // step 1 - check the last cached item
+                if (IsValidIndex(lastAccessedIndex))
+                {
+                    if (WindowsFormsUtils.SafeCompareStrings(this[lastAccessedIndex].Name, key, /* ignoreCase = */ true))
+                    {
+                        return lastAccessedIndex;
+                    }
+                }
+
+                // step 2 - search for the item
+                for (int i = 0; i < this.Count; i++)
+                {
+                    if (WindowsFormsUtils.SafeCompareStrings(this[i].Name, key, /* ignoreCase = */ true))
+                    {
+                        lastAccessedIndex = i;
+                        return i;
+                    }
+                }
+
+                // step 3 - we didn't find it.  Invalidate the last accessed index and return -1.
+                lastAccessedIndex = -1;
+                return -1;
+            }
+
+            private bool IsValidIndex(int index)
+            {
+                return ((index >= 0) && (index < this.Count));
+            }
+
+            public Control Owner
+            {
+                get
+                {
+                    return owner;
+                }
             }
 
             public virtual void Remove(Control value)
             {
-                if (value == null || count == 0)
-                    return;
-
-                int indexToRemove = -1;
-
-                for (int i = 0; i < controls.Length; i++)
+                // Sanity check parameter
+                if (value == null)
                 {
-                    if (controls[i] == value)
-                    {
-                        indexToRemove = i;
-                        break;
-                    }
+                    return;     // Don't do anything
                 }
 
-                if (indexToRemove == -1)
-                    return;
-
-                Control[] newControls = new Control[controls.Length - 1];
-                for (int i = 0, j = 0; i < controls.Length; i++)
+                if (value.ParentInternal == owner)
                 {
-                    if (i == indexToRemove)
-                        continue;
+                    Debug.Assert(owner != null);
 
-                    newControls[j++] = controls[i];
+                    //value.SetParentHandle(IntPtr.Zero);
+
+                    // Remove the control from the internal control array
+                    //
+                    InnerList.Remove(value);
+                    value.AssignParent(null);
+                    LayoutTransaction.DoLayout(owner, value, PropertyNames.Parent);
+                    owner.OnControlRemoved(new ControlEventArgs(value));
+
+                    // ContainerControl needs to see it needs to find a new ActiveControl.
+                    //ContainerControl cc = owner.GetContainerControlInternal() as ContainerControl;
+                    //if (cc != null)
+                    //{
+                    //    cc.AfterControlRemoved(value, owner);
+                    //}
                 }
-
-                controls = newControls;
-                count = controls.Length;
             }
 
-            public Control this[int index]
+            void IList.Remove(object control)
+            {
+                if (control is Control)
+                {
+                    Remove((Control)control);
+                }
+            }
+
+            public void RemoveAt(int index)
+            {
+                Remove(this[index]);
+            }
+
+            public virtual void RemoveByKey(string key)
+            {
+                int index = IndexOfKey(key);
+                if (IsValidIndex(index))
+                {
+                    RemoveAt(index);
+                }
+            }
+
+            public new virtual Control this[int index]
             {
                 get
                 {
-                    return controls[index];
+                    //do some bounds checking here...
+                    if (index < 0 || index >= Count)
+                    {
+                        throw new ArgumentOutOfRangeException("index", "IndexOutOfRange");
+                    }
+
+                    Control control = (Control)InnerList[index];
+                    Debug.Assert(control != null, "Why are we returning null controls from a valid index?");
+                    return control;
                 }
-                set
+            }
+
+            public virtual Control this[string key]
+            {
+                get
                 {
-                    controls[index] = value;
-                    count = controls.Length;
+                    // We do not support null and empty string as valid keys.
+                    if (String.IsNullOrEmpty(key))
+                    {
+                        return null;
+                    }
+
+                    // Search for the key in our collection
+                    int index = IndexOfKey(key);
+                    if (IsValidIndex(index))
+                    {
+                        return this[index];
+                    }
+                    else
+                    {
+                        return null;
+                    }
+
                 }
             }
 
             public virtual void Clear()
             {
-                controls = new Control[0];
-                count = 0;
-                lastAccessedIndex = -1;
-            }
+                owner.SuspendLayout();
+                // clear all preferred size caches in the tree - 
+                // inherited fonts could go away, etc.
+                CommonProperties.xClearAllPreferredSizeCaches(owner);
 
-            public virtual bool IsReadOnly
-            {
-                get
+                try
                 {
-                    return false; // Assume this collection is not read-only by default
+                    while (Count != 0)
+                        RemoveAt(Count - 1);
+                }
+                finally
+                {
+                    owner.ResumeLayout();
                 }
             }
-        }
 
+            public int GetChildIndex(Control child)
+            {
+                return GetChildIndex(child, true);
+            }
+
+            public virtual int GetChildIndex(Control child, bool throwException)
+            {
+                int index = IndexOf(child);
+                if (index == -1 && throwException)
+                {
+                    throw new ArgumentException("ControlNotChild");
+                }
+                return index;
+            }
+
+            internal virtual void SetChildIndexInternal(Control child, int newIndex)
+            {
+                // Sanity check parameters
+                //
+                if (child == null)
+                {
+                    throw new ArgumentNullException("child");
+                }
+
+                int currentIndex = GetChildIndex(child);
+
+                if (currentIndex == newIndex)
+                {
+                    return;
+                }
+
+                if (newIndex >= Count || newIndex == -1)
+                {
+                    newIndex = Count - 1;
+                }
+
+                MoveElement(child, currentIndex, newIndex);
+                child.UpdateZOrder();
+
+                LayoutTransaction.DoLayout(owner, child, PropertyNames.ChildIndex);
+
+            }
+
+            public virtual void SetChildIndex(Control child, int newIndex)
+            {
+                SetChildIndexInternal(child, newIndex);
+            }
+
+            // COMPAT: VSWhidbey 448276
+            // This is the same as WinformsUtils.ArraySubsetEnumerator 
+            // however since we're no longer an array, we've gotta employ a 
+            // special version of this.
+            private class ControlCollectionEnumerator : IEnumerator
+            {
+                private ControlCollection controls;
+                private int current;
+                private int originalCount;
+
+                public ControlCollectionEnumerator(ControlCollection controls)
+                {
+                    this.controls = controls;
+                    this.originalCount = controls.Count;
+                    current = -1;
+                }
+
+                public bool MoveNext()
+                {
+                    // VSWhidbey 448276
+                    // We have to use Controls.Count here because someone could have deleted 
+                    // an item from the array. 
+                    //
+                    // this can happen if someone does:
+                    //     foreach (Control c in Controls) { c.Dispose(); }
+                    // 
+                    // We also dont want to iterate past the original size of the collection
+                    //
+                    // this can happen if someone does
+                    //     foreach (Control c in Controls) { c.Controls.Add(new Label()); }
+
+                    if (current < controls.Count - 1 && current < originalCount - 1)
+                    {
+                        current++;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                public void Reset()
+                {
+                    current = -1;
+                }
+
+                public object Current
+                {
+                    get
+                    {
+                        if (current == -1)
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return controls[current];
+                        }
+                    }
+                }
+            }
+
+        }
     }
 }
