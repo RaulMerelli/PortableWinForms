@@ -7,7 +7,7 @@ Basically the plan is to use *WebView2* as a rendering sandbox to draw the forms
 
 At the current state "something" works, by importing a form designed with the only supported elements, an adjusted entrypoint and minimal manual touches.
 
-![image](https://github.com/user-attachments/assets/e749d88f-00e0-4a43-98f5-afdfe0264789)
+![image](https://github.com/user-attachments/assets/eba8b2bb-e791-4192-902f-ade29ce3e4b1)
 
 ### Partially drawn controls
 - Form
