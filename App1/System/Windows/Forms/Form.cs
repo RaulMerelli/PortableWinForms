@@ -537,39 +537,55 @@ namespace System.Windows.Forms
             }
         }
 
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool TopLevel
+        {
+            get
+            {
+                return GetTopLevel();
+            }
+            set
+            {
+                if (!value && ((Form)this).IsMdiContainer && !DesignMode)
+                {
+                    throw new ArgumentException("MDIContainerMustBeTopLevel");
+                }
+                //SetTopLevel(value);
+            }
+        }
+
         private void UpdateLayered()
         {
-            //if ((formState[FormStateLayered] != 0) && IsHandleCreated && TopLevel && OSFeature.Feature.IsPresent(OSFeature.LayeredWindows))
-            //{
-            //    bool result;
+            if ((formState[FormStateLayered] != 0) && IsHandleCreated && TopLevel && OSFeature.Feature.IsPresent(OSFeature.LayeredWindows))
+            {
+                bool result;
 
-            //    Color transparencyKey = TransparencyKey;
+                Color transparencyKey = TransparencyKey;
 
-            //    if (transparencyKey.IsEmpty)
-            //    {
+                if (transparencyKey.IsEmpty)
+                {
+                    //result = UnsafeNativeMethods.SetLayeredWindowAttributes(new HandleRef(this, Handle), 0, OpacityAsByte, NativeMethods.LWA_ALPHA);
+                }
+                else if (OpacityAsByte == 255)
+                {
+                    // Windows doesn't do so well setting colorkey and alpha, so avoid it if we can
+                    //result = UnsafeNativeMethods.SetLayeredWindowAttributes(new HandleRef(this, Handle), ColorTranslator.ToWin32(transparencyKey), 0, NativeMethods.LWA_COLORKEY);
+                }
+                else
+                {
+                    //result = UnsafeNativeMethods.SetLayeredWindowAttributes(new HandleRef(this, Handle), ColorTranslator.ToWin32(transparencyKey),
+                    //                                            OpacityAsByte, NativeMethods.LWA_ALPHA | NativeMethods.LWA_COLORKEY);
+                }
 
-            //        result = UnsafeNativeMethods.SetLayeredWindowAttributes(new HandleRef(this, Handle), 0, OpacityAsByte, NativeMethods.LWA_ALPHA);
-            //    }
-            //    else if (OpacityAsByte == 255)
-            //    {
-            //        // Windows doesn't do so well setting colorkey and alpha, so avoid it if we can
-            //        result = UnsafeNativeMethods.SetLayeredWindowAttributes(new HandleRef(this, Handle), ColorTranslator.ToWin32(transparencyKey), 0, NativeMethods.LWA_COLORKEY);
-            //    }
-            //    else
-            //    {
-            //        result = UnsafeNativeMethods.SetLayeredWindowAttributes(new HandleRef(this, Handle), ColorTranslator.ToWin32(transparencyKey),
-            //                                                    OpacityAsByte, NativeMethods.LWA_ALPHA | NativeMethods.LWA_COLORKEY);
-            //    }
-
-            //    if (!result)
-            //    {
-            //        throw new Win32Exception();
-            //    }
-            //}
+                //if (!result)
+                //{
+                //    throw new Win32Exception();
+                //}
+            }
         }
 
         internal string text;
-        public string Text
+        public override string Text
         {
             get
             {
@@ -625,10 +641,6 @@ namespace System.Windows.Forms
                 }
             }
         }
-
-        public bool UseCompatibleTextRendering = true;
-        public SizeF AutoScaleDimensions;
-        public AutoScaleMode AutoScaleMode;
 
         protected override void UpdateDefaultButton()
         {
@@ -774,23 +786,27 @@ namespace System.Windows.Forms
                     case "Click":
                         child.OnClick(EventArgs.Empty);
                         break;
-                    case "Input":
+                    case "TextChanged":
                         if (child.GetType().IsSubclassOf(typeof(TextBox)) || child.GetType() == typeof(TextBox))
                         {
                             TextBox textBox = (TextBox)child;
-                            textBox.text = await Page.Get(textBox.WebviewIdentifier, textBox.Multiline ? "innerHTML" : "value");
+                            textBox.Text = await Page.Get(textBox.WebviewIdentifier, textBox.Multiline ? "innerHTML" : "value");
                         }
                         if (child.GetType().IsSubclassOf(typeof(Label)) || child.GetType() == typeof(Label))
                         {
                             Label label = (Label)child;
-                            label.text = await Page.Get(label.WebviewIdentifier, "innerHTML");
+                            label.Text = await Page.Get(label.WebviewIdentifier, "innerHTML");
                         }
                         if (child.GetType().IsSubclassOf(typeof(Button)) || child.GetType() == typeof(Button))
                         {
                             Button button = (Button)child;
-                            button.text = await Page.GetFromScript($"document.getElementById(\"{WebviewIdentifier}\").getElementsByTagName('p')[0].innerHTML");
+                            button.Text = await Page.GetFromScript($"document.getElementById(\"{WebviewIdentifier}\").getElementsByTagName('p')[0].innerHTML");
                         }
-                        child.OnTextChanged(EventArgs.Empty);
+                        else
+                        {
+                            // In other cases the event is already handled by .Text change
+                            child.OnTextChanged(EventArgs.Empty);
+                        }
                         break;
                     case "Resize":
                     case "ResizeBegin":
@@ -945,10 +961,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        Browsable(false),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Form[] OwnedForms
         {
             get
@@ -963,6 +976,24 @@ namespace System.Windows.Forms
                 }
 
                 return result;
+            }
+        }
+
+        [Localizable(true), DefaultValue(FormStartPosition.WindowsDefaultLocation)]
+        public FormStartPosition StartPosition
+        {
+            get
+            {
+                return (FormStartPosition)formState[FormStateStartPos];
+            }
+            set
+            {
+                //valid values are 0x0 to 0x4
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)FormStartPosition.Manual, (int)FormStartPosition.CenterParent))
+                {
+                    throw new InvalidEnumArgumentException("value", (int)value, typeof(FormStartPosition));
+                }
+                formState[FormStateStartPos] = (int)value;
             }
         }
 
@@ -1012,7 +1043,6 @@ namespace System.Windows.Forms
             OnFormClosing(e);
             return e.Cancel;
         }
-
 
         async void create()
         {

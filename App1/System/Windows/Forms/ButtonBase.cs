@@ -39,20 +39,64 @@ namespace System.Windows.Forms
 
         private bool isEnableVisualStyleBackgroundSet = false;
 
-        public bool AutoSize;
-        internal string text;
-        public string Text
+        [Browsable(true), EditorBrowsable(EditorBrowsableState.Always), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override bool AutoSize
         {
             get
             {
-                return text;
+                return base.AutoSize;
             }
             set
             {
-                text = value;
-                if (layoutPerformed)
+                base.AutoSize = value;
+                //don't show ellipsis if the control is autosized
+                if (value)
                 {
-                    Page.RunScript($"document.getElementById(\"{WebviewIdentifier}\").getElementsByTagName('p')[0].innerHTML=\"{value}\"");
+                    AutoEllipsis = false;
+                }
+            }
+        }
+
+        [DefaultValue(false), Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        public bool AutoEllipsis
+        {
+            get
+            {
+                return GetFlag(FlagAutoEllipsis);
+            }
+
+            set
+            {
+                if (AutoEllipsis != value)
+                {
+                    SetFlag(FlagAutoEllipsis, value);
+                    if (value)
+                    {
+                        //if (textToolTip == null)
+                        //{
+                        //    textToolTip = new ToolTip();
+                        //}
+                    }
+                    Invalidate();
+                }
+            }
+        }
+
+        public override string Text
+        {
+            get
+            {
+                return base.Text;
+            }
+            set
+            {
+                if (value != base.Text)
+                {
+                    base.Text = value;
+                    if (layoutPerformed)
+                    {
+                        Page.RunScript($"document.getElementById(\"{WebviewIdentifier}\").getElementsByTagName('p')[0].innerHTML=\"{value}\"");
+                    }
                 }
             }
         }

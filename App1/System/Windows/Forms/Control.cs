@@ -8,8 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security;
@@ -19,12 +17,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Layout;
-using System.Xml.Linq;
 using static System.Windows.Forms.NativeMethods;
 
 namespace System.Windows.Forms
 {
-    public class Control : Component, IArrangedElement
+    public class Control : Component, IArrangedElement, IBindableComponent
     {
         internal const int STATE_CREATED = 0x00000001;
         internal const int STATE_VISIBLE = 0x00000002;
@@ -2452,7 +2449,57 @@ namespace System.Windows.Forms
         public IntPtr Handle;
         public int internalIndex;
         internal string WebviewIdentifier = "";
-        public Color ForeColor;
+
+        [DispId(NativeMethods.ActiveX.DISPID_FORECOLOR)]
+        public virtual Color ForeColor
+        {
+            get
+            {
+                Color color = Properties.GetColor(PropForeColor);
+                if (!color.IsEmpty)
+                {
+                    return color;
+                }
+
+                Control p = ParentInternal;
+                if (p != null && p.CanAccessProperties)
+                {
+                    return p.ForeColor;
+                }
+
+                Color c = Color.Empty;
+
+                //if (IsActiveX)
+                //{
+                //    c = ActiveXAmbientForeColor;
+                //}
+
+                if (c.IsEmpty)
+                {
+                    AmbientProperties ambient = AmbientPropertiesService;
+                    if (ambient != null)
+                        c = ambient.ForeColor;
+                }
+
+                if (!c.IsEmpty)
+                    return c;
+                else
+                    return DefaultForeColor;
+            }
+
+            set
+            {
+                Color c = ForeColor;
+                if (!value.IsEmpty || Properties.ContainsObject(PropForeColor))
+                {
+                    Properties.SetColor(PropForeColor, value);
+                }
+                if (!c.Equals(ForeColor))
+                {
+                    OnForeColorChanged(EventArgs.Empty);
+                }
+            }
+        }
 
         [DispId(NativeMethods.ActiveX.DISPID_BACKCOLOR)]
         public virtual Color BackColor
@@ -2511,9 +2558,35 @@ namespace System.Windows.Forms
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content), RefreshProperties(RefreshProperties.All), ParenthesizePropertyName(true)]
+        public ControlBindingsCollection DataBindings
+        {
+            get
+            {
+                ControlBindingsCollection bindings = (ControlBindingsCollection)Properties.GetObject(PropBindings);
+                if (bindings == null)
+                {
+                    bindings = new ControlBindingsCollection(this);
+                    Properties.SetObject(PropBindings, bindings);
+                }
+                return bindings;
+            }
+        }
+
         public static Color DefaultBackColor
         {
-            get { return SystemColors.Control; }
+            get 
+            { 
+                return SystemColors.Control;
+            }
+        }
+
+        protected virtual Cursor DefaultCursor
+        {
+            get
+            {
+                return Cursors.Default;
+            }
         }
 
         internal Color RawBackColor
@@ -2531,7 +2604,6 @@ namespace System.Windows.Forms
                 return false;
             }
             return true;
-
         }
 
         public Point AutoScrollOffset;
@@ -5057,61 +5129,80 @@ namespace System.Windows.Forms
         {
             get
             {
-
-                if (!IsHandleCreated)
+                if (text == null)
                 {
-                    if (text == null)
-                    {
-                        return "";
-                    }
-                    else
-                    {
-                        return text;
-                    }
+                    return "";
                 }
-
-                using (new MultithreadSafeCallScope())
+                else
                 {
-
-                    // it's okay to call GetWindowText cross-thread.
-                    //
-                    int textLen = 0;
-                    //int textLen = SafeNativeMethods.GetWindowTextLength(new HandleRef(window, Handle));
-
-                    // Check to see if the system supports DBCS character
-                    // if so, double the length of the buffer.
-                    if (SystemInformation.DbcsEnabled)
-                    {
-                        textLen = (textLen * 2) + 1;
-                    }
-                    StringBuilder sb = new StringBuilder(textLen + 1);
-                    //UnsafeNativeMethods.GetWindowText(new HandleRef(window, Handle), sb, sb.Capacity);
-                    return sb.ToString();
+                    return text;
                 }
             }
             set
             {
                 if (value == null) value = "";
-                if (!WindowText.Equals(value))
-                {
-                    if (IsHandleCreated)
-                    {
-                        //UnsafeNativeMethods.SetWindowText(new HandleRef(window, Handle), value);
-                    }
-                    else
-                    {
-                        if (value.Length == 0)
-                        {
-                            text = null;
-                        }
-                        else
-                        {
-                            text = value;
-                        }
-                    }
-                }
+                text = value;
             }
         }
+
+        //internal virtual string WindowText
+        //{
+        //    get
+        //    {
+        //        if (!IsHandleCreated)
+        //        {
+        //            if (text == null)
+        //            {
+        //                return "";
+        //            }
+        //            else
+        //            {
+        //                return text;
+        //            }
+        //        }
+
+        //        using (new MultithreadSafeCallScope())
+        //        {
+
+        //            // it's okay to call GetWindowText cross-thread.
+        //            //
+        //            int textLen = 0;
+        //            //int textLen = SafeNativeMethods.GetWindowTextLength(new HandleRef(window, Handle));
+
+        //            // Check to see if the system supports DBCS character
+        //            // if so, double the length of the buffer.
+        //            if (SystemInformation.DbcsEnabled)
+        //            {
+        //                textLen = (textLen * 2) + 1;
+        //            }
+        //            StringBuilder sb = new StringBuilder(textLen + 1);
+        //            //UnsafeNativeMethods.GetWindowText(new HandleRef(window, Handle), sb, sb.Capacity);
+        //            return sb.ToString();
+        //        }
+        //    }
+        //    set
+        //    {
+        //        if (value == null) value = "";
+        //        if (!WindowText.Equals(value))
+        //        {
+        //            if (IsHandleCreated)
+        //            {
+        //                //UnsafeNativeMethods.SetWindowText(new HandleRef(window, Handle), value);
+        //            }
+        //            else
+        //            {
+        //                if (value.Length == 0)
+        //                {
+        //                    text = null;
+        //                }
+        //                else
+        //                {
+        //                    text = value;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         private sealed class MultithreadSafeCallScope : IDisposable
         {
@@ -5408,7 +5499,6 @@ namespace System.Windows.Forms
                 //int winStyle = WindowStyle;
                 //int exStyle = WindowExStyle;
 
-                //// resolve the Form's lazy visibility.
                 //if ((state & STATE_VISIBLE) != 0)
                 //{
                 //    cp.Style |= NativeMethods.WS_VISIBLE;
@@ -5638,6 +5728,124 @@ namespace System.Windows.Forms
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Advanced)]
+        protected void RecreateHandle()
+        {
+            RecreateHandleCore();
+        }
+
+        private void UnhookMouseEvent()
+        {
+            SetState(STATE_TRACKINGMOUSEEVENT, false);
+        }
+
+        internal virtual void RecreateHandleCore()
+        {
+            lock (this)
+            {
+                if (IsHandleCreated)
+                {
+
+                    bool focused = ContainsFocus;
+                    bool created = (state & STATE_CREATED) != 0;
+                    if (GetState(STATE_TRACKINGMOUSEEVENT))
+                    {
+                        SetState(STATE_MOUSEENTERPENDING, true);
+                        UnhookMouseEvent();
+                    }
+
+                    //HandleRef parentHandle = new HandleRef(this, UnsafeNativeMethods.GetParent(new HandleRef(this, this.Handle)));
+
+                    //try
+                    //{
+                    //    Control[] controlSnapshot = null;
+                    //    state |= STATE_RECREATE;
+
+                    //    try
+                    //    {
+
+
+                    //        // VSWhidbey 228656 RecreateHandle - destroy window destroys all children
+                    //        // Inform child controls that their parent is recreating handle.
+
+                    //        // The default behavior is to now SetParent to parking window, then
+                    //        // SetParent back after the parent's handle has been recreated.
+                    //        // This behavior can be overridden in OnParentHandleRecreat* and is in ListView.
+
+                    //        //fish out control collection w/o demand creating one.
+                    //        ControlCollection controlsCollection = (ControlCollection)Properties.GetObject(PropControlsCollection);
+                    //        if (controlsCollection != null && controlsCollection.Count > 0)
+                    //        {
+                    //            controlSnapshot = new Control[controlsCollection.Count];
+                    //            for (int i = 0; i < controlsCollection.Count; i++)
+                    //            {
+                    //                Control childControl = controlsCollection[i];
+                    //                if (childControl != null && childControl.IsHandleCreated)
+                    //                {
+                    //                    // SetParent to parking window
+                    //                    childControl.OnParentHandleRecreating();
+
+                    //                    // if we were successful, remember this control
+                    //                    // so we can raise OnParentHandleRecreated
+                    //                    controlSnapshot[i] = childControl;
+                    //                }
+                    //                else
+                    //                {
+                    //                    // put in a null slot which we'll skip over later.
+                    //                    controlSnapshot[i] = null;
+                    //                }
+                    //            }
+                    //        }
+
+                    //        // do the main work of recreating the handle
+                    //        DestroyHandle();
+                    //        CreateHandle();
+                    //    }
+                    //    finally
+                    //    {
+                    //        state &= ~STATE_RECREATE;
+
+                    //        // inform children that their parent's handle has recreated
+                    //        if (controlSnapshot != null)
+                    //        {
+                    //            for (int i = 0; i < controlSnapshot.Length; i++)
+                    //            {
+                    //                Control childControl = controlSnapshot[i];
+                    //                if (childControl != null && childControl.IsHandleCreated)
+                    //                {
+                    //                    // SetParent back to the new Parent handle
+                    //                    childControl.OnParentHandleRecreated();
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    if (created)
+                    //    {
+                    //        CreateControl();
+                    //    }
+                    //}
+                    //finally
+                    //{
+                    //    if (parentHandle.Handle != IntPtr.Zero                               // the parent was not null
+                    //        && (Control.FromHandleInternal(parentHandle.Handle) == null || this.parent == null) // but wasnt a windows forms window
+                    //        && UnsafeNativeMethods.IsWindow(parentHandle))
+                    //    {                 // and still is a window
+                    //        // correctly parent back up to where we were before.
+                    //        // if we were parented to a proper windows forms control, CreateControl would have properly parented
+                    //        // us back.
+                    //        UnsafeNativeMethods.SetParent(new HandleRef(this, this.Handle), parentHandle);
+                    //    }
+                    //}
+
+
+                    //if (focused)
+                    //{
+                    //    FocusInternal();
+                    //}
+                }
+            }
+        }
+
         public void Update()
         {
             //SafeNativeMethods.UpdateWindow(new HandleRef(window, InternalHandle));
@@ -5806,11 +6014,7 @@ namespace System.Windows.Forms
             return GetStyle(ControlStyles.ContainerControl);
         }
 
-        [
-        DefaultValue(false),
-        EditorBrowsable(EditorBrowsableState.Always),
-        Browsable(true),
-        ]
+        [DefaultValue(false), EditorBrowsable(EditorBrowsableState.Always), Browsable(true)]
         public bool UseWaitCursor
         {
             get { return GetState(STATE_USEWAITCURSOR); }
@@ -5907,10 +6111,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Disposing
         {
             get
@@ -5935,10 +6136,7 @@ namespace System.Windows.Forms
             return isDisposing;
         }
 
-        [
-        Localizable(true),
-        AmbientValue(RightToLeft.Inherit),
-        ]
+        [Localizable(true), AmbientValue(RightToLeft.Inherit)]
         public virtual RightToLeft RightToLeft
         {
             get
@@ -6047,11 +6245,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        Localizable(true),
-        DispId(NativeMethods.ActiveX.DISPID_FONT),
-        AmbientValue(null),
-        ]
+        [Localizable(true), DispId(NativeMethods.ActiveX.DISPID_FONT), AmbientValue(null)]
         public virtual Font Font
         {
             [ResourceExposure(ResourceScope.None)]
@@ -6162,7 +6356,6 @@ namespace System.Windows.Forms
 
         internal virtual void AssignParent(Control value)
         {
-
             // Adopt the parent's required scaling bits
             if (value != null)
             {
@@ -6243,7 +6436,6 @@ namespace System.Windows.Forms
             if (ParentInternal != null) ParentInternal.LayoutEngine.InitLayout(this, BoundsSpecified.All);
         }
 
-
         internal bool ValidationCancelled
         {
             set
@@ -6310,7 +6502,6 @@ namespace System.Windows.Forms
 
         internal bool PerformControlValidation(bool bulkValidation)
         {
-
             // Skip validation for controls that don't support it
             if (!this.CausesValidation)
             {
@@ -6388,9 +6579,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-           ListBindable(false), ComVisible(false)
-        ]
+        [ListBindable(false), ComVisible(false)]
         public class ControlCollection : ArrangedElementCollection, IList, ICloneable
         {
 

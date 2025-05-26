@@ -139,6 +139,16 @@ function closeCurrentWindow(control) {
     $(control).parent().closest('.jsPanel').remove();
 }
 
+function filterEvent(event) {
+    // RadioButton and OptionButton generate a double event (1 for input, 1 for label). We filter out one of those.
+    const classList = event.currentTarget.classList;
+    if (classList.contains('checkbox') || classList.contains('option-button')) {
+        const tag = event.target.tagName.toLowerCase();
+        if (tag === 'label') return true;
+    }
+    return false;
+}
+
 function mouseDownEvent(event) {
     eventHandler(event.currentTarget.id, 'MouseDown')
 }
@@ -155,21 +165,25 @@ function mouseLeaveEvent(event) {
     eventHandler(event.currentTarget.id, 'MouseLeave')
 }
 function mouseClickEvent(event) {
+    if (filterEvent(event)) return;
     if (event.pointerType === 'mouse' || event instanceof MouseEvent) {
         eventHandler(event.currentTarget.id, 'MouseClick');
     } 
 }
 function mouseDoubleClickEvent(event) {
+    if (filterEvent(event)) return;
     if (event.pointerType === 'mouse' || event instanceof MouseEvent) {
         eventHandler(event.currentTarget.id, 'MouseDoubleClick');
     }
 }
 function clickEvent(event) {
+    if (filterEvent(event)) return;
     eventHandler(event.currentTarget.id, 'Click')
 }
 function doubleClickEvent(event) {
+    if (filterEvent(event)) return;
     eventHandler(event.currentTarget.id, 'DoubleClick')
 }
 function textChangedEvent(event) {
-    eventHandler(event.currentTarget.id, 'Input')
+    eventHandler(event.currentTarget.id, 'TextChanged')
 }

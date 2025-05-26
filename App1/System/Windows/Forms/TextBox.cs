@@ -4,17 +4,16 @@ namespace System.Windows.Forms
 {
     public class TextBox : TextBoxBase
     {
-        internal string text;
-        public string Text { 
+        public override string Text { 
             get 
             {
-                return text;
+                return base.Text;
             }
             set
             {
-                if (value != text)
+                if (value != base.Text)
                 {
-                    text = value;
+                    base.Text = value;
                     if (layoutPerformed)
                     {
                         Page.Set(WebviewIdentifier, Multiline ? "innerHTML" : "value", $"\"{value}\"");

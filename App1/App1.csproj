@@ -141,7 +141,9 @@
     <Compile Include="Page.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="System\ComponentModel\CompModeSwitches.cs" />
+    <Compile Include="System\Drawing2D\BrushType.cs" />
     <Compile Include="System\Drawing2D\MatrixOrder.cs" />
+    <Compile Include="System\Drawing\Brush.cs" />
     <Compile Include="System\Drawing\Color.cs" />
     <Compile Include="System\Drawing\ColorConverter.cs" />
     <Compile Include="System\Drawing\ColorTranslator.cs" />
@@ -170,6 +172,7 @@
     <Compile Include="System\Internal\GPRECT.cs" />
     <Compile Include="System\Internal\GPRECTF.cs" />
     <Compile Include="System\Internal\HandleCollector.cs" />
+    <Compile Include="System\Internal\ISystemColorTracker.cs" />
     <Compile Include="System\Windows\Forms\AccessibleRole.cs" />
     <Compile Include="System\Windows\Forms\AccessibleStates.cs" />
     <Compile Include="System\Windows\Forms\AmbientProperties.cs" />
@@ -213,6 +216,7 @@
     <Compile Include="System\Windows\Forms\ButtonBase.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="System\Windows\Forms\ButtonBorderStyle.cs" />
     <Compile Include="System\Windows\Forms\CheckBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -249,6 +253,7 @@
     <Compile Include="System\Windows\Forms\Cursor.cs" />
     <Compile Include="System\Windows\Forms\CursorConverter.cs" />
     <Compile Include="System\Windows\Forms\Cursors.cs" />
+    <Compile Include="System\Windows\Forms\DataFormats.cs" />
     <Compile Include="System\Windows\Forms\DataGridView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -264,6 +269,8 @@
     <Compile Include="System\Windows\Forms\DrawItemEventHandler.cs" />
     <Compile Include="System\Windows\Forms\DrawItemState.cs" />
     <Compile Include="System\Windows\Forms\DrawMode.cs" />
+    <Compile Include="System\Windows\Forms\DrawToolTipEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\DrawToolTipEventHandler.cs" />
     <Compile Include="System\Windows\Forms\FeatureSupport.cs" />
     <Compile Include="System\Windows\Forms\FlatButtonAppearance.cs" />
     <Compile Include="System\Windows\Forms\FlatStyle.cs" />
@@ -306,6 +313,7 @@
     <Compile Include="System\Windows\Forms\ICurrencyManagerProvider.cs" />
     <Compile Include="System\Windows\Forms\IDataObject.cs" />
     <Compile Include="System\Windows\Forms\IFeatureSupport.cs" />
+    <Compile Include="System\Windows\Forms\IKeyboardTooltip.cs" />
     <Compile Include="System\Windows\Forms\ImageLayout.cs" />
     <Compile Include="System\Windows\Forms\ImeMode.cs" />
     <Compile Include="System\Windows\Forms\IMessageFilter.cs" />
@@ -321,6 +329,7 @@
     <Compile Include="System\Windows\Forms\IntSecurity.cs" />
     <Compile Include="System\Windows\Forms\InvalidateEventArgs.cs" />
     <Compile Include="System\Windows\Forms\InvalidateEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\ISynchronizeInvoke.cs" />
     <Compile Include="System\Windows\Forms\ItemChangedEventArgs.cs" />
     <Compile Include="System\Windows\Forms\ItemChangedEventHandler.cs" />
     <Compile Include="System\Windows\Forms\IWin32Window.cs" />
@@ -402,6 +411,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="System\Windows\Forms\PictureBoxSizeMode.cs" />
+    <Compile Include="System\Windows\Forms\PopupEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\PopupEventHandler.cs" />
     <Compile Include="System\Windows\Forms\PowerStatus.cs" />
     <Compile Include="System\Windows\Forms\PreviewKeyDownEventArgs.cs" />
     <Compile Include="System\Windows\Forms\PreviewKeyDownEventHandler.cs" />
@@ -444,6 +455,7 @@
     <Compile Include="System\Windows\Forms\ToolStripMenuItem.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="System\Windows\Forms\ToolTipIcon.cs" />
     <Compile Include="System\Windows\Forms\UICues.cs" />
     <Compile Include="System\Windows\Forms\UICuesEventArgs.cs" />
     <Compile Include="System\Windows\Forms\UICuesEventHandler.cs" />

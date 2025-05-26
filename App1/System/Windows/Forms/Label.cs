@@ -1,13 +1,10 @@
 ﻿using App1;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Windows.Forms.Layout;
+using static System.Windows.Forms.Layout.LayoutUtils;
 
 namespace System.Windows.Forms
 {
@@ -79,23 +76,105 @@ namespace System.Windows.Forms
             requestedWidth = Width;
         }
 
-        public bool AutoSize;
-        public bool UseCompatibleTextRendering = true;
-        internal string text = "";
+        [DefaultValue(false), RefreshProperties(RefreshProperties.All), Localizable(true), Browsable(true), EditorBrowsable(EditorBrowsableState.Always), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public override bool AutoSize
+        {
+            get
+            {
+                return base.AutoSize;
+            }
+            set
+            {
+                if (AutoSize != value)
+                {
+                    base.AutoSize = value;
+                    AdjustSize();
+                }
+            }
+        }
 
-        [
-        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        new public event EventHandler AutoSizeChanged
+        {
+            add
+            {
+                base.AutoSizeChanged += value;
+            }
+            remove
+            {
+                base.AutoSizeChanged -= value;
+            }
+        }
+
+        [DefaultValue(false), Browsable(true), EditorBrowsable(EditorBrowsableState.Always)]
+        public bool AutoEllipsis
+        {
+            get
+            {
+                return labelState[StateAutoEllipsis] != 0;
+            }
+
+            set
+            {
+                if (AutoEllipsis != value)
+                {
+                    labelState[StateAutoEllipsis] = value ? 1 : 0;
+                    MeasureTextCache.InvalidateCache();
+
+                    OnAutoEllipsisChanged(/*EventArgs.Empty*/);
+
+                    if (value)
+                    {
+                        //if (textToolTip == null)
+                        //{
+                        //    textToolTip = new ToolTip();
+                        //}
+                    }
+
+
+                    if (ParentInternal != null)
+                    {
+                        LayoutTransaction.DoLayoutIf(AutoSize, ParentInternal, this, PropertyNames.AutoEllipsis);
+                    }
+                    Invalidate();
+                }
+            }
+        }
+
+        internal LayoutUtils.MeasureTextCache MeasureTextCache
+        {
+            get
+            {
+                if (textMeasurementCache == null)
+                {
+                    textMeasurementCache = new LayoutUtils.MeasureTextCache();
+                }
+                return textMeasurementCache;
+            }
+        }
+
+        internal virtual bool OwnerDraw
+        {
+            get
+            {
+                return IsOwnerDraw();
+            }
+        }
+
+        internal bool IsOwnerDraw()
+        {
+            return FlatStyle != FlatStyle.System;
+        }
+
+        public bool UseCompatibleTextRendering = true;
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual int PreferredHeight
         {
             get { return PreferredSize.Height; }
         }
 
-        [
-        Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual int PreferredWidth
         {
             get { return PreferredSize.Width; }
@@ -134,6 +213,38 @@ namespace System.Windows.Forms
                 requestedWidth = saveWidth;
             }
         }
+
+        [DefaultValue(BorderStyle.None), DispId(NativeMethods.ActiveX.DISPID_BORDERSTYLE)]
+        public virtual BorderStyle BorderStyle
+        {
+            get
+            {
+                return (BorderStyle)labelState[StateBorderStyle];
+            }
+            set
+            {
+                //valid values are 0x0 to 0x2
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)BorderStyle.None, (int)BorderStyle.Fixed3D))
+                {
+                    throw new InvalidEnumArgumentException("value", (int)value, typeof(BorderStyle));
+                }
+
+                if (BorderStyle != value)
+                {
+                    labelState[StateBorderStyle] = (int)value;
+                    if (ParentInternal != null)
+                    {
+                        LayoutTransaction.DoLayoutIf(AutoSize, ParentInternal, this, PropertyNames.BorderStyle);
+                    }
+                    if (AutoSize)
+                    {
+                        AdjustSize();
+                    }
+                    RecreateHandle();
+                }
+            }
+        }
+
         internal virtual bool CanUseTextRenderer
         {
             get
@@ -162,27 +273,27 @@ namespace System.Windows.Forms
 
         private void Animate(bool animate)
         {
-            //bool currentlyAnimating = labelState[StateAnimating] != 0;
-            //if (animate != currentlyAnimating)
-            //{
-            //    Image image = (Image)Properties.GetObject(PropImage);
-            //    if (animate)
-            //    {
-            //        if (image != null)
-            //        {
-            //            ImageAnimator.Animate(image, new EventHandler(this.OnFrameChanged));
-            //            labelState[StateAnimating] = animate ? 1 : 0;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        if (image != null)
-            //        {
-            //            ImageAnimator.StopAnimate(image, new EventHandler(this.OnFrameChanged));
-            //            labelState[StateAnimating] = animate ? 1 : 0;
-            //        }
-            //    }
-            //}
+            bool currentlyAnimating = labelState[StateAnimating] != 0;
+            if (animate != currentlyAnimating)
+            {
+                //Image image = (Image)Properties.GetObject(PropImage);
+                //if (animate)
+                //{
+                //    if (image != null)
+                //    {
+                //        ImageAnimator.Animate(image, new EventHandler(this.OnFrameChanged));
+                //        labelState[StateAnimating] = animate ? 1 : 0;
+                //    }
+                //}
+                //else
+                //{
+                //    if (image != null)
+                //    {
+                //        ImageAnimator.StopAnimate(image, new EventHandler(this.OnFrameChanged));
+                //        labelState[StateAnimating] = animate ? 1 : 0;
+                //    }
+                //}
+            }
         }
 
         internal virtual void OnAutoEllipsisChanged(/*EventArgs e*/)
@@ -210,17 +321,17 @@ namespace System.Windows.Forms
             AdjustSize();
         }
 
-        public virtual string Text
+        public override string Text
         {
             get
             {
-                return text;
+                return base.Text;
             }
             set
             {
-                if (value != text)
+                if (value != Text)
                 {
-                    text = value;
+                    base.Text = value;
                     if (layoutPerformed)
                     {
                         Page.Set(WebviewIdentifier, "innerHTML", $"\"{value}\"");
@@ -253,10 +364,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-            DefaultValue(FlatStyle.Standard),
-        ]
-
+        [DefaultValue(FlatStyle.Standard)]
         public FlatStyle FlatStyle
         {
             get
@@ -281,23 +389,24 @@ namespace System.Windows.Forms
                     //         | ControlStyles.SupportsTransparentBackColor
                     //         | ControlStyles.OptimizedDoubleBuffer, OwnerDraw);
 
-                    //if (needRecreate)
-                    //{
-                    //    // this will clear the preferred size cache - it's OK if the parent is null - it would be a NOP.
-                    //    LayoutTransaction.DoLayoutIf(AutoSize, ParentInternal, this, PropertyNames.BorderStyle);
-                    //    if (AutoSize)
-                    //    {
-                    //        AdjustSize();
-                    //    }
-                    //    RecreateHandle();
-                    //}
-                    //else
-                    //{
-                    //    Refresh();
-                    //}
+                    if (needRecreate)
+                    {
+                        // this will clear the preferred size cache - it's OK if the parent is null - it would be a NOP.
+                        LayoutTransaction.DoLayoutIf(AutoSize, ParentInternal, this, PropertyNames.BorderStyle);
+                        if (AutoSize)
+                        {
+                            AdjustSize();
+                        }
+                        RecreateHandle();
+                    }
+                    else
+                    {
+                        //Refresh();
+                    }
                 }
             }
         }
+
         public async override void PerformLayout()
         {
             string style = "";

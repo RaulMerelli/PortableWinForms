@@ -252,7 +252,6 @@ namespace System.Windows.Forms
             }
         }
 
-
         public async override void PerformLayout()
         {
             string style = "";

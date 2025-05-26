@@ -8,17 +8,17 @@ namespace System.Windows.Forms
         public bool UseCompatibleTextRendering = true;
         public bool TabStop = false;
 
-        public virtual string Text
+        public override string Text
         {
             get
             {
-                return text;
+                return base.Text;
             }
             set
             {
-                if (value != text)
+                if (value != base.Text)
                 {
-                    text = value;
+                    base.Text = value;
                     if (layoutPerformed)
                     {
                         Page.Set(WebviewIdentifier + "-title", "innerHTML", $"\"{value}\"");
@@ -40,6 +40,7 @@ namespace System.Windows.Forms
             style += $"padding: 0px;";
             style += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
             titlestyle += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
+            titlestyle += $"color: {System.Drawing.ColorTranslator.ToHtml(ForeColor)};";
             style += CssLocationAndSize();
 
             script += preLayoutScriptString;
