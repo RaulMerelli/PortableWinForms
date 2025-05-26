@@ -11,6 +11,7 @@ At the current state "something" works, by importing a form designed with the on
 - Form
 - Button
 - GroupBox
+- Panel
 - Label
 - TextBox
 - CheckBox
@@ -18,10 +19,11 @@ At the current state "something" works, by importing a form designed with the on
 - MessageBox
 
 ### Working properties after performing layout (more work only at drawing time)
-- Text (Form, Button, Label, TextBox)
+- Text (Form, Button, Label, TextBox, GroupBox)
 - Size (All controls)
 - Location (All controls)
 - Anchor (All controls)
+- BorderStyle (Panel)
 
 ### Implemented events
 - TextChanged (TextBox)
@@ -29,14 +31,14 @@ At the current state "something" works, by importing a form designed with the on
 - ResizeBegin (Form)
 - ResizeEnd (Form)
 - Move (Form)
-- Click (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseEnter (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseLeave (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseDown (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseClick (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseDoubleClick (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseUp (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
-- MouseMove (Button, TextBox, Label, CheckBox, RadioButton, GroupBox)
+- Click (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseEnter (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseLeave (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseDown (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseClick (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseDoubleClick (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseUp (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
+- MouseMove (Button, TextBox, Label, CheckBox, RadioButton, GroupBox, Panel)
 
 An example is provided (Form1 + Form2), showcasing what this project is currently able to do.
 

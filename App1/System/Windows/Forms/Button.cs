@@ -1,6 +1,7 @@
 ﻿using App1;
 using System.ComponentModel;
 using System.Drawing;
+using System.Security.Permissions;
 using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
@@ -69,6 +70,7 @@ namespace System.Windows.Forms
         //{
         //    return new ButtonStandardAdapter(this);
         //}
+
         [DefaultValue(DialogResult.None)]
         public virtual DialogResult DialogResult
         {
@@ -76,7 +78,6 @@ namespace System.Windows.Forms
             {
                 return dialogResult;
             }
-
             set
             {
                 if (!ClientUtils.IsEnumValid(value, (int)value, (int)DialogResult.None, (int)DialogResult.No))
@@ -139,6 +140,7 @@ namespace System.Windows.Forms
                         
             style += $"font: 8pt Microsoft Sans Serif;";
             style += $"color: {System.Drawing.ColorTranslator.ToHtml(ForeColor)};";
+            style += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
             style += CssLocationAndSize();
 
             script += preLayoutScriptString;
@@ -153,17 +155,50 @@ namespace System.Windows.Forms
 
         internal override void OnClick(EventArgs e)
         {
-            /*
             Form form = FindFormInternal();
             if (form != null)
             {
-                form.DialogResult = dialogResult;
+                //form.DialogResult = dialogResult;
             }
 
-            AccessibilityNotifyClients(AccessibleEvents.StateChange, -1);
-            AccessibilityNotifyClients(AccessibleEvents.NameChange, -1);
-            */
+            //AccessibilityNotifyClients(AccessibleEvents.StateChange, -1);
+            //AccessibilityNotifyClients(AccessibleEvents.NameChange, -1);
+            
             base.OnClick(e);
+        }
+
+        public void PerformClick()
+        {
+            if (CanSelect)
+            {
+                bool validatedControlAllowsFocusChange;
+                bool validate = ValidateActiveControl(out validatedControlAllowsFocusChange);
+                if (!ValidationCancelled && (validate || validatedControlAllowsFocusChange))
+                {
+                    //Paint in raised state...
+                    //
+                    ResetFlagsandPaint();
+                    OnClick(EventArgs.Empty);
+                }
+            }
+        }
+
+        [UIPermission(SecurityAction.LinkDemand, Window = UIPermissionWindow.AllWindows)]
+        protected internal override bool ProcessMnemonic(char charCode)
+        {
+            if (UseMnemonic && CanProcessMnemonic() && IsMnemonic(charCode, Text))
+            {
+                PerformClick();
+                return true;
+            }
+            return base.ProcessMnemonic(charCode);
+        }
+
+        public override string ToString()
+        {
+
+            string s = base.ToString();
+            return s + ", Text: " + Text;
         }
     }
 }

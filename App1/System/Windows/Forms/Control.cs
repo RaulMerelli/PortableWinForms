@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Layout;
 using System.Xml.Linq;
+using static System.Windows.Forms.NativeMethods;
 
 namespace System.Windows.Forms
 {
@@ -2452,8 +2453,87 @@ namespace System.Windows.Forms
         public int internalIndex;
         internal string WebviewIdentifier = "";
         public Color ForeColor;
-        public Color BackColor = Color.FromKnownColor(KnownColor.Control);
-        
+
+        [DispId(NativeMethods.ActiveX.DISPID_BACKCOLOR)]
+        public virtual Color BackColor
+        {
+            get
+            {
+                Color c = RawBackColor; // inheritedProperties.BackColor
+                if (!c.IsEmpty)
+                {
+                    return c;
+                }
+
+                Control p = ParentInternal;
+                if (p != null && p.CanAccessProperties)
+                {
+                    c = p.BackColor;
+                    if (IsValidBackColor(c))
+                    {
+                        return c;
+                    }
+
+                }
+
+                //if (IsActiveX)
+                //{
+                //    c = ActiveXAmbientBackColor;
+                //}
+
+                if (c.IsEmpty)
+                {
+                    AmbientProperties ambient = AmbientPropertiesService;
+                    if (ambient != null)
+                        c = ambient.BackColor;
+                }
+
+                if (!c.IsEmpty && IsValidBackColor(c))
+                    return c;
+                else
+                    return DefaultBackColor;
+            }
+            set
+            {
+                if (!value.Equals(Color.Empty) && !GetStyle(ControlStyles.SupportsTransparentBackColor) && value.A < 255)
+                    throw new ArgumentException("TransparentBackColorNotAllowed");
+
+                Color c = BackColor;
+                if (!value.IsEmpty || Properties.ContainsObject(PropBackColor))
+                {
+                    Properties.SetColor(PropBackColor, value);
+                }
+
+                if (!c.Equals(BackColor))
+                {
+                    OnBackColorChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        public static Color DefaultBackColor
+        {
+            get { return SystemColors.Control; }
+        }
+
+        internal Color RawBackColor
+        {
+            get
+            {
+                return Properties.GetColor(PropBackColor);
+            }
+        }
+
+        private bool IsValidBackColor(Color c)
+        {
+            if (!c.IsEmpty && !GetStyle(ControlStyles.SupportsTransparentBackColor) && c.A < 255)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
         public Point AutoScrollOffset;
         public ImageLayout BackgroundImageLayout;
 
@@ -5292,9 +5372,64 @@ namespace System.Windows.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected void UpdateStyles()
         {
-            //UpdateStylesCore();
-
+            UpdateStylesCore();
             OnStyleChanged(EventArgs.Empty);
+        }
+
+        internal async virtual void UpdateStylesCore()
+        {
+            if (IsHandleCreated)
+            {
+                string script = "";
+                string styleclass = "";
+                if (this is Panel)
+                {
+                    switch ((this as Panel).BorderStyle)
+                    {
+                        case BorderStyle.Fixed3D:
+                            styleclass = "panelframe-3d";
+                            break;
+                        case BorderStyle.FixedSingle:
+                            styleclass = "panelframe-single";
+                            break;
+                        case BorderStyle.None:
+                            styleclass = "panelframe-none";
+                            break;
+                    }
+                    script = $"document.getElementById('{WebviewIdentifier}').className = '{styleclass}';";
+                }
+
+                if (!string.IsNullOrEmpty(script))
+                {
+                    await Page.RunScript(script);
+                }
+
+                //CreateParams cp = CreateParams;
+                //int winStyle = WindowStyle;
+                //int exStyle = WindowExStyle;
+
+                //// resolve the Form's lazy visibility.
+                //if ((state & STATE_VISIBLE) != 0)
+                //{
+                //    cp.Style |= NativeMethods.WS_VISIBLE;
+                //}
+                //if (winStyle != cp.Style)
+                //{
+                //    WindowStyle = cp.Style;
+                //}
+                //if (exStyle != cp.ExStyle)
+                //{
+                //    WindowExStyle = cp.ExStyle;
+                //    SetState(STATE_MIRRORED, (cp.ExStyle & NativeMethods.WS_EX_LAYOUTRTL) != 0);
+                //}
+
+                //SafeNativeMethods.SetWindowPos(
+                //                              new HandleRef(this, Handle), NativeMethods.NullHandleRef, 0, 0, 0, 0,
+                //                              NativeMethods.SWP_DRAWFRAME | NativeMethods.SWP_NOACTIVATE | NativeMethods.SWP_NOMOVE
+                //                              | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOZORDER);
+
+                Invalidate(true);
+            }
         }
 
         [
@@ -5409,6 +5544,142 @@ namespace System.Windows.Forms
             //        state &= ~STATE_NOZORDER;
             //    }
             //}
+        }
+
+        public static bool IsMnemonic(char charCode, string text)
+        {
+#if DEBUG
+            if (ControlKeyboardRouting.TraceVerbose)
+            {
+                Debug.Write("Control.IsMnemonic(" + charCode.ToString() + ", ");
+
+                if (text != null)
+                {
+                    Debug.Write(text);
+                }
+                else
+                {
+                    Debug.Write("null");
+                }
+                Debug.WriteLine(")");
+            }
+#endif
+
+            //Special case handling:
+            if (charCode == '&')
+            {
+                Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "   ...returning false");
+                return false;
+            } //if
+
+
+            if (text != null)
+            {
+                int pos = -1; // start with -1 to handle double &'s
+                char c2 = Char.ToUpper(charCode, CultureInfo.CurrentCulture);
+                for (; ; )
+                {
+                    if (pos + 1 >= text.Length)
+                        break;
+                    pos = text.IndexOf('&', pos + 1) + 1;
+                    if (pos <= 0 || pos >= text.Length)
+                        break;
+                    char c1 = Char.ToUpper(text[pos], CultureInfo.CurrentCulture);
+                    Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "   ...& found... char=" + c1.ToString());
+                    if (c1 == c2 || Char.ToLower(c1, CultureInfo.CurrentCulture) == Char.ToLower(c2, CultureInfo.CurrentCulture))
+                    {
+                        Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "   ...returning true");
+                        return true;
+                    }
+                }
+                Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose && pos == 0, "   ...no & found");
+            }
+            Debug.WriteLineIf(ControlKeyboardRouting.TraceVerbose, "   ...returning false");
+            return false;
+        }
+
+        public void Invalidate(Rectangle rc)
+        {
+            Invalidate(rc, false);
+        }
+
+        public void Invalidate(Rectangle rc, bool invalidateChildren)
+        {
+            if (rc.IsEmpty)
+            {
+                Invalidate(invalidateChildren);
+            }
+            else if (IsHandleCreated)
+            {
+                if (invalidateChildren)
+                {
+                    NativeMethods.RECT rcArea = NativeMethods.RECT.FromXYWH(rc.X, rc.Y, rc.Width, rc.Height);
+                    //SafeNativeMethods.RedrawWindow(new HandleRef(window, Handle),
+                    //                               ref rcArea, NativeMethods.NullHandleRef,
+                    //                               NativeMethods.RDW_INVALIDATE |
+                    //                               NativeMethods.RDW_ERASE |
+                    //                               NativeMethods.RDW_ALLCHILDREN);
+                }
+                else
+                {
+                    NativeMethods.RECT rcArea =
+                        NativeMethods.RECT.FromXYWH(rc.X, rc.Y, rc.Width,
+                                                    rc.Height);
+
+                    // It's safe to invoke InvalidateRect from a separate thread.
+                    using (new MultithreadSafeCallScope())
+                    {
+                        //SafeNativeMethods.InvalidateRect(new HandleRef(window, Handle),
+                        //                                 ref rcArea,
+                        //                                 (controlStyle & ControlStyles.Opaque) != ControlStyles.Opaque);
+                    }
+                }
+                NotifyInvalidate(rc);
+            }
+        }
+
+        public void Update()
+        {
+            //SafeNativeMethods.UpdateWindow(new HandleRef(window, InternalHandle));
+        }
+
+        internal bool ValidateActiveControl(out bool validatedControlAllowsFocusChange)
+        {
+            bool valid = true;
+            validatedControlAllowsFocusChange = false;
+            IContainerControl c = GetContainerControlInternal();
+            if (c != null && this.CausesValidation)
+            {
+                ContainerControl container = c as ContainerControl;
+                if (container != null)
+                {
+                    while (container.ActiveControl == null)
+                    {
+                        ContainerControl cc;
+                        Control parent = container.ParentInternal;
+                        if (parent != null)
+                        {
+                            cc = parent.GetContainerControlInternal() as ContainerControl;
+                            if (cc != null)
+                            {
+                                container = cc;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    valid = container.ValidateInternal(true, out validatedControlAllowsFocusChange);
+                }
+            }
+
+            return valid;
         }
 
         internal bool PerformContainerValidation(ValidationConstraints validationConstraints)

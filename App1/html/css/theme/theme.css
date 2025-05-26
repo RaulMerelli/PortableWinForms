@@ -152,6 +152,49 @@ input[type=text], input[type=password], textarea {
     position: absolute;
 }
 
+.panelframe-none {
+    position: absolute;
+}
+
+    .panelframe-none::before {
+        height: 100%;
+        width: 100%;
+        display: block;
+        position: relative;
+        content: ' ';
+        border: 0px solid transparent;
+    }
+
+.panelframe-single {
+    position: absolute;
+}
+
+    .panelframe-single::before {
+        height: calc(100% - 1px);
+        width: calc(100% - 1px);
+        display: block;
+        position: relative;
+        content: ' ';
+        border: 1px solid transparent;
+        border-top: 1px solid transparent;
+        border-image: url(resources/panelframe_single.png) 1 1 1 1 stretch;
+    }
+
+.panelframe-3d {
+    position: absolute;
+}
+
+    .panelframe-3d::before {
+        height: calc(100% - 2px);
+        width: calc(100% - 2px);
+        display: block;
+        position: relative;
+        content: ' ';
+        border: 2px solid transparent;
+        border-top: 2px solid transparent;
+        border-image: url(resources/panelframe_3d.png) 2 2 2 2 stretch;
+    }
+
 .frame {
    position: absolute;
 }
@@ -180,11 +223,17 @@ input[type=text], input[type=password], textarea {
     cursor: default;
 }
 
+.button p {
+    white-space: normal; 
+    overflow-wrap: break-word; 
+    margin: 0; 
+}
+
 .button {
+    overflow: hidden;
     position: absolute;
     height: 20px;
     width: 80px;
-    background-color: #F0F0F0;
     color: black;
     border: 0px;
     margin: 0px;

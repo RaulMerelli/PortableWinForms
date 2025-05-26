@@ -4,9 +4,28 @@ namespace System.Windows.Forms
 {
     public class GroupBox : Control
     {
-        public string Text = "";
+        internal string text;
         public bool UseCompatibleTextRendering = true;
         public bool TabStop = false;
+
+        public virtual string Text
+        {
+            get
+            {
+                return text;
+            }
+            set
+            {
+                if (value != text)
+                {
+                    text = value;
+                    if (layoutPerformed)
+                    {
+                        Page.Set(WebviewIdentifier + "-title", "innerHTML", $"\"{value}\"");
+                    }
+                }
+            }
+        }
 
         public async override void PerformLayout()
         {

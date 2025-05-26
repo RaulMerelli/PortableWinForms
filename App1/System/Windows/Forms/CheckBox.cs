@@ -1,5 +1,6 @@
 ﻿using App1;
 using System.ComponentModel;
+using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
 {
@@ -47,13 +48,13 @@ namespace System.Windows.Forms
                     checkState = value;
                     if (layoutPerformed)
                     {
-                                            }
+                    }
 
                     if (@checked != Checked)
                     {
-                                                                    }
+                    }
 
-                                                        }
+                }
             }
         }
 
@@ -88,41 +89,71 @@ namespace System.Windows.Forms
             }
         }
 
+        [
+        DefaultValue(Appearance.Normal),
+        Localizable(true),
+        ]
         public Appearance Appearance
         {
             get
             {
                 return appearance;
             }
+
             set
             {
-                if (!ClientUtils.IsEnumValid(value, (int)value, 0, 1))
+                //valid values are 0x0 to 0x1
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)Appearance.Normal, (int)Appearance.Button))
                 {
                     throw new InvalidEnumArgumentException("value", (int)value, typeof(Appearance));
                 }
 
-                if (appearance == value)
+                if (appearance != value)
                 {
-                    return;
+                    using (LayoutTransaction.CreateTransactionIf(AutoSize, this.ParentInternal, this, PropertyNames.Appearance))
+                    {
+                        appearance = value;
+                        if (OwnerDraw)
+                        {
+                            //Refresh();
+                        }
+                        else
+                        {
+                            UpdateStyles();
+                        }
+                        OnAppearanceChanged(EventArgs.Empty);
+                    }
                 }
-
-                                /*using (LayoutTransaction.CreateTransactionIf(AutoSize, ParentInternal, this, PropertyNames.Appearance))
-                {*/
-                    appearance = value;
-                    /*
-                     * if (base.OwnerDraw)
-                    {
-                        Refresh();
-                    }
-                    else
-                    {
-                        UpdateStyles();
-                    }
-
-                    OnAppearanceChanged(EventArgs.Empty);
-                    */
-                /*}*/
             }
+        }
+
+        protected virtual void OnAppearanceChanged(EventArgs e)
+        {
+            EventHandler eh = Events[EVENT_APPEARANCECHANGED] as EventHandler;
+            if (eh != null)
+            {
+                eh(this, e);
+            }
+        }
+
+        protected virtual void OnCheckedChanged(EventArgs e)
+        {
+            // accessibility stuff
+            if (this.FlatStyle == FlatStyle.System)
+            {
+                //AccessibilityNotifyClients(AccessibleEvents.SystemCaptureStart, -1);
+            }
+
+            //AccessibilityNotifyClients(AccessibleEvents.StateChange, -1);
+            //AccessibilityNotifyClients(AccessibleEvents.NameChange, -1);
+
+            if (this.FlatStyle == FlatStyle.System)
+            {
+                //AccessibilityNotifyClients(AccessibleEvents.SystemCaptureEnd, -1);
+            }
+
+            EventHandler handler = (EventHandler)Events[EVENT_CHECKEDCHANGED];
+            if (handler != null) handler(this, e);
         }
 
         public bool AutoCheck

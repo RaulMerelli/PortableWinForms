@@ -228,6 +228,30 @@ namespace System.Windows.Forms
             }
         }
 
+        protected void ResetFlagsandPaint()
+        {
+            SetFlag(FlagMousePressed, false);
+            SetFlag(FlagMouseDown, false);
+            Invalidate(DownChangeRectangle);
+            Update();
+        }
+
+        [DefaultValue(true)]
+        public bool UseMnemonic
+        {
+            get
+            {
+                return GetFlag(FlagUseMnemonic);
+            }
+
+            set
+            {
+                SetFlag(FlagUseMnemonic, value);
+                LayoutTransaction.DoLayoutIf(AutoSize, ParentInternal, this, PropertyNames.Text);
+                Invalidate();
+            }
+        }
+
 
         public bool UseCompatibleTextRendering = true;
         public bool UseVisualStyleBackColor = true;

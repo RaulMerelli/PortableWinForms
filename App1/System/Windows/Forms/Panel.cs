@@ -281,8 +281,21 @@ namespace System.Windows.Forms
         public async override void PerformLayout()
         {
             string style = "";
-            string titlestyle = "";
+            string styleclass = "";
             string script = "";
+
+            switch (borderStyle)
+            {
+                case BorderStyle.Fixed3D:
+                    styleclass = "panelframe-3d";
+                    break;
+                case BorderStyle.FixedSingle:
+                    styleclass = "panelframe-single";
+                    break;
+                case BorderStyle.None:
+                    styleclass = "panelframe-none";
+                    break;
+            }
 
             WebviewIdentifier += Name;
 
@@ -290,12 +303,11 @@ namespace System.Windows.Forms
             style += $"margin: 0px;";
             style += $"padding: 0px;";
             style += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
-            titlestyle += $"background-color: {System.Drawing.ColorTranslator.ToHtml(BackColor)};";
             style += CssLocationAndSize();
 
             script += preLayoutScriptString;
 
-            await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<div id=\"{WebviewIdentifier}\" style=\"{style}\" class=\"frame\"><div id=\"{WebviewIdentifier}-title\" style=\"{titlestyle}\" class=\"frame-title\">{Text}</div></div>';".Replace("\u200B", ""));
+            await Page.Add(Parent.WebviewIdentifier, "innerHTML", $"'<div id=\"{WebviewIdentifier}\" style=\"{style}\" class=\"{styleclass}\"></div>';".Replace("\u200B", ""));
 
             await Page.RunScript(script);
 

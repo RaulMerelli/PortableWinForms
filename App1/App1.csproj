@@ -485,6 +485,8 @@
     <Content Include="html\css\theme\resources\menu\checked-hover.png" />
     <Content Include="html\css\theme\resources\menu\checked.png" />
     <Content Include="html\css\theme\resources\option.png" />
+    <Content Include="html\css\theme\resources\panelframe_3d.png" />
+    <Content Include="html\css\theme\resources\panelframe_single.png" />
     <Content Include="html\css\theme\resources\picturebox-3d.png" />
     <Content Include="html\css\theme\resources\scrollbar\h-left-scroll-arrow.png" />
     <Content Include="html\css\theme\resources\scrollbar\h-right-scroll-arrow.png" />
