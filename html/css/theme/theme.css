@@ -166,12 +166,13 @@ input[type=text], input[type=password], textarea {
     }
 
 .panelframe-single {
+    overflow: hidden;
     position: absolute;
 }
 
     .panelframe-single::before {
-        height: calc(100% - 1px);
-        width: calc(100% - 1px);
+        height: calc(100% - 2px);
+        width: calc(100% - 2px);
         display: block;
         position: relative;
         content: ' ';
@@ -181,12 +182,13 @@ input[type=text], input[type=password], textarea {
     }
 
 .panelframe-3d {
+    overflow: hidden;
     position: absolute;
 }
 
     .panelframe-3d::before {
-        height: calc(100% - 2px);
-        width: calc(100% - 2px);
+        height: calc(100% - 4px);
+        width: calc(100% - 4px);
         display: block;
         position: relative;
         content: ' ';
@@ -196,7 +198,8 @@ input[type=text], input[type=password], textarea {
     }
 
 .frame {
-   position: absolute;
+    overflow: hidden;
+    position: absolute;
 }
 
     .frame::before {
@@ -211,6 +214,7 @@ input[type=text], input[type=password], textarea {
     }
 
 .frame-title {
+    overflow: hidden;
     position: absolute;
     top: 0px;
     left: 7px;

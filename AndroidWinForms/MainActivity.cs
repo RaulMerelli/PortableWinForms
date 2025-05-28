@@ -105,6 +105,14 @@ public class MainActivity : Activity
         webView.SetBackgroundColor(Color.Transparent);
         webView.SetLayerType(LayerType.Software, null);
 
+        webView.Settings.LoadWithOverviewMode = false;
+        webView.Settings.UseWideViewPort = false;
+        webView.SetInitialScale(100); // 100% esatto, nessuno zoom
+
+        // Disabilita zoom da gesture/pinch
+        webView.Settings.BuiltInZoomControls = false;
+        webView.Settings.DisplayZoomControls = false;
+
         assetLoader = new WebViewAssetLoader.Builder()
             .SetDomain("appassets.example")
             .AddPathHandler("/", new WebViewAssetLoader.AssetsPathHandler(this))
@@ -120,7 +128,6 @@ public class MainActivity : Activity
             (Build.VERSION.SdkInt >= BuildVersionCodes.O)
                 ? WindowManagerTypes.ApplicationOverlay
                 : WindowManagerTypes.Phone,
-            WindowManagerFlags.NotFocusable |
             WindowManagerFlags.LayoutInScreen |
             WindowManagerFlags.HardwareAccelerated, // Migliora performance
             Format.Translucent)
