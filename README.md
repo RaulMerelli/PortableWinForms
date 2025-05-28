@@ -9,7 +9,15 @@ Basically the plan is to use *WebView(2)* as a rendering sandbox to draw the for
 
 At the current state "something" works, by importing a form designed with the only supported elements, an adjusted entrypoint and minimal manual touches.
 
+
+## UWP (Windows)
 ![image](https://github.com/user-attachments/assets/eba8b2bb-e791-4192-902f-ade29ce3e4b1)
+
+
+## Android
+![image](https://github.com/user-attachments/assets/d612a2d0-597a-4b79-8c6f-b552ede22501)
+
+
 
 ### Partially drawn controls
 - Form
