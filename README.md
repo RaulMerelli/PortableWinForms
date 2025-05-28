@@ -1,9 +1,11 @@
 
-# UwpWinForms
+# PortableWinForms
 
-This is a really work in progress project that aims to create a reimplementation of .NET Windows Forms in UWP, using WebView2.
+This is a really work in progress project that aims to create a reimplementation of .NET Windows Forms in UWP (using WebView2) and Android (using WebView)
 
-Basically the plan is to use *WebView2* as a rendering sandbox to draw the forms and the relative controls. In the backend remains plain WinForms C#, using the same `System.Windows.Forms` namespace, the `form.designer.cs` file, the `form.cs` file and its relatives events.
+*NOT READY FOR PRODUCTION*
+
+Basically the plan is to use *WebView(2)* as a rendering sandbox to draw the forms and the relative controls. In the backend remains plain WinForms C#, using the same `System.Windows.Forms` namespace, the `form.designer.cs` file, the `form.cs` file and its relatives events.
 
 At the current state "something" works, by importing a form designed with the only supported elements, an adjusted entrypoint and minimal manual touches.
 
@@ -48,19 +50,21 @@ Windows management is provided by the great JavaScript library jsPanel, with som
 Dialog icons are from KDE/oxygen-icons.
 Most of the source code comes from referencesource.microsoft.com, edited to avoid calls to GDI+ and all other native Windows DLLs and redirecting instead to the browser instance.
 
-It works also on Xbox (tested Xbox Series S), but there are some more issues than running it on Windows:
-- Cursors
-- Missing fonts
-- Debug must take place with Visual Studio 2019, VS2022 won't work because its remote debugger it's not installed in the Xbox system. You can still compile with VS2022.
+It works best on Windows, on Xbox and Android there are some minor issues, such as:
+- Xbox/Android: Cursors
+- Xbox/Android: Missing fonts
+- Android: Some interface issues
 
 At the current stage the code quality is really low (aside from Microsoft unchanged code), please don't look at it until further indication if you don't want to have a stroke.
 
 ## Compilation and execution problems
-- Debugger can't attach: Try by deleting obj and bin folders, ticking "Compile with NET Native toolchain", recompile the  project and removing the tick. 
-- Can't find the page in WebView2: Try moving the html folder in assets, recompile but don't run, and then moving the html folder out again. 
+- UWP: Debugger can't attach: Try by deleting obj and bin folders, ticking "Compile with NET Native toolchain", recompile the  project and removing the tick. 
+- UWP: Can't find the page in WebView2: Try moving the html folder in assets, recompile but don't run, and then moving the html folder out again. 
+- UWP: on Xbox (tested Xbox Series S) Debug must take place with Visual Studio 2019, VS2022 won't work because its remote debugger it's not installed in the Xbox system. You can still compile with VS2022.
 
 ## Why this project exists?
-- I wanted to have some forms on Xbox, also I'm quite sure this code could be easily ported to Android. Imagine the hell of old RAD devs so used to drag and drop controls in a designer, being able to not learn Android development and stick with Windows dirty interfaces. As happened with WinCE before Android came. A nightmare. 
+- I wanted to have some windows on Xbox, also I was quite sure this code could be easily ported to Android. In fact I was able to adapt the code in a couple of days.
+- Porting old Win-Forms made for WinCE to Android might be easier now
 
 ## Major obstacles
 - System.Drawing dependencies on libgdiplus.

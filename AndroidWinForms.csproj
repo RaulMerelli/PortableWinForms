@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>AndroidWinForms\obj\</BaseIntermediateOutputPath>
+    <OutputPath>AndroidWinForms\bin\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AndroidManifest>AndroidWinForms\AndroidManifest.xml</AndroidManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <AndroidResource Include="AndroidWinForms\Resources\**\*.*" />
+  </ItemGroup>
+  <PropertyGroup>
+	<AndroidLinkMode>None</AndroidLinkMode>
+    <TargetFramework>net9.0-android35.0</TargetFramework>
+	<AndroidPackageFormat>apk</AndroidPackageFormat>
+	<UseMaui>false</UseMaui>
+    <OutputType>Exe</OutputType>
+	<UsingMicrosoftNETSdkAndroid>true</UsingMicrosoftNETSdkAndroid>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <ApplicationId>com.companyname.AndroidWinForms</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+	<AndroidBuildApplicationPackage>true</AndroidBuildApplicationPackage>
+    <!--
+      Enables trim analyzers and full trimming during Release mode.
+      To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/trimming-options#trimming-granularity
+    -->
+    <TrimMode>full</TrimMode>
+    <SupportedOSPlatformVersion>21.0</SupportedOSPlatformVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <AndroidAsset Include="html\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Remove="Assets\**" />
+    <AndroidJavaSource Remove="Assets\**" />
+    <AndroidJavaSource Remove="obj\**" />
+    <AndroidJavaSource Remove="Properties\**" />
+    <AndroidJavaSource Remove="UwpWinForms\**" />
+    <AndroidLibrary Remove="Assets\**" />
+    <AndroidLibrary Remove="obj\**" />
+    <AndroidLibrary Remove="Properties\**" />
+    <AndroidLibrary Remove="UwpWinForms\**" />
+    <AndroidNativeLibrary Remove="Assets\**" />
+    <AndroidNativeLibrary Remove="obj\**" />
+    <AndroidNativeLibrary Remove="Properties\**" />
+    <AndroidNativeLibrary Remove="UwpWinForms\**" />
+    <Compile Remove="Assets\**" />
+    <Compile Remove="obj\**" />
+    <Compile Remove="Properties\**" />
+    <Compile Remove="UwpWinForms\**" />
+    <EmbeddedResource Remove="Assets\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <EmbeddedResource Remove="Properties\**" />
+    <EmbeddedResource Remove="UwpWinForms\**" />
+    <JavaSourceJar Remove="Assets\**" />
+    <JavaSourceJar Remove="obj\**" />
+    <JavaSourceJar Remove="Properties\**" />
+    <JavaSourceJar Remove="UwpWinForms\**" />
+    <None Remove="Assets\**" />
+    <None Remove="obj\**" />
+    <None Remove="Properties\**" />
+    <None Remove="UwpWinForms\**" />
+    <ProguardConfiguration Remove="Assets\**" />
+    <ProguardConfiguration Remove="obj\**" />
+    <ProguardConfiguration Remove="Properties\**" />
+    <ProguardConfiguration Remove="UwpWinForms\**" />
+    <TransformFile Remove="Assets\**" />
+    <TransformFile Remove="obj\**" />
+    <TransformFile Remove="Properties\**" />
+    <TransformFile Remove="UwpWinForms\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="JsonHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Security.Permissions" Version="9.0.5" />
+    <PackageReference Include="Xamarin.AndroidX.WebKit" Version="1.13.0.1" />
+    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.12.0.3" />
+  </ItemGroup>
+</Project>

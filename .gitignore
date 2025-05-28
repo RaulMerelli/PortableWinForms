@@ -1,5 +1,9 @@
 .vs
-App1/bin
-App1/obj
+/bin
+/obj
+AndroidWinForms/bin
+AndroidWinForms/obj
+UwpWinForms/bin
+UwpWinForms/obj
 *.old
 *.user

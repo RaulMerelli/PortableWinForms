@@ -1,0 +1,595 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>UwpWinForms\obj</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{F1AFC222-9490-4F5F-A78F-0378D856EC7F}</ProjectGuid>
+    <OutputType>AppContainerExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>App1</RootNamespace>
+    <AssemblyName>App1</AssemblyName>
+    <DefaultLanguage>it-IT</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
+    <DebugSymbols>true</DebugSymbols>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\ARM64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\ARM64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>UwpWinForms\bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <OutputPath>UwpWinForms\bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="JsonUtils\JsonHelper.cs" />
+    <Compile Include="JsonUtils\Properties\JsonProperties.cs" />
+    <Compile Include="JsonUtils\EventReturn.cs" />
+    <Compile Include="System\Windows\Forms\Message.cs" />
+    <Compile Include="System\Windows\Forms\MessageDecoder.cs" />
+    <Compile Include="System\Windows\Forms\RichTextBoxConstants.cs" />
+    <Compile Include="System\Windows\Forms\ScrollEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\ScrollEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\ScrollEventType.cs" />
+    <Compile Include="System\Windows\Forms\ScrollOrientation.cs" />
+    <Compile Include="UwpWinForms\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Form2.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Form2.Designer.cs">
+      <DependentUpon>Form2.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Microsoft\Win32\UserPreferenceCategory.cs" />
+    <Compile Include="Microsoft\Win32\UserPreferenceChangedEventArgs.cs" />
+    <Compile Include="Microsoft\Win32\UserPreferenceChangedEventHandler.cs" />
+    <Compile Include="UwpWinForms\Page.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="System\ComponentModel\CompModeSwitches.cs" />
+    <Compile Include="System\Drawing2D\BrushType.cs" />
+    <Compile Include="System\Drawing2D\MatrixOrder.cs" />
+    <Compile Include="System\Drawing\Brush.cs" />
+    <Compile Include="System\Drawing\Color.cs" />
+    <Compile Include="System\Drawing\ColorConverter.cs" />
+    <Compile Include="System\Drawing\ColorTranslator.cs" />
+    <Compile Include="System\Drawing\Design\PaintValueEventArgs.cs" />
+    <Compile Include="System\Drawing\Design\UITypeEditor.cs" />
+    <Compile Include="System\Drawing\Design\UITypeEditorEditStyle.cs" />
+    <Compile Include="System\Drawing\Font.cs" />
+    <Compile Include="System\Drawing\FontFamily.cs" />
+    <Compile Include="System\Drawing\FontStyle.cs" />
+    <Compile Include="System\Drawing\GraphicsUnit.cs" />
+    <Compile Include="System\Drawing\IDeviceContext.cs" />
+    <Compile Include="System\Drawing\Imaging\BitmapData.cs" />
+    <Compile Include="System\Drawing\Imaging\EmfPlusRecordType.cs" />
+    <Compile Include="System\Drawing\Imaging\PixelFormat.cs" />
+    <Compile Include="System\Drawing\Imaging\PlayRecordCallback.cs" />
+    <Compile Include="System\Drawing\Imaging\PropertyItem.cs" />
+    <Compile Include="System\Drawing\KnownColorTable.cs" />
+    <Compile Include="System\Drawing\StringAlignment.cs" />
+    <Compile Include="System\Drawing\StringDigitSubstitute.cs" />
+    <Compile Include="System\Drawing\StringFormatFlags.cs" />
+    <Compile Include="System\Drawing\StringTrimming.cs" />
+    <Compile Include="System\Drawing\SystemColors.cs" />
+    <Compile Include="System\Drawing\SystemFonts.cs" />
+    <Compile Include="System\Drawing\Text\HotkeyPrefix.cs" />
+    <Compile Include="System\Drawing\Text\TextRenderingHint.cs" />
+    <Compile Include="System\Internal\GPRECT.cs" />
+    <Compile Include="System\Internal\GPRECTF.cs" />
+    <Compile Include="System\Internal\HandleCollector.cs" />
+    <Compile Include="System\Internal\ISystemColorTracker.cs" />
+    <Compile Include="System\Windows\Forms\AccessibleRole.cs" />
+    <Compile Include="System\Windows\Forms\AccessibleStates.cs" />
+    <Compile Include="System\Windows\Forms\AmbientProperties.cs" />
+    <Compile Include="System\Windows\Forms\AnchorStyles.cs" />
+    <Compile Include="System\Windows\Forms\Appearance.cs" />
+    <Compile Include="System\Windows\Forms\Application.cs" />
+    <Compile Include="System\Windows\Forms\ApplicationContext.cs" />
+    <Compile Include="System\Windows\Forms\ApplicationExtender.cs" />
+    <Compile Include="System\Windows\Forms\ArrangedElement.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ArrangeDirection.cs" />
+    <Compile Include="System\Windows\Forms\ArrangeStartingPosition.cs" />
+    <Compile Include="System\Windows\Forms\ArrowDirection.cs" />
+    <Compile Include="System\Windows\Forms\AutoCompleteMode.cs" />
+    <Compile Include="System\Windows\Forms\AutoCompleteSource.cs" />
+    <Compile Include="System\Windows\Forms\AutoCompleteStringCollection.cs" />
+    <Compile Include="System\Windows\Forms\AutoScaleMode.cs" />
+    <Compile Include="System\Windows\Forms\AutoSizeMode.cs" />
+    <Compile Include="System\Windows\Forms\AutoValidate.cs" />
+    <Compile Include="System\Windows\Forms\BaseCollection.cs" />
+    <Compile Include="System\Windows\Forms\Binding.cs" />
+    <Compile Include="System\Windows\Forms\BindingCompleteContext.cs" />
+    <Compile Include="System\Windows\Forms\BindingCompleteEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\BindingCompleteEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\BindingCompleteState.cs" />
+    <Compile Include="System\Windows\Forms\BindingContext.cs" />
+    <Compile Include="System\Windows\Forms\BindingManagerBase.cs" />
+    <Compile Include="System\Windows\Forms\BindingManagerDataErrorEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\BindingManagerDataErrorEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\BindingMemberInfo.cs" />
+    <Compile Include="System\Windows\Forms\BindingsCollection.cs" />
+    <Compile Include="System\Windows\Forms\BindToObject.cs" />
+    <Compile Include="System\Windows\Forms\BootMode.cs" />
+    <Compile Include="System\Windows\Forms\Border3DStyle.cs" />
+    <Compile Include="System\Windows\Forms\BorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\BoundsSpecified.cs" />
+    <Compile Include="System\Windows\Forms\Button.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ButtonBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ButtonBorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\CheckBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\CheckState.cs" />
+    <Compile Include="System\Windows\Forms\ClientUtils.cs" />
+    <Compile Include="System\Windows\Forms\CloseReason.cs" />
+    <Compile Include="System\Windows\Forms\ColorDepth.cs" />
+    <Compile Include="System\Windows\Forms\ColorDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ComboBoxStyle.cs" />
+    <Compile Include="System\Windows\Forms\ComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\CommonDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ContainerControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ContentAlignment.cs" />
+    <Compile Include="System\Windows\Forms\Control.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ControlBindingsCollection.cs" />
+    <Compile Include="System\Windows\Forms\ControlEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\ControlEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\ControlStyles.cs" />
+    <Compile Include="System\Windows\Forms\ControlUpdateMode.cs" />
+    <Compile Include="System\Windows\Forms\ConvertEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\ConvertEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\CreateParams.cs" />
+    <Compile Include="System\Windows\Forms\CurrencyManager.cs" />
+    <Compile Include="System\Windows\Forms\Cursor.cs" />
+    <Compile Include="System\Windows\Forms\CursorConverter.cs" />
+    <Compile Include="System\Windows\Forms\Cursors.cs" />
+    <Compile Include="System\Windows\Forms\DataFormats.cs" />
+    <Compile Include="System\Windows\Forms\DataGridView.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\DataSourceUpdateMode.cs" />
+    <Compile Include="System\Windows\Forms\DialogResult.cs" />
+    <Compile Include="System\Windows\Forms\DockStyle.cs" />
+    <Compile Include="System\Windows\Forms\DpiAwarenessContext.cs" />
+    <Compile Include="System\Windows\Forms\DragAction.cs" />
+    <Compile Include="System\Windows\Forms\DragDropEffects.cs" />
+    <Compile Include="System\Windows\Forms\DragEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\DragEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\DrawItemEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\DrawItemEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\DrawItemState.cs" />
+    <Compile Include="System\Windows\Forms\DrawMode.cs" />
+    <Compile Include="System\Windows\Forms\DrawToolTipEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\DrawToolTipEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\FeatureSupport.cs" />
+    <Compile Include="System\Windows\Forms\FlatButtonAppearance.cs" />
+    <Compile Include="System\Windows\Forms\FlatStyle.cs" />
+    <Compile Include="System\Windows\Forms\Form.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs" />
+    <Compile Include="UwpWinForms\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="System\Windows\Forms\Formatter.cs" />
+    <Compile Include="System\Windows\Forms\FormBorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\FormClosedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\FormClosedEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\FormClosingEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\FormClosingEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\FormCollection.cs" />
+    <Compile Include="System\Windows\Forms\FormStartPosition.cs" />
+    <Compile Include="System\Windows\Forms\FormWindowState.cs" />
+    <Compile Include="System\Windows\Forms\GiveFeedbackEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\GiveFeedbackEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\GroupBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\HandledMouseEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\HelpEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\HelpEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\HelpInfo.cs" />
+    <Compile Include="System\Windows\Forms\HelpNavigator.cs" />
+    <Compile Include="System\Windows\Forms\HScrollProperties.cs" />
+    <Compile Include="System\Windows\Forms\IBindableComponent.cs" />
+    <Compile Include="System\Windows\Forms\IButtonControl.cs" />
+    <Compile Include="System\Windows\Forms\IContainerControl.cs" />
+    <Compile Include="System\Windows\Forms\ICurrencyManagerProvider.cs" />
+    <Compile Include="System\Windows\Forms\IDataObject.cs" />
+    <Compile Include="System\Windows\Forms\IFeatureSupport.cs" />
+    <Compile Include="System\Windows\Forms\IKeyboardTooltip.cs" />
+    <Compile Include="System\Windows\Forms\ImageLayout.cs" />
+    <Compile Include="System\Windows\Forms\ImeMode.cs" />
+    <Compile Include="System\Windows\Forms\IMessageFilter.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguage.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguageChangedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguageChangingEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\InputLanguageCollection.cs" />
+    <Compile Include="System\Windows\Forms\Internal\ApplyGraphicsProperties.cs" />
+    <Compile Include="System\Windows\Forms\Internal\IntNativeMethods.cs" />
+    <Compile Include="System\Windows\Forms\Internal\IntTextFormatFlags.cs" />
+    <Compile Include="System\Windows\Forms\Internal\TextPaddingOptions.cs" />
+    <Compile Include="System\Windows\Forms\Internal\WindowsFontQuality.cs" />
+    <Compile Include="System\Windows\Forms\IntSecurity.cs" />
+    <Compile Include="System\Windows\Forms\InvalidateEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\InvalidateEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\ISynchronizeInvoke.cs" />
+    <Compile Include="System\Windows\Forms\ItemChangedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\ItemChangedEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\IWin32Window.cs" />
+    <Compile Include="System\Windows\Forms\KeyEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\KeyEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\KeyPressEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\KeyPressEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\Keys.cs" />
+    <Compile Include="System\Windows\Forms\Layout\ArrangedElementCollection.cs" />
+    <Compile Include="System\Windows\Forms\Layout\CommonProperties.cs" />
+    <Compile Include="System\Windows\Forms\Layout\DefaultLayout.cs" />
+    <Compile Include="System\Windows\Forms\Layout\IArrangedElement.cs" />
+    <Compile Include="System\Windows\Forms\Layout\LayoutEngine.cs" />
+    <Compile Include="System\Windows\Forms\Layout\LayoutTransaction.cs" />
+    <Compile Include="System\Windows\Forms\Layout\PropertyNames.cs" />
+    <Compile Include="System\Windows\Forms\LeftRightAlignment.cs" />
+    <Compile Include="System\Windows\Forms\LinkArea.cs" />
+    <Compile Include="System\Windows\Forms\LinkBehavior.cs" />
+    <Compile Include="System\Windows\Forms\LinkConverter.cs" />
+    <Compile Include="System\Windows\Forms\LinkLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Label.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\LayoutEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\LayoutEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\LinkLabelLinkClickedEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\LinkLabelLinkClickedEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\LinkState.cs" />
+    <Compile Include="System\Windows\Forms\LinkUtilities.cs" />
+    <Compile Include="System\Windows\Forms\ListBindingConverter.cs" />
+    <Compile Include="System\Windows\Forms\ListBindingHelper.cs" />
+    <Compile Include="System\Windows\Forms\ListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ListControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ListControlConvertEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\ListControlConvertEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\ListManagerBindingsCollection.cs" />
+    <Compile Include="System\Windows\Forms\MainMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MdiClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MdiLayout.cs" />
+    <Compile Include="System\Windows\Forms\MeasureItemEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\MeasureItemEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\MenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MenuStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MessageBox.cs" />
+    <Compile Include="System\Windows\Forms\MessageBoxButtons.cs" />
+    <Compile Include="System\Windows\Forms\MessageBoxDefaultButton.cs" />
+    <Compile Include="System\Windows\Forms\MessageBoxIcon.cs" />
+    <Compile Include="System\Windows\Forms\MessageBoxOptions.cs" />
+    <Compile Include="System\Windows\Forms\MouseButtons.cs" />
+    <Compile Include="System\Windows\Forms\MouseEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\MouseEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\NativeMethods.cs" />
+    <Compile Include="System\Windows\Forms\NativeWindow.cs" />
+    <Compile Include="System\Windows\Forms\NumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\OSFeature.cs" />
+    <Compile Include="System\Windows\Forms\Padding.cs" />
+    <Compile Include="System\Windows\Forms\PaintEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\PaintEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\Panel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\PictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\PictureBoxSizeMode.cs" />
+    <Compile Include="System\Windows\Forms\PopupEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\PopupEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\PowerStatus.cs" />
+    <Compile Include="System\Windows\Forms\PreviewKeyDownEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\PreviewKeyDownEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\PropertyManager.cs" />
+    <Compile Include="System\Windows\Forms\PropertyStore.cs" />
+    <Compile Include="System\Windows\Forms\QueryAccessibilityHelpEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\QueryAccessibilityHelpEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\QueryContinueDragEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\QueryContinueDragEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\RadioButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\RelatedCurrencyManager.cs" />
+    <Compile Include="System\Windows\Forms\RelatedPropertyManager.cs" />
+    <Compile Include="System\Windows\Forms\RightToLeft.cs" />
+    <Compile Include="System\Windows\Forms\Screen.cs" />
+    <Compile Include="System\Windows\Forms\ScreenOrientation.cs" />
+    <Compile Include="System\Windows\Forms\ScrollableControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ScrollBars.cs" />
+    <Compile Include="System\Windows\Forms\ScrollProperties.cs" />
+    <Compile Include="System\Windows\Forms\SecurityUtils.cs" />
+    <Compile Include="System\Windows\Forms\StringSource.cs" />
+    <Compile Include="System\Windows\Forms\SystemInformation.cs" />
+    <Compile Include="System\Windows\Forms\SystemParameter.cs" />
+    <Compile Include="System\Windows\Forms\TextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TextBoxBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TextFormatFlags.cs" />
+    <Compile Include="System\Windows\Forms\TextImageRelation.cs" />
+    <Compile Include="System\Windows\Forms\TextRenderer.cs" />
+    <Compile Include="System\Windows\Forms\Timer.cs" />
+    <Compile Include="System\Windows\Forms\ToolStrip.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ToolStripMenuItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ToolTipIcon.cs" />
+    <Compile Include="System\Windows\Forms\UICues.cs" />
+    <Compile Include="System\Windows\Forms\UICuesEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\UICuesEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\UnsafeNativeMethods.cs" />
+    <Compile Include="System\Windows\Forms\ValidationConstraints.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleElement.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleInformation.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleState.cs" />
+    <Compile Include="System\Windows\Forms\VisualStyles\VisualStyleTypesAndProperties.cs" />
+    <Compile Include="System\Windows\Forms\VScrollProperties.cs" />
+    <Compile Include="System\Windows\Forms\WebBrowserEncryptionLevel.cs" />
+    <Compile Include="System\Windows\Forms\WebBrowserReadyState.cs" />
+    <Compile Include="System\Windows\Forms\WindowsFormsSynchronizationContext.cs" />
+    <Compile Include="System\Windows\Forms\WindowsFormsUtils.cs" />
+    <Compile Include="System\Windows\Forms\WindowsGraphicsWrapper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="UwpWinForms\Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </AppxManifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="html\css\bottombar.css" />
+    <Content Include="html\css\jspanel\jspanel.css" />
+    <Content Include="html\css\mdi.css" />
+    <Content Include="html\css\menu.css" />
+    <Content Include="html\css\theme\resources\button-state-focus.png" />
+    <Content Include="html\css\theme\resources\button-state-normal.png" />
+    <Content Include="html\css\theme\resources\button-state-pressed.png" />
+    <Content Include="html\css\theme\resources\checkbox.png" />
+    <Content Include="html\css\theme\resources\groupbox.png" />
+    <Content Include="html\css\theme\resources\mdi-window\btn-close.png" />
+    <Content Include="html\css\theme\resources\mdi-window\btn-maximize.png" />
+    <Content Include="html\css\theme\resources\mdi-window\btn-minimize.png" />
+    <Content Include="html\css\theme\resources\mdi-window\btn-normalize.png" />
+    <Content Include="html\css\theme\resources\mdi-window\frame-borders.png" />
+    <Content Include="html\css\theme\resources\mdi-window\top-borders.png" />
+    <Content Include="html\css\theme\resources\mdi-window\top.png" />
+    <Content Include="html\css\theme\resources\menu\checked-hover.png" />
+    <Content Include="html\css\theme\resources\menu\checked.png" />
+    <Content Include="html\css\theme\resources\option.png" />
+    <Content Include="html\css\theme\resources\panelframe_3d.png" />
+    <Content Include="html\css\theme\resources\panelframe_single.png" />
+    <Content Include="html\css\theme\resources\picturebox-3d.png" />
+    <Content Include="html\css\theme\resources\scrollbar\h-left-scroll-arrow.png" />
+    <Content Include="html\css\theme\resources\scrollbar\h-right-scroll-arrow.png" />
+    <Content Include="html\css\theme\resources\scrollbar\h-scroll-bar.png" />
+    <Content Include="html\css\theme\resources\scrollbar\v-bottom-scroll-arrow.png" />
+    <Content Include="html\css\theme\resources\scrollbar\v-scroll-bar.png" />
+    <Content Include="html\css\theme\resources\scrollbar\v-top-scroll-arrow.png" />
+    <Content Include="html\css\theme\resources\standard-window\btn-close.png" />
+    <Content Include="html\css\theme\resources\standard-window\btn-maximize.png" />
+    <Content Include="html\css\theme\resources\standard-window\btn-minimize.png" />
+    <Content Include="html\css\theme\resources\standard-window\btn-normalize.png" />
+    <Content Include="html\css\theme\resources\standard-window\btn-only-close.png" />
+    <Content Include="html\css\theme\resources\standard-window\frame-borders.png" />
+    <Content Include="html\css\theme\resources\standard-window\top-borders.png" />
+    <Content Include="html\css\theme\resources\standard-window\top.png" />
+    <Content Include="html\css\theme\resources\textbox.png" />
+    <Content Include="html\css\theme\theme.css" />
+    <Content Include="html\css\theme\window-mdi-theme.css" />
+    <Content Include="html\css\theme\window-standard-theme.css" />
+    <Content Include="html\css\treeview.css" />
+    <Content Include="html\index.html" />
+    <Content Include="html\js\jspanel.js" />
+    <Content Include="html\js\runner.js" />
+    <Content Include="html\js\System\dropdown.js" />
+    <Content Include="html\resources\32x32\Error.png" />
+    <Content Include="html\resources\32x32\Exclamation.png" />
+    <Content Include="html\resources\32x32\Information.png" />
+    <Content Include="html\resources\32x32\Question.png" />
+    <Content Include="Properties\Default.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="UwpWinForms\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="UwpWinForms\MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common">
+      <Version>4.14.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.2.14</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.UI.Xaml">
+      <Version>2.8.6</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Web.WebView2">
+      <Version>1.0.3240.44</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="System.Security.Permissions">
+      <Version>9.0.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="html\css\jspanel\jspanel.css.new" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
