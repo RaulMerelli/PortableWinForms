@@ -15,7 +15,7 @@ At the current state "something" works, by importing a form designed with the on
 
 
 ## Android
-![image](https://github.com/user-attachments/assets/d612a2d0-597a-4b79-8c6f-b552ede22501)
+![image](https://github.com/user-attachments/assets/0b33adf6-ea0f-4473-9d28-6982cc97c18a)
 
 
 
@@ -58,10 +58,10 @@ Windows management is provided by the great JavaScript library jsPanel, with som
 Dialog icons are from KDE/oxygen-icons.
 Most of the source code comes from referencesource.microsoft.com, edited to avoid calls to GDI+ and all other native Windows DLLs and redirecting instead to the browser instance.
 
-It works best on Windows, on Xbox and Android there are some minor issues, such as:
+It works best on Windows, on Xbox and Android there are some minor issues:
 - Xbox/Android: Cursors
 - Xbox/Android: Missing fonts
-- Android: Some interface issues
+- Android: Cannot click what is behind the forms
 
 At the current stage the code quality is really low (aside from Microsoft unchanged code), please don't look at it until further indication if you don't want to have a stroke.
 
@@ -69,6 +69,7 @@ At the current stage the code quality is really low (aside from Microsoft unchan
 - UWP: Debugger can't attach: Try by deleting obj and bin folders, ticking "Compile with NET Native toolchain", recompile the  project and removing the tick. 
 - UWP: Can't find the page in WebView2: Try moving the html folder in assets, recompile but don't run, and then moving the html folder out again. 
 - UWP: on Xbox (tested Xbox Series S) Debug must take place with Visual Studio 2019, VS2022 won't work because its remote debugger it's not installed in the Xbox system. You can still compile with VS2022.
+- Android: close the app might be difficult. Be ready to kill it from adb.
 
 ## Why this project exists?
 - I wanted to have some windows on Xbox, also I was quite sure this code could be easily ported to Android. In fact I was able to adapt the code in a couple of days.
