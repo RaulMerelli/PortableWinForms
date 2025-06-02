@@ -10,7 +10,7 @@ using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
 {
-    public class Button : ButtonBase
+    public class Button : ButtonBase, IButtonControl
     {
         private DialogResult dialogResult;
         private const int InvalidDimensionValue = Int32.MinValue;
@@ -23,11 +23,7 @@ namespace System.Windows.Forms
                      false);
         }
 
-        [
-        Browsable(true),
-        DefaultValue(AutoSizeMode.GrowOnly),
-        Localizable(true),
-        ]
+        [Browsable(true), DefaultValue(AutoSizeMode.GrowOnly), Localizable(true)]
         public AutoSizeMode AutoSizeMode
         {
             get

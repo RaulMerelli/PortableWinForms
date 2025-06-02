@@ -1,6 +1,6 @@
 ﻿namespace System.Windows.Forms
 {
-    class ToolStrip : Control
+    public class ToolStrip : Control
     {
         public override void PerformLayout()
         {

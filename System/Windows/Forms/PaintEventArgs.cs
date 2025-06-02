@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace System.Windows.Forms
 {
@@ -7,14 +8,10 @@ namespace System.Windows.Forms
 
     public class PaintEventArgs : EventArgs, IDisposable
     {
-        //private Graphics graphics;
-
-        //private GraphicsState savedGraphicsState;
-
+        private Graphics graphics;
+        private GraphicsState savedGraphicsState;
         private readonly IntPtr dc = IntPtr.Zero;
-
         private IntPtr oldPal = IntPtr.Zero;
-
         private readonly Rectangle clipRect;
 
         public Rectangle ClipRectangle => clipRect;
@@ -23,34 +20,30 @@ namespace System.Windows.Forms
         {
             get
             {
-                /*if (graphics == null)
+                if (graphics == null)
                 {
                     return dc;
-                }*/
-
+                }
                 return IntPtr.Zero;
             }
         }
 
-        /*
         public Graphics Graphics
         {
             get
             {
                 if (graphics == null && dc != IntPtr.Zero)
                 {
-                    oldPal = Control.SetUpPalette(dc, force: false, realizePalette: false);
-                    graphics = Graphics.FromHdcInternal(dc);
-                    graphics.PageUnit = GraphicsUnit.Pixel;
-                    savedGraphicsState = graphics.Save();
+                    //oldPal = Control.SetUpPalette(dc, force: false, realizePalette: false);
+                    //graphics = Graphics.FromHdcInternal(dc);
+                    //graphics.PageUnit = GraphicsUnit.Pixel;
+                    //savedGraphicsState = graphics.Save();
                 }
 
                 return graphics;
             }
         }
-        */
 
-        /*
         public PaintEventArgs(Graphics graphics, Rectangle clipRect)
         {
             if (graphics == null)
@@ -61,7 +54,6 @@ namespace System.Windows.Forms
             this.graphics = graphics;
             this.clipRect = clipRect;
         }
-        */
 
         internal PaintEventArgs(IntPtr dc, Rectangle clipRect)
         {
@@ -82,7 +74,7 @@ namespace System.Windows.Forms
         
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing /*&& graphics != null*/ && dc != IntPtr.Zero)
+            if (disposing && graphics != null && dc != IntPtr.Zero)
             {
                 //graphics.Dispose();
             }
@@ -96,13 +88,11 @@ namespace System.Windows.Forms
 
         internal void ResetGraphics()
         {
-            /*
             if (graphics != null && savedGraphicsState != null)
             {
-                graphics.Restore(savedGraphicsState);
+                //graphics.Restore(savedGraphicsState);
                 savedGraphicsState = null;
             }
-            */
         }
         
     }

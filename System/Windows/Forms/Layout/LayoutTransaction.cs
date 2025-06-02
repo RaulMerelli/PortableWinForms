@@ -254,15 +254,15 @@
         }
 
         //returns anchorStyles, transforms from DockStyle if necessary
-        //internal static AnchorStyles GetUnifiedAnchor(IArrangedElement element)
-        //{
-        //    DockStyle dockStyle = DefaultLayout.GetDock(element);
-        //    if (dockStyle != DockStyle.None)
-        //    {
-        //        return dockingToAnchor[(int)dockStyle];
-        //    }
-        //    return DefaultLayout.GetAnchor(element);
-        //}
+        internal static AnchorStyles GetUnifiedAnchor(IArrangedElement element)
+        {
+            DockStyle dockStyle = DefaultLayout.GetDock(element);
+            if (dockStyle != DockStyle.None)
+            {
+                return dockingToAnchor[(int)dockStyle];
+            }
+            return DefaultLayout.GetAnchor(element);
+        }
 
         public static Rectangle AlignAndStretch(Size fitThis, Rectangle withinThis, AnchorStyles anchorStyles)
         {

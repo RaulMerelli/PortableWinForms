@@ -2610,8 +2610,176 @@ namespace System.Windows.Forms
         }
 
         public Point AutoScrollOffset;
-        public ImageLayout BackgroundImageLayout;
 
+
+        [DefaultValue(ImageLayout.Tile), Localizable(true)]
+        public virtual ImageLayout BackgroundImageLayout
+        {
+            get
+            {
+                bool found = Properties.ContainsObject(PropBackgroundImageLayout);
+                if (!found)
+                {
+                    return ImageLayout.Tile;
+                }
+                else
+                {
+                    return ((ImageLayout)Properties.GetObject(PropBackgroundImageLayout));
+                }
+            }
+            set
+            {
+                if (BackgroundImageLayout != value)
+                {
+                    //valid values are 0x0 to 0x4
+                    if (!ClientUtils.IsEnumValid(value, (int)value, (int)ImageLayout.None, (int)ImageLayout.Zoom))
+                    {
+                        throw new InvalidEnumArgumentException("value", (int)value, typeof(ImageLayout));
+                    }
+                    // Check if the value is either center, strech or zoom;
+                    if (value == ImageLayout.Center || value == ImageLayout.Zoom || value == ImageLayout.Stretch)
+                    {
+                        SetStyle(ControlStyles.ResizeRedraw, true);
+                        // Only for images that support transparency.
+                        //if (ControlPaint.IsImageTransparent(BackgroundImage))
+                        //{
+                        //    DoubleBuffered = true;
+                        //}
+                    }
+                    Properties.SetObject(PropBackgroundImageLayout, value);
+                    OnBackgroundImageLayoutChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Advanced), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool HasChildren
+        {
+            get
+            {
+                ControlCollection controls = (ControlCollection)Properties.GetObject(PropControlsCollection);
+                return controls != null && controls.Count > 0;
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void ResetBackColor()
+        {
+            BackColor = Color.Empty;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void ResetForeColor()
+        {
+            ForeColor = Color.Empty;
+        }
+
+        [DefaultValue(null), Localizable(true)]
+        public virtual Image BackgroundImage
+        {
+            get
+            {
+                return (Image)Properties.GetObject(PropBackgroundImage);
+            }
+            set
+            {
+                if (BackgroundImage != value)
+                {
+                    Properties.SetObject(PropBackgroundImage, value);
+                    OnBackgroundImageChanged(EventArgs.Empty);
+                }
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal virtual bool ShouldSerializeForeColor()
+        {
+            Color foreColor = Properties.GetColor(PropForeColor);
+            return !foreColor.IsEmpty;
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal virtual bool ShouldSerializeBackColor()
+        {
+            Color backColor = Properties.GetColor(PropBackColor);
+            return !backColor.IsEmpty;
+        }
+
+        public virtual void Refresh()
+        {
+            Invalidate(true);
+            Update();
+        }
+
+        [SecurityPermission(SecurityAction.InheritanceDemand, Flags = SecurityPermissionFlag.UnmanagedCode),
+         SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
+        public virtual bool PreProcessMessage(ref Message msg)
+        {
+            bool ret;
+
+            ret = false;
+
+            if (msg.Msg == NativeMethods.WM_KEYDOWN || msg.Msg == NativeMethods.WM_SYSKEYDOWN)
+            {
+                if (!GetState2(STATE2_UICUES))
+                {
+                    //ProcessUICues(ref msg);
+                }
+
+                //Keys keyData = (Keys)(unchecked((int)(long)msg.WParam) | (int)ModifierKeys);
+                //if (ProcessCmdKey(ref msg, keyData))
+                //{
+                //    ret = true;
+                //}
+                //else if (IsInputKey(keyData))
+                //{
+                //    SetState2(STATE2_INPUTKEY, true);
+                //    ret = false;
+                //}
+                //else
+                //{
+                //    // SECREVIEW : ProcessDialogKey can generate a call to ContainerControl.SetActiveControl which demands ModifyFocus permission,
+                //    //             we need to assert it here; the assert is safe, setting the active control does not expose any sec vulnerability
+                //    //             indirectly.
+                //    //
+                //    IntSecurity.ModifyFocus.Assert();
+                //    try
+                //    {
+                //        ret = ProcessDialogKey(keyData);
+                //    }
+                //    finally
+                //    {
+                //        CodeAccessPermission.RevertAssert();
+                //    }
+                //}
+            }
+            else if (msg.Msg == NativeMethods.WM_CHAR || msg.Msg == NativeMethods.WM_SYSCHAR)
+            {
+                //if (msg.Msg == NativeMethods.WM_CHAR && IsInputChar((char)msg.WParam))
+                //{
+                //    SetState2(STATE2_INPUTCHAR, true);
+                //    ret = false;
+                //}
+                //else
+                //{
+                //    ret = ProcessDialogChar((char)msg.WParam);
+                //}
+            }
+            else
+            {
+                ret = false;
+            }
+
+            return ret;
+        }
+
+        internal virtual bool HasMenu
+        {
+            get
+            {
+                return false;
+            }
+        }
 
         protected virtual bool CanEnableIme
         {
@@ -6463,6 +6631,8 @@ namespace System.Windows.Forms
             }
         }
 
+        public bool ShowKeyboardCues { get; internal set; }
+
         internal virtual void NotifyValidationResult(object sender, CancelEventArgs ev)
         {
             this.ValidationCancelled = ev.Cancel;
@@ -6537,6 +6707,11 @@ namespace System.Windows.Forms
             }
 
             return false;
+        }
+
+        internal ContentAlignment RtlTranslateContent(ContentAlignment textAlign)
+        {
+            throw new NotImplementedException();
         }
 
         internal sealed class FontHandleWrapper : MarshalByRefObject, IDisposable

@@ -140,13 +140,110 @@
     <Compile Include="JsonUtils\JsonHelper.cs" />
     <Compile Include="JsonUtils\Properties\JsonProperties.cs" />
     <Compile Include="JsonUtils\EventReturn.cs" />
+    <Compile Include="System\Drawing2D\CompositingMode.cs" />
+    <Compile Include="System\Drawing2D\CompositingQuality.cs" />
+    <Compile Include="System\Drawing2D\DashCap.cs" />
+    <Compile Include="System\Drawing2D\DashStyle.cs" />
+    <Compile Include="System\Drawing2D\GraphicsState.cs" />
+    <Compile Include="System\Drawing2D\LineCap.cs" />
+    <Compile Include="System\Drawing2D\LineJoin.cs" />
+    <Compile Include="System\Drawing2D\Matrix.cs" />
+    <Compile Include="System\Drawing2D\PenType.cs" />
+    <Compile Include="System\Drawing2D\QualityMode.cs" />
+    <Compile Include="System\Drawing2D\SmoothingMode.cs" />
+    <Compile Include="System\Drawing2D\WrapMode.cs" />
+    <Compile Include="System\Drawing\Bitmap.cs" />
+    <Compile Include="System\Drawing\Brushes.cs" />
+    <Compile Include="System\Drawing\CopyPixelOperation.cs" />
+    <Compile Include="System\Drawing\Graphics.cs" />
+    <Compile Include="System\Drawing\Icon.cs" />
+    <Compile Include="System\Drawing\IconConverter.cs" />
+    <Compile Include="System\Drawing\Image.cs" />
+    <Compile Include="System\Drawing\ImageFormatConverter.cs" />
+    <Compile Include="System\Drawing\Imaging\ColorAdjustType.cs" />
+    <Compile Include="System\Drawing\Imaging\ColorMap.cs" />
+    <Compile Include="System\Drawing\Imaging\ColorMatrix.cs" />
+    <Compile Include="System\Drawing\Imaging\ColorMatrixFlag.cs" />
+    <Compile Include="System\Drawing\Imaging\FrameDimension.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageAttributes.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageCodecFlags.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageCodecInfo.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageCodecInfoPrivate.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageFlags.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageFormat.cs" />
+    <Compile Include="System\Drawing\Imaging\ImageLockMode.cs" />
+    <Compile Include="System\Drawing\Imaging\MetafileFrameUnit.cs" />
+    <Compile Include="System\Drawing\Imaging\WmfPlaceableFileHeader.cs" />
+    <Compile Include="System\Drawing\Internal.cs" />
+    <Compile Include="System\Drawing\IntSecurity.cs" />
+    <Compile Include="System\Drawing\LocalAppContextSwitches.cs" />
+    <Compile Include="System\Drawing\Metafile.cs" />
+    <Compile Include="System\Drawing\Pen.cs" />
+    <Compile Include="System\Drawing\Pens.cs" />
+    <Compile Include="System\Drawing\Region.cs" />
+    <Compile Include="System\Drawing\SafeNativeMethods.cs" />
+    <Compile Include="System\Drawing\SolidBrush.cs" />
+    <Compile Include="System\Drawing\StringFormat.cs" />
+    <Compile Include="System\Drawing\SystemBrushes.cs" />
+    <Compile Include="System\Drawing\SystemPens.cs" />
+    <Compile Include="System\Drawing\TextureBrush.cs" />
+    <Compile Include="System\Drawing\UnsafeNativeMethods.cs" />
+    <Compile Include="System\Internal\GPPOINT.cs" />
+    <Compile Include="System\Internal\GPPOINTF.cs" />
+    <Compile Include="System\LocalAppContext.cs" />
+    <Compile Include="System\Windows\Forms\Border3DSide.cs" />
+    <Compile Include="System\Windows\Forms\ButtonState.cs" />
+    <Compile Include="System\Windows\Forms\CaptionButton.cs" />
+    <Compile Include="System\Windows\Forms\Command.cs" />
+    <Compile Include="System\Windows\Forms\ContextMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ControlPaint.cs" />
+    <Compile Include="System\Windows\Forms\Design\ComponentEditorPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Design\EventsTab.cs" />
+    <Compile Include="System\Windows\Forms\Design\IUIService.cs" />
+    <Compile Include="System\Windows\Forms\Design\PropertyTab.cs" />
+    <Compile Include="System\Windows\Forms\FrameStyle.cs" />
+    <Compile Include="System\Windows\Forms\ICommandExecutor.cs" />
+    <Compile Include="System\Windows\Forms\IComponentEditorPageSite.cs" />
+    <Compile Include="System\Windows\Forms\LayoutSettings.cs" />
+    <Compile Include="System\Windows\Forms\Layout\TableLayout.cs" />
+    <Compile Include="System\Windows\Forms\Layout\TableLayoutSettingsTypeConverter.cs" />
+    <Compile Include="System\Windows\Forms\LocalAppContextSwitches.cs" />
+    <Compile Include="System\Windows\Forms\MdiWindowDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Menu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\MenuGlyph.cs" />
+    <Compile Include="System\Windows\Forms\MenuMerge.cs" />
     <Compile Include="System\Windows\Forms\Message.cs" />
     <Compile Include="System\Windows\Forms\MessageDecoder.cs" />
+    <Compile Include="System\Windows\Forms\PropertyGridInternal\PropertiesTab.cs" />
     <Compile Include="System\Windows\Forms\RichTextBoxConstants.cs" />
+    <Compile Include="System\Windows\Forms\ScrollButton.cs" />
     <Compile Include="System\Windows\Forms\ScrollEventArgs.cs" />
     <Compile Include="System\Windows\Forms\ScrollEventHandler.cs" />
     <Compile Include="System\Windows\Forms\ScrollEventType.cs" />
     <Compile Include="System\Windows\Forms\ScrollOrientation.cs" />
+    <Compile Include="System\Windows\Forms\SelectionMode.cs" />
+    <Compile Include="System\Windows\Forms\Shortcut.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutCellPaintEventArgs.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutCellPaintEventHandler.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutColumnStyleCollection.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TableLayoutPanelCellBorderStyle.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutPanelCellPosition.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutPanelGrowStyle.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutRowStyleCollection.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutSettings.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutStyle.cs" />
+    <Compile Include="System\Windows\Forms\TableLayoutStyleCollection.cs" />
     <Compile Include="UwpWinForms\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>

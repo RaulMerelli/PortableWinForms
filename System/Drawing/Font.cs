@@ -674,5 +674,10 @@ namespace System.Drawing
         {
             this.systemFontName = systemFontName;
         }
+
+        internal void ToLogFont(NativeMethods.LOGFONT logfont)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

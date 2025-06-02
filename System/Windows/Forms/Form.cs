@@ -16,6 +16,7 @@ using System.Globalization;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Windows.Forms.Layout;
 
 namespace System.Windows.Forms
 {
@@ -160,7 +161,7 @@ namespace System.Windows.Forms
         private BoundsSpecified restoredWindowBoundsSpecified;
         private DialogResult dialogResult;
         private MdiClient ctlClient;
-        //private NativeWindow ownerWindow;
+        private NativeWindow ownerWindow;
         private string userWindowText; // Used to cache user's text in semi-trust since the window text is added security info.
         private string securityZone;
         private string securitySite;
@@ -292,10 +293,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        Browsable(false),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Modal
         {
             get
@@ -414,10 +412,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        Browsable(false),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AllowTransparency
         {
             get
@@ -448,6 +443,413 @@ namespace System.Windows.Forms
                         UpdateLayered();
                     }
                 }
+            }
+        }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Form[] OwnedForms
+        {
+            get
+            {
+                Form[] ownedForms = (Form[])Properties.GetObject(PropOwnedForms);
+                int ownedFormsCount = Properties.GetInteger(PropOwnedFormsCount);
+
+                Form[] result = new Form[ownedFormsCount];
+                if (ownedFormsCount > 0)
+                {
+                    Array.Copy(ownedForms, 0, result, 0, ownedFormsCount);
+                }
+
+                return result;
+            }
+        }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Form Owner
+        {
+            get
+            {
+                IntSecurity.GetParent.Demand();
+                return OwnerInternal;
+            }
+            set
+            {
+                Form ownerOld = OwnerInternal;
+                if (ownerOld == value)
+                    return;
+
+                if (value != null && !TopLevel)
+                {
+                    throw new ArgumentException("NonTopLevelCantHaveOwner");
+                }
+
+                CheckParentingCycle(this, value);
+                CheckParentingCycle(value, this);
+
+                Properties.SetObject(PropOwner, null);
+
+                if (ownerOld != null)
+                {
+                    ownerOld.RemoveOwnedForm(this);
+                }
+
+                Properties.SetObject(PropOwner, value);
+
+                if (value != null)
+                {
+                    value.AddOwnedForm(this);
+                }
+
+                UpdateHandleWithOwner();
+            }
+        }
+
+        private void UpdateHandleWithOwner()
+        {
+            if (IsHandleCreated && TopLevel)
+            {
+                HandleRef ownerHwnd = NativeMethods.NullHandleRef;
+
+                Form owner = (Form)Properties.GetObject(PropOwner);
+
+                if (owner != null)
+                {
+                    ownerHwnd = new HandleRef(owner, owner.Handle);
+                }
+                else
+                {
+                    if (!ShowInTaskbar)
+                    {
+                        ownerHwnd = TaskbarOwner;
+                    }
+                }
+
+                //UnsafeNativeMethods.SetWindowLong(new HandleRef(this, Handle), NativeMethods.GWL_HWNDPARENT, ownerHwnd);
+            }
+        }
+
+        private HandleRef TaskbarOwner
+        {
+            get
+            {
+                if (ownerWindow == null)
+                {
+                    ownerWindow = new NativeWindow();
+                }
+
+                if (ownerWindow.Handle == IntPtr.Zero)
+                {
+                    CreateParams cp = new CreateParams();
+                    cp.ExStyle = NativeMethods.WS_EX_TOOLWINDOW;
+                    //ownerWindow.CreateHandle(cp);
+                }
+
+                return new HandleRef(ownerWindow, ownerWindow.Handle);
+            }
+        }
+
+        [DefaultValue(true)]
+        public bool ShowInTaskbar
+        {
+            get
+            {
+                return formState[FormStateTaskBar] != 0;
+            }
+            set
+            {
+                // Restricted windows must always show in task bar.
+                if (IsRestrictedWindow)
+                {
+                    return;
+                }
+
+                if (ShowInTaskbar != value)
+                {
+                    if (value)
+                    {
+                        formState[FormStateTaskBar] = 1;
+                    }
+                    else
+                    {
+                        formState[FormStateTaskBar] = 0;
+                    }
+                    if (IsHandleCreated)
+                    {
+                        RecreateHandle();
+                    }
+                }
+            }
+        }
+
+        public void AddOwnedForm(Form ownedForm)
+        {
+            if (ownedForm == null)
+                return;
+
+            if (ownedForm.OwnerInternal != this)
+            {
+                ownedForm.Owner = this; // NOTE: this calls AddOwnedForm again with correct owner set.
+                return;
+            }
+
+            Form[] ownedForms = (Form[])Properties.GetObject(PropOwnedForms);
+            int ownedFormsCount = Properties.GetInteger(PropOwnedFormsCount);
+
+            // Make sure this isn't already in the list:
+            for (int i = 0; i < ownedFormsCount; i++)
+            {
+                if (ownedForms[i] == ownedForm)
+                {
+                    return;
+                }
+            }
+
+            if (ownedForms == null)
+            {
+                ownedForms = new Form[4];
+                Properties.SetObject(PropOwnedForms, ownedForms);
+            }
+            else if (ownedForms.Length == ownedFormsCount)
+            {
+                Form[] newOwnedForms = new Form[ownedFormsCount * 2];
+                Array.Copy(ownedForms, 0, newOwnedForms, 0, ownedFormsCount);
+                ownedForms = newOwnedForms;
+                Properties.SetObject(PropOwnedForms, ownedForms);
+            }
+
+
+            ownedForms[ownedFormsCount] = ownedForm;
+            Properties.SetInteger(PropOwnedFormsCount, ownedFormsCount + 1);
+        }
+
+        public void RemoveOwnedForm(Form ownedForm)
+        {
+            if (ownedForm == null)
+                return;
+
+            if (ownedForm.OwnerInternal != null)
+            {
+                ownedForm.Owner = null; // NOTE: this will call RemoveOwnedForm again, bypassing if.
+                return;
+            }
+
+            Form[] ownedForms = (Form[])Properties.GetObject(PropOwnedForms);
+            int ownedFormsCount = Properties.GetInteger(PropOwnedFormsCount);
+
+            if (ownedForms != null)
+            {
+                for (int i = 0; i < ownedFormsCount; i++)
+                {
+                    if (ownedForm.Equals(ownedForms[i]))
+                    {
+
+                        // clear out the reference.
+                        //
+                        ownedForms[i] = null;
+
+                        // compact the array.
+                        //
+                        if (i + 1 < ownedFormsCount)
+                        {
+                            Array.Copy(ownedForms, i + 1, ownedForms, i, ownedFormsCount - i - 1);
+                            ownedForms[ownedFormsCount - 1] = null;
+                        }
+                        ownedFormsCount--;
+                    }
+                }
+
+                Properties.SetInteger(PropOwnedFormsCount, ownedFormsCount);
+            }
+        }
+
+        public DialogResult ShowDialog()
+        {
+            return ShowDialog(null);
+        }
+
+        public DialogResult ShowDialog(IWin32Window owner)
+        {
+            if (owner == this)
+            {
+                throw new ArgumentException("OwnsSelfOrOwner");
+            }
+            else if (Visible)
+            {
+                throw new InvalidOperationException("ShowDialogOnVisible");
+            }
+            else if (!Enabled)
+            {
+                throw new InvalidOperationException("ShowDialogOnDisabled");
+            }
+            else if (!TopLevel)
+            {
+                throw new InvalidOperationException("ShowDialogOnNonTopLevel");
+            }
+            else if (Modal)
+            {
+                throw new InvalidOperationException("ShowDialogOnModal");
+            }
+            else if (!SystemInformation.UserInteractive)
+            {
+                throw new InvalidOperationException("CantShowModalOnNonInteractive");
+            }
+            //else if ((owner != null) && ((int)UnsafeNativeMethods.GetWindowLong(new HandleRef(owner, Control.GetSafeHandle(owner)), NativeMethods.GWL_EXSTYLE)
+            //         & NativeMethods.WS_EX_TOPMOST) == 0)
+            //{   // It's not the top-most window
+            //    if (owner is Control)
+            //    {
+            //        owner = ((Control)owner).TopLevelControlInternal;
+            //    }
+            //}
+
+            //this.CalledOnLoad = false;
+            //this.CalledMakeVisible = false;
+
+            //this.CloseReason = CloseReason.None;
+
+            //IntPtr hWndCapture = UnsafeNativeMethods.GetCapture();
+            //if (hWndCapture != IntPtr.Zero)
+            //{
+            //    UnsafeNativeMethods.SendMessage(new HandleRef(null, hWndCapture), NativeMethods.WM_CANCELMODE, IntPtr.Zero, IntPtr.Zero);
+            //    SafeNativeMethods.ReleaseCapture();
+            //}
+            //IntPtr hWndActive = UnsafeNativeMethods.GetActiveWindow();
+            //IntPtr hWndOwner = owner == null ? hWndActive : Control.GetSafeHandle(owner);
+            //IntPtr hWndOldOwner = IntPtr.Zero;
+            //Properties.SetObject(PropDialogOwner, owner);
+
+            Form oldOwner = OwnerInternal;
+
+            //if (owner is Form && owner != oldOwner)
+            //{
+            //    Owner = (Form)owner;
+            //}
+
+            try
+            {
+                SetState(STATE_MODAL, true);
+
+                // ASURT 102728
+                // It's possible that while in the process of creating the control,
+                // (i.e. inside the CreateControl() call) the dialog can be closed.
+                // e.g. A user might call Close() inside the OnLoad() event.
+                // Calling Close() will set the DialogResult to some value, so that
+                // we'll know to terminate the RunDialog loop immediately.
+                // Thus we must initialize the DialogResult *before* the call
+                // to CreateControl().
+                //
+                dialogResult = DialogResult.None;
+
+                // V#36617 - if "this" is an MDI parent then the window gets activated,
+                // causing GetActiveWindow to return "this.handle"... to prevent setting
+                // the owner of this to this, we must create the control AFTER calling
+                // GetActiveWindow.
+                //
+                //CreateControl();
+
+                //if (hWndOwner != IntPtr.Zero && hWndOwner != Handle)
+                //{
+                //    // Catch the case of a window trying to own its owner
+                //    if (UnsafeNativeMethods.GetWindowLong(new HandleRef(owner, hWndOwner), NativeMethods.GWL_HWNDPARENT) == Handle)
+                //    {
+                //        throw new ArgumentException(OwnsSelfOrOwner,
+                //                                          "showDialog"), "owner");
+                //    }
+
+                //    // Set the new owner.
+                //    hWndOldOwner = UnsafeNativeMethods.GetWindowLong(new HandleRef(this, Handle), NativeMethods.GWL_HWNDPARENT);
+                //    UnsafeNativeMethods.SetWindowLong(new HandleRef(this, Handle), NativeMethods.GWL_HWNDPARENT, new HandleRef(owner, hWndOwner));
+                //}
+
+                try
+                {
+                    // If the DialogResult was already set, then there's
+                    // no need to actually display the dialog.
+                    //
+                    if (dialogResult == DialogResult.None)
+                    {
+                        // Application.RunDialog sets this dialog to be visible.
+                        Application.RunDialog(this);
+                    }
+                }
+                finally
+                {
+                    // Call SetActiveWindow before setting Visible = false.
+                    // 
+
+                    //if (!UnsafeNativeMethods.IsWindow(new HandleRef(null, hWndActive))) hWndActive = hWndOwner;
+                    //if (UnsafeNativeMethods.IsWindow(new HandleRef(null, hWndActive)) && SafeNativeMethods.IsWindowVisible(new HandleRef(null, hWndActive)))
+                    //{
+                    //    UnsafeNativeMethods.SetActiveWindow(new HandleRef(null, hWndActive));
+                    //}
+                    //else if (UnsafeNativeMethods.IsWindow(new HandleRef(null, hWndOwner)) && SafeNativeMethods.IsWindowVisible(new HandleRef(null, hWndOwner)))
+                    //{
+                    //    UnsafeNativeMethods.SetActiveWindow(new HandleRef(null, hWndOwner));
+                    //}
+
+                    SetVisibleCore(false);
+                    if (IsHandleCreated)
+                    {
+
+                        // VSWhidbey 94917: If this is a dialog opened from an MDI Container, then invalidate
+                        // so that child windows will be properly updated.
+                        if (this.OwnerInternal != null &&
+                            this.OwnerInternal.IsMdiContainer)
+                        {
+                            this.OwnerInternal.Invalidate(true);
+                            this.OwnerInternal.Update();
+                        }
+
+                        // VSWhidbey 430476 - Everett/RTM used to wrap this in an assert for AWP.
+                        //DestroyHandle();
+                    }
+                    SetState(STATE_MODAL, false);
+                    }
+                }
+            finally
+            {
+                Owner = oldOwner;
+                Properties.SetObject(PropDialogOwner, null);
+            }
+            return DialogResult;
+        }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public DialogResult DialogResult
+        {
+            get
+            {
+                return dialogResult;
+            }
+
+            set
+            {
+                //valid values are 0x0 to 0x7
+                if (!ClientUtils.IsEnumValid(value, (int)value, (int)DialogResult.None, (int)DialogResult.No))
+                {
+                    throw new InvalidEnumArgumentException("value", (int)value, typeof(DialogResult));
+                }
+
+                dialogResult = value;
+            }
+        }
+
+        internal override bool HasMenu
+        {
+            get
+            {
+                bool hasMenu = false;
+
+                // VSWhidbey 94975: Verify that the menu actually contains items so that any
+                // size calculations will only include a menu height if the menu actually exists.
+                // Note that Windows will not draw a menu bar for a menu that does not contain
+                // any items.
+                Menu menu = Menu;
+                if (TopLevel && menu != null && menu.ItemCount > 0)
+                {
+                    hasMenu = true;
+                }
+                return hasMenu;
             }
         }
 
@@ -483,10 +885,7 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        Browsable(false),
-        DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden),
-        ]
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsMdiChild
         {
             get
@@ -526,6 +925,31 @@ namespace System.Windows.Forms
             set
             {
                 Properties.SetObject(PropActiveMdiChild, value);
+            }
+        }
+
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Form[] MdiChildren
+        {
+            get
+            {
+                if (ctlClient != null)
+                {
+                    return ctlClient.MdiChildren;
+                }
+                else
+                {
+                    return new Form[0];
+                }
+            }
+        }
+
+        internal MdiClient MdiClient
+        {
+            get
+            {
+                return this.ctlClient;
             }
         }
 
@@ -678,9 +1102,25 @@ namespace System.Windows.Forms
             }
         }
 
-        [
-        DefaultValue(null),
-        ]
+        [DefaultValue(null)]
+        public IButtonControl CancelButton
+        {
+            get
+            {
+                return (IButtonControl)Properties.GetObject(PropCancelButton);
+            }
+            set
+            {
+                Properties.SetObject(PropCancelButton, value);
+
+                if (value != null && value.DialogResult == DialogResult.None)
+                {
+                    value.DialogResult = DialogResult.Cancel;
+                }
+            }
+        }
+
+        [DefaultValue(null)]
         public IButtonControl AcceptButton
         {
             get
@@ -765,6 +1205,84 @@ namespace System.Windows.Forms
                     formState[FormStateMaximizeBox] = 0;
                 }
                 //UpdateFormStyles();
+            }
+        }
+
+        [DefaultValue(true)]
+        public bool ShowIcon
+        {
+            get
+            {
+                return formStateEx[FormStateExShowIcon] != 0;
+            }
+
+            set
+            {
+                if (value)
+                {
+                    formStateEx[FormStateExShowIcon] = 1;
+                }
+                else
+                {
+                    // The icon must always be shown for restricted forms.
+                    if (IsRestrictedWindow)
+                    {
+                        return;
+                    }
+                    formStateEx[FormStateExShowIcon] = 0;
+                    UpdateStyles();
+                }
+                UpdateWindowIcon(true);
+            }
+        }
+        private void UpdateWindowIcon(bool redrawFrame)
+        {
+            if (IsHandleCreated)
+            {
+                //Icon icon;
+
+                // Preserve Win32 behavior by keeping the icon we set NULL if
+                // the user hasn't specified an icon and we are a dialog frame.
+                //
+                //if ((FormBorderStyle == FormBorderStyle.FixedDialog && formState[FormStateIconSet] == 0 && !IsRestrictedWindow) || !ShowIcon)
+                //{
+                //    icon = null;
+                //}
+                //else
+                //{
+                //    icon = Icon;
+                //}
+
+                //if (icon != null)
+                //{
+                //    if (smallIcon == null)
+                //    {
+                //        try
+                //        {
+                //            smallIcon = new Icon(icon, SystemInformation.SmallIconSize);
+                //        }
+                //        catch
+                //        {
+                //        }
+                //    }
+
+                //    if (smallIcon != null)
+                //    {
+                //        SendMessage(NativeMethods.WM_SETICON, NativeMethods.ICON_SMALL, smallIcon.Handle);
+                //    }
+                //    SendMessage(NativeMethods.WM_SETICON, NativeMethods.ICON_BIG, icon.Handle);
+                //}
+                //else
+                //{
+
+                //    SendMessage(NativeMethods.WM_SETICON, NativeMethods.ICON_SMALL, 0);
+                //    SendMessage(NativeMethods.WM_SETICON, NativeMethods.ICON_BIG, 0);
+                //}
+
+                //if (redrawFrame)
+                //{
+                //    SafeNativeMethods.RedrawWindow(new HandleRef(this, Handle), null, NativeMethods.NullHandleRef, NativeMethods.RDW_INVALIDATE | NativeMethods.RDW_FRAME);
+                //}
             }
         }
 
@@ -919,6 +1437,312 @@ namespace System.Windows.Forms
             if (handler != null) handler(this, e);
         }
 
+        [DefaultValue(null), TypeConverter(typeof(ReferenceConverter)), Browsable(false)]
+        public MainMenu Menu
+        {
+            get
+            {
+                return (MainMenu)Properties.GetObject(PropMainMenu);
+            }
+            set
+            {
+                MainMenu mainMenu = Menu;
+
+                if (mainMenu != value)
+                {
+                    if (mainMenu != null)
+                    {
+                        mainMenu.form = null;
+                    }
+
+                    Properties.SetObject(PropMainMenu, value);
+
+                    if (value != null)
+                    {
+                        if (value.form != null)
+                        {
+                            value.form.Menu = null;
+                        }
+                        value.form = this;
+                    }
+
+                    if (formState[FormStateSetClientSize] == 1 && !IsHandleCreated)
+                    {
+                        ClientSize = ClientSize;
+                    }
+
+
+                    MenuChanged(Windows.Forms.Menu.CHANGE_ITEMS, value);
+                }
+            }
+        }
+
+        // Package scope for menu interop
+        internal void MenuChanged(int change, Menu menu)
+        {
+            Form parForm = ParentFormInternal;
+            if (parForm != null && this == parForm.ActiveMdiChildInternal)
+            {
+                parForm.MenuChanged(change, menu);
+                return;
+            }
+
+            switch (change)
+            {
+                case Windows.Forms.Menu.CHANGE_ITEMS:
+                case Windows.Forms.Menu.CHANGE_MERGE:
+                    if (ctlClient == null || !ctlClient.IsHandleCreated)
+                    {
+                        if (menu == Menu && change == Windows.Forms.Menu.CHANGE_ITEMS)
+                            UpdateMenuHandles();
+                        break;
+                    }
+
+                    // Tell the children to toss their mergedMenu.
+                    if (IsHandleCreated)
+                    {
+                        UpdateMenuHandles(null, false);
+                    }
+
+                    Control.ControlCollection children = ctlClient.Controls;
+                    for (int i = children.Count; i-- > 0;)
+                    {
+                        Control ctl = children[i];
+                        if (ctl is Form && ctl.Properties.ContainsObject(PropMergedMenu))
+                        {
+                            MainMenu mainMenu = ctl.Properties.GetObject(PropMergedMenu) as MainMenu;
+                            if (mainMenu != null && mainMenu.ownerForm == ctl)
+                            {
+                                mainMenu.Dispose();
+                            }
+                            ctl.Properties.SetObject(PropMergedMenu, null);
+                        }
+                    }
+
+                    UpdateMenuHandles();
+                    break;
+                case Windows.Forms.Menu.CHANGE_VISIBLE:
+                    if (menu == Menu || (this.ActiveMdiChildInternal != null && menu == this.ActiveMdiChildInternal.Menu))
+                    {
+                        UpdateMenuHandles();
+                    }
+                    break;
+                case Windows.Forms.Menu.CHANGE_MDI:
+                    if (ctlClient != null && ctlClient.IsHandleCreated)
+                    {
+                        UpdateMenuHandles();
+                    }
+                    break;
+            }
+        }
+
+        private MainMenu MergedMenuPrivate
+        {
+            get
+            {
+                Form formMdiParent = (Form)Properties.GetObject(PropFormMdiParent);
+                if (formMdiParent == null) return null;
+
+                MainMenu mergedMenu = (MainMenu)Properties.GetObject(PropMergedMenu);
+                if (mergedMenu != null) return mergedMenu;
+
+                MainMenu parentMenu = formMdiParent.Menu;
+                MainMenu mainMenu = Menu;
+
+                if (mainMenu == null) return parentMenu;
+                if (parentMenu == null) return mainMenu;
+
+                // Create a menu that merges the two and save it for next time.
+                mergedMenu = new MainMenu();
+                mergedMenu.ownerForm = this;
+                mergedMenu.MergeMenu(parentMenu);
+                mergedMenu.MergeMenu(mainMenu);
+                Properties.SetObject(PropMergedMenu, mergedMenu);
+                return mergedMenu;
+            }
+        }
+
+        private void UpdateMenuHandles()
+        {
+            Form form;
+
+            // Forget the current menu.
+            if (Properties.GetObject(PropCurMenu) != null)
+            {
+                Properties.SetObject(PropCurMenu, null);
+            }
+
+            if (IsHandleCreated)
+            {
+                if (!TopLevel)
+                {
+                    UpdateMenuHandles(null, true);
+                }
+                else
+                {
+                    form = ActiveMdiChildInternal;
+                    if (form != null)
+                    {
+                        UpdateMenuHandles(form.MergedMenuPrivate, true);
+                    }
+                    else
+                    {
+                        UpdateMenuHandles(Menu, true);
+                    }
+                }
+            }
+        }
+
+        [DefaultValue(null), TypeConverter(typeof(ReferenceConverter))]
+        public MenuStrip MainMenuStrip
+        {
+            get
+            {
+                return (MenuStrip)Properties.GetObject(PropMainMenuStrip);
+            }
+            set
+            {
+                Properties.SetObject(PropMainMenuStrip, value);
+                if (IsHandleCreated && Menu == null)
+                {
+                    UpdateMenuHandles();
+                }
+            }
+        }
+
+        private void UpdateMenuHandles(MainMenu menu, bool forceRedraw)
+        {
+            Debug.Assert(IsHandleCreated, "shouldn't call when handle == 0");
+
+            int suspendCount = formStateEx[FormStateExUpdateMenuHandlesSuspendCount];
+            if (suspendCount > 0 && menu != null)
+            {
+                formStateEx[FormStateExUpdateMenuHandlesDeferred] = 1;
+                return;
+            }
+
+            MainMenu curMenu = menu;
+            if (curMenu != null)
+            {
+                curMenu.form = this;
+            }
+
+            if (curMenu != null || Properties.ContainsObject(PropCurMenu))
+            {
+                Properties.SetObject(PropCurMenu, curMenu);
+            }
+
+            if (ctlClient == null || !ctlClient.IsHandleCreated)
+            {
+                if (menu != null)
+                {
+                    //UnsafeNativeMethods.SetMenu(new HandleRef(this, Handle), new HandleRef(menu, menu.Handle));
+                }
+                else
+                {
+                    //UnsafeNativeMethods.SetMenu(new HandleRef(this, Handle), NativeMethods.NullHandleRef);
+                }
+            }
+            else
+            {
+                Debug.Assert(IsMdiContainer, "Not an MDI container!");
+                // when both MainMenuStrip and Menu are set, we honor the win32 menu over 
+                // the MainMenuStrip as the place to store the system menu controls for the maximized MDI child.
+
+                MenuStrip mainMenuStrip = MainMenuStrip;
+                if (mainMenuStrip == null || menu != null)
+                {  // We are dealing with a Win32 Menu; MenuStrip doesn't have control buttons.
+
+                    // We have a MainMenu and we're going to use it
+
+                    // VSWhidbey 202747: We need to set the "dummy" menu even when a menu is being removed
+                    // (set to null) so that duplicate control buttons are not placed on the menu bar when
+                    // an ole menu is being removed.
+                    // Make MDI forget the mdi item position.
+                    MainMenu dummyMenu = (MainMenu)Properties.GetObject(PropDummyMenu);
+
+                    if (dummyMenu == null)
+                    {
+                        dummyMenu = new MainMenu();
+                        dummyMenu.ownerForm = this;
+                        Properties.SetObject(PropDummyMenu, dummyMenu);
+                    }
+                    //UnsafeNativeMethods.SendMessage(new HandleRef(ctlClient, ctlClient.Handle), NativeMethods.WM_MDISETMENU, dummyMenu.Handle, IntPtr.Zero);
+
+                    if (menu != null)
+                    {
+
+                        // Microsoft, 5/2/1998 - don't use Win32 native Mdi lists...
+                        //
+                        //UnsafeNativeMethods.SendMessage(new HandleRef(ctlClient, ctlClient.Handle), NativeMethods.WM_MDISETMENU, menu.Handle, IntPtr.Zero);
+                    }
+                }
+
+                // VSWhidbey#93544 (New fix: Only destroy Win32 Menu if using a MenuStrip)
+                if (menu == null && mainMenuStrip != null)
+                { // If MainMenuStrip, we need to remove any Win32 Menu to make room for it.
+                    //IntPtr hMenu = UnsafeNativeMethods.GetMenu(new HandleRef(this, this.Handle));
+                    //if (hMenu != IntPtr.Zero)
+                    //{
+
+                    //    // We had a MainMenu and now we're switching over to MainMenuStrip
+
+                    //    // VSWhidbey 93518, 93544, 93547, 93563, and 93568: Remove the current menu.
+                    //    UnsafeNativeMethods.SetMenu(new HandleRef(this, this.Handle), NativeMethods.NullHandleRef);
+
+                    //    // because we have messed with the child's system menu by shoving in our own dummy menu, 
+                    //    // once we clear the main menu we're in trouble - this eats the close, minimize, maximize gadgets
+                    //    // of the child form. (See WM_MDISETMENU in MSDN)
+                    //    Form activeMdiChild = this.ActiveMdiChildInternal;
+                    //    if (activeMdiChild != null && activeMdiChild.WindowState == FormWindowState.Maximized)
+                    //    {
+                    //        activeMdiChild.RecreateHandle();
+                    //    }
+
+                    //    // VSWhidbey 202747: Since we're removing a menu but we possibly had a menu previously,
+                    //    // we need to clear the cached size so that new size calculations will be performed correctly.
+                    //    CommonProperties.xClearPreferredSizeCache(this);
+                    //}
+                }
+            }
+            if (forceRedraw)
+            {
+                //SafeNativeMethods.DrawMenuBar(new HandleRef(this, Handle));
+            }
+            formStateEx[FormStateExUpdateMenuHandlesDeferred] = 0;
+        }
+
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Form ActiveMdiChild
+        {
+            get
+            {
+                Form mdiChild = ActiveMdiChildInternal;
+
+                // Hack: We keep the active mdi child in the cached in the property store; when changing its value 
+                // (due to a change to one of the following properties/methods: Visible, Enabled, Active, Show/Hide, 
+                // Focus() or as the  result of WM_SETFOCUS/WM_ACTIVATE/WM_MDIACTIVATE) we temporarily set it to null 
+                // (to properly handle menu merging among other things) rendering the cache out-of-date; the problem 
+                // arises when the user has an event handler that is raised during this process; in that case we ask 
+                // Windows for it (see ActiveMdiChildFromWindows).
+
+                if (mdiChild == null)
+                {
+                    // If this.MdiClient != null it means this.IsMdiContainer == true.
+                    if (this.ctlClient != null && this.ctlClient.IsHandleCreated)
+                    {
+                        //IntPtr hwnd = this.ctlClient.SendMessage(NativeMethods.WM_MDIGETACTIVE, 0, 0);
+                        //mdiChild = Control.FromHandleInternal(hwnd) as Form;
+                    }
+                }
+                if (mdiChild != null && mdiChild.Visible && mdiChild.Enabled)
+                {
+                    return mdiChild;
+                }
+                return null;
+            }
+        }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected virtual void OnFormClosing(FormClosingEventArgs e)
@@ -970,24 +1794,6 @@ namespace System.Windows.Forms
             remove
             {
                 Events.RemoveHandler(EVENT_LOAD, value);
-            }
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Form[] OwnedForms
-        {
-            get
-            {
-                Form[] ownedForms = (Form[])Properties.GetObject(PropOwnedForms);
-                int ownedFormsCount = Properties.GetInteger(PropOwnedFormsCount);
-
-                Form[] result = new Form[ownedFormsCount];
-                if (ownedFormsCount > 0)
-                {
-                    Array.Copy(ownedForms, 0, result, 0, ownedFormsCount);
-                }
-
-                return result;
             }
         }
 
