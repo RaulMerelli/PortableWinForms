@@ -636,7 +636,15 @@
     <Content Include="html\css\theme\window-standard-theme.css" />
     <Content Include="html\css\treeview.css" />
     <Content Include="html\index.html" />
+    <Content Include="html\js\fetch.min.js" />
+    <Content Include="html\js\jquery.min.js" />
+    <Content Include="html\js\jspanel.contextmenu.js" />
+    <Content Include="html\js\jspanel.dock.js" />
+    <Content Include="html\js\jspanel.hint.js" />
     <Content Include="html\js\jspanel.js" />
+    <Content Include="html\js\jspanel.layout.js" />
+    <Content Include="html\js\jspanel.modal.js" />
+    <Content Include="html\js\jspanel.tooltip.js" />
     <Content Include="html\js\runner.js" />
     <Content Include="html\js\System\dropdown.js" />
     <Content Include="html\resources\32x32\Error.png" />
