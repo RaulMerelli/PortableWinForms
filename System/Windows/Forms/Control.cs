@@ -512,35 +512,35 @@ namespace System.Windows.Forms
             string[] script = { };
             if (key == EventClick)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('click', clickEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('click', clickEvent);\n" };
             }
             if (key == EventDoubleClick)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('dblclick', doubleClickEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('dblclick', doubleClickEvent);\n" };
             }
             if (key == EventMouseClick)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('click', mouseClickEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('click', mouseClickEvent);\n" };
             }
             if (key == EventMouseDoubleClick)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('dblclick', mouseDoubleClickEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('dblclick', mouseDoubleClickEvent);\n" };
             }
             if (key == EventMouseEnter)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mouseenter', mouseEnterEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mouseenter', mouseEnterEvent);\n" };
             }
             if (key == EventMouseLeave)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mouseleave', mouseLeaveEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mouseleave', mouseLeaveEvent);\n" };
             }
             if (key == EventMouseMove)
             {
-                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mousemove', mouseMoveEvent)" };
+                script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('mousemove', mouseMoveEvent);\n" };
             }
             //if (key == EventText)
             //{
-            //    script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('input', textChangedEvent)" };
+            //    script = new string[] { $@"document.getElementById('", WebviewIdentifier, "').addEventListener('input', textChangedEvent);\n" };
             //}
             if (!string.IsNullOrEmpty(WebviewIdentifier))
             {

@@ -14,7 +14,13 @@ namespace winformtest
             label1.Click += Label1_Click;
             label2.Click += Label2_Click;
             textBox2.Click += TextBox2_Click;
+            button1.MouseMove += Button1_MouseMove;
             this.Move += Form1_Move;
+        }
+
+        private void Button1_MouseMove(object sender, MouseEventArgs e)
+        {
+            textBox3.Text = $"e.X: {e.X}, e.Y: {e.Y}";
         }
 
         private void Form1_Move(object sender, EventArgs e)

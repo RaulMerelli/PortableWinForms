@@ -17,6 +17,9 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Windows.Forms.Layout;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Dynamic;
 
 namespace System.Windows.Forms
 {
@@ -1300,13 +1303,12 @@ namespace System.Windows.Forms
 #if WINDOWS_UWP
         private async void webView2_WebMessageReceived(WebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
         {
-            string received = args.TryGetWebMessageAsString();
-            var eventReturn = JsonHelper.Deserialize<EventReturn>(received);
+            string json = args.TryGetWebMessageAsString();
 #else
         public async void webView2_WebMessageReceived(string json)
         {
-            var eventReturn = JsonHelper.Deserialize<EventReturn>(json);
 #endif
+            dynamic eventReturn = ExpandoJsonConverter.DeserializeToExpando(json);
             Control child = FindControlById(this, eventReturn.identifier);
 
             if (child != null)
@@ -1384,13 +1386,16 @@ namespace System.Windows.Forms
                         child.OnMouseLeave(EventArgs.Empty);
                         break;
                     case "MouseClick":
-                        child.OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0)); // dummy, data has to be retrived from html
+                        child.OnMouseClick(new MouseEventArgs(MouseButtons.Left, 1, eventReturn.args.x, eventReturn.args.y, 0)); // dummy, data has to be retrived from js
                         break;
                     case "MouseDown":
-                        child.OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0)); // dummy, data has to be retrived from html
+                        child.OnMouseDown(new MouseEventArgs(MouseButtons.Left, 1, eventReturn.args.x, eventReturn.args.y, 0)); // dummy, data has to be retrived from js
                         break;
                     case "MouseUp":
-                        child.OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0)); // dummy, data has to be retrived from html
+                        child.OnMouseUp(new MouseEventArgs(MouseButtons.Left, 1, eventReturn.args.x, eventReturn.args.y, 0)); // dummy, data has to be retrived from js
+                        break;
+                    case "MouseMove":
+                        child.OnMouseMove(new MouseEventArgs(MouseButtons.Left, 1, eventReturn.args.x, eventReturn.args.y, 0)); // dummy, data has to be retrived from js
                         break;
                 }
             }

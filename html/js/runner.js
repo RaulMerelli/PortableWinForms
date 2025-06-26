@@ -115,10 +115,11 @@ function launchPostWindowSuccess(htmlContent, propertiesJson) {
     }
 }
 
-function eventHandler(identifier, eventName) {
+function eventHandler(identifier, eventName, args = null) {
     var event = {
         identifier: identifier,
-        eventName: eventName
+        eventName: eventName,
+        args: args
     };
     window.chrome.webview.postMessage(JSON.stringify(event));
 }
@@ -150,13 +151,25 @@ function filterEvent(event) {
 }
 
 function mouseDownEvent(event) {
-    eventHandler(event.currentTarget.id, 'MouseDown')
+    const args = {
+        x: event.clientX,
+        y: event.clientY
+    };
+    eventHandler(event.currentTarget.id, 'MouseDown', args)
 }
 function mouseUpEvent(event) {
-    eventHandler(event.currentTarget.id, 'MouseUp')
+    const args = {
+        x: event.clientX,
+        y: event.clientY
+    };
+    eventHandler(event.currentTarget.id, 'MouseUp', args)
 }
 function mouseMoveEvent(event) {
-    eventHandler(event.currentTarget.id, 'MouseMove')
+    const args = {
+        x: event.clientX,
+        y: event.clientY
+    };
+    eventHandler(event.currentTarget.id, 'MouseMove', args)
 }
 function mouseEnterEvent(event) {
     eventHandler(event.currentTarget.id, 'MouseEnter')
@@ -166,8 +179,12 @@ function mouseLeaveEvent(event) {
 }
 function mouseClickEvent(event) {
     if (filterEvent(event)) return;
+    const args = {
+        x: event.clientX,
+        y: event.clientY
+    };
     if (event.pointerType === 'mouse' || event instanceof MouseEvent) {
-        eventHandler(event.currentTarget.id, 'MouseClick');
+        eventHandler(event.currentTarget.id, 'MouseClick', args);
     } 
 }
 function mouseDoubleClickEvent(event) {
