@@ -54,7 +54,7 @@ namespace winformtest
 
         private void button2_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Button1 should now be bigger! Also look at the content of textBox1: " + textBox1.Text, "captiontest", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            MessageBox.Show("Button1 should now be bigger! Also this is the content of textBox1: " + textBox1.Text, "captiontest", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             button1.Size = new System.Drawing.Size(80, 30);
         }
 

@@ -152,7 +152,9 @@ namespace System.Windows.Forms
     using System.Runtime.ConstrainedExecution;
     using System;
 #if WINDOWS_UWP
-using App1;
+    using App1;
+    using global::Windows.Devices.Power;
+    using global::Windows.System.Power;
 #else
     using AndroidWinForms;
 #endif
@@ -1710,8 +1712,66 @@ using App1;
         //public static extern bool GetSystemPowerStatus([In, Out] ref NativeMethods.SYSTEM_POWER_STATUS systemPowerStatus);
         public static bool GetSystemPowerStatus([In, Out] ref NativeMethods.SYSTEM_POWER_STATUS systemPowerStatus)
         {
+#if WINDOWS_UWP
+
+            BatteryReport report = Battery.AggregateBattery.GetReport();
+
+            if (report.Status == BatteryStatus.Charging || report.Status == BatteryStatus.Idle)
+            {
+                systemPowerStatus.ACLineStatus = 0x1;
+            }
+            else if (report.Status == BatteryStatus.Discharging)
+            {
+                systemPowerStatus.ACLineStatus = 0x0;
+            }
+            else
+            {
+                systemPowerStatus.ACLineStatus = 0xFF;
+            }
+
+            systemPowerStatus.BatteryFlag = 0xFF;
+
+            if (report.Status == BatteryStatus.Charging)
+                systemPowerStatus.BatteryFlag |= 0x8;
+
+            if (report.RemainingCapacityInMilliwattHours == null)
+                systemPowerStatus.BatteryFlag |= 0x80;
+
+            if (report.FullChargeCapacityInMilliwattHours.HasValue && report.RemainingCapacityInMilliwattHours.HasValue)
+            {
+                var percent = (int)(report.RemainingCapacityInMilliwattHours.Value * 100 / report.FullChargeCapacityInMilliwattHours.Value);
+
+                if (percent > 66)
+                {
+                    systemPowerStatus.BatteryFlag |= 0x1;
+                }
+                else if (percent > 20)
+                {
+                    systemPowerStatus.BatteryFlag |= 0x2;
+                }
+                else
+                { 
+                    systemPowerStatus.BatteryFlag |= 0x4; 
+                }
+            }
+
+            if (report.FullChargeCapacityInMilliwattHours.HasValue && report.RemainingCapacityInMilliwattHours.HasValue)
+            {
+                systemPowerStatus.BatteryLifePercent = (byte)(report.RemainingCapacityInMilliwattHours.Value * 100 / report.FullChargeCapacityInMilliwattHours.Value);
+            }
+            else
+            {
+                systemPowerStatus.BatteryLifePercent = 0xFF;
+            }
+
+            systemPowerStatus.BatteryFullLifeTime = -1; // Not retrivable from UWP
+            systemPowerStatus.BatteryLifeTime = -1; // Not retrivable from UWP
+
+            return true;
+#else
             // dummy
             return false;
+#endif
         }
         //[DllImport(ExternDll.Powrprof, ExactSpelling = true, CharSet = CharSet.Auto)]
         //[ResourceExposure(ResourceScope.None)]

@@ -17,6 +17,7 @@ namespace winformtest
             InitializeComponent();
             button1.Click += Button1_Click;
             button2.Click += Button2_Click;
+            button3.Click += Button3_Click;
             checkBox1.Click += CheckBox_Click;
             checkBox2.Click += CheckBox_Click;
             checkBox3.Click += CheckBox_Click;
@@ -29,6 +30,12 @@ namespace winformtest
             radioButton4.Click += RadioButton_Click;
             radioButton5.Click += RadioButton_Click;
             radioButton6.Click += RadioButton_Click;
+        }
+
+        private void Button3_Click(object sender, EventArgs e)
+        {
+            button3.Text = "Battery (%)";
+            MessageBox.Show("Battery percent: " + new PowerStatus().BatteryLifePercent.ToString(), "Battery percent", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void RadioButton_Click(object sender, EventArgs e)

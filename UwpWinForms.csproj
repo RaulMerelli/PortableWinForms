@@ -594,6 +594,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\black.png" />
     <Content Include="html\css\bottombar.css" />
     <Content Include="html\css\jspanel\jspanel.css" />
     <Content Include="html\css\mdi.css" />
@@ -648,9 +649,9 @@
     <Content Include="html\js\runner.js" />
     <Content Include="html\js\System\dropdown.js" />
     <Content Include="html\resources\32x32\Error.png" />
-    <Content Include="html\resources\32x32\Exclamation.png" />
     <Content Include="html\resources\32x32\Information.png" />
     <Content Include="html\resources\32x32\Question.png" />
+    <Content Include="html\resources\32x32\Warning.png" />
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>
   <ItemGroup>

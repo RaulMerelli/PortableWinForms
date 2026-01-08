@@ -306,30 +306,30 @@ namespace System.Windows.Forms
                     break;
                 case MessageBoxButtons.OKCancel:
                     Btn1 = "OK";
-                    Btn2 = "Annulla";
+                    Btn2 = "Cancel";
                     break;
                 case MessageBoxButtons.YesNo:
-                    Btn1 = "Sì";
+                    Btn1 = "Yes";
                     Btn2 = "No";
                     break;
                 case MessageBoxButtons.RetryCancel:
-                    Btn1 = "Riprova";
-                    Btn2 = "Annulla";
+                    Btn1 = "Retry";
+                    Btn2 = "Cancel";
                     break;
                 case MessageBoxButtons.YesNoCancel:
-                    Btn1 = "Sì";
+                    Btn1 = "Yes";
                     Btn2 = "No";
-                    Btn3 = "Annulla";
+                    Btn3 = "Cancel";
                     break;
                 /*case MessageBoxButtons.CancelTryContinue:
-                    Btn1 = "Continua";
-                    Btn2 = "Riprova";
-                    Btn3 = "Annulla";
+                    Btn1 = "Continue";
+                    Btn2 = "Retry";
+                    Btn3 = "Cancel";
                     break;*/
                 case MessageBoxButtons.AbortRetryIgnore:
-                    Btn1 = "Annulla";
-                    Btn2 = "Riprova";
-                    Btn3 = "Ignora";
+                    Btn1 = "Cancel";
+                    Btn2 = "Retry";
+                    Btn3 = "Ignore";
                     break;
             }
 

@@ -4721,17 +4721,17 @@ namespace System.Windows.Forms
 
         internal virtual void OnInvokedSetScrollPosition(object sender, EventArgs e)
         {
-            //if (!(this is ScrollableControl) && !IsMirrored)
-            //{
-            //    NativeMethods.SCROLLINFO si = new NativeMethods.SCROLLINFO();
-            //    si.cbSize = Marshal.SizeOf(typeof(NativeMethods.SCROLLINFO));
-            //    si.fMask = NativeMethods.SIF_RANGE;
-            //    if (UnsafeNativeMethods.GetScrollInfo(new HandleRef(this, Handle), NativeMethods.SB_HORZ, si) != false)
-            //    {
-            //        si.nPos = (RightToLeft == RightToLeft.Yes) ? si.nMax : si.nMin;
-            //        SendMessage(NativeMethods.WM_HSCROLL, NativeMethods.Util.MAKELPARAM(NativeMethods.SB_THUMBPOSITION, si.nPos), 0);
-            //    }
-            //}
+            if (!(this is ScrollableControl) && !IsMirrored)
+            {
+                NativeMethods.SCROLLINFO si = new NativeMethods.SCROLLINFO();
+                si.cbSize = Marshal.SizeOf(typeof(NativeMethods.SCROLLINFO));
+                si.fMask = NativeMethods.SIF_RANGE;
+                //if (UnsafeNativeMethods.GetScrollInfo(new HandleRef(this, Handle), NativeMethods.SB_HORZ, si) != false)
+                //{
+                //    si.nPos = (RightToLeft == RightToLeft.Yes) ? si.nMax : si.nMin;
+                //    SendMessage(NativeMethods.WM_HSCROLL, NativeMethods.Util.MAKELPARAM(NativeMethods.SB_THUMBPOSITION, si.nPos), 0);
+                //}
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
@@ -4763,28 +4763,28 @@ namespace System.Windows.Forms
 
             ////
 
-            //try
-            //{
-            //    if (!GetAnyDisposingInHierarchy())
-            //    {
-            //        text = Text;
-            //        if (text != null && text.Length == 0) text = null;
-            //    }
-            //    SetAcceptDrops(false);
-            //}
-            //catch (Exception ex)
-            //{
-            //    if (ClientUtils.IsSecurityOrCriticalException(ex))
-            //    {
-            //        throw;
-            //    }
+            try
+            {
+                if (!GetAnyDisposingInHierarchy())
+                {
+                    text = Text;
+                    if (text != null && text.Length == 0) text = null;
+                }
+                //SetAcceptDrops(false);
+            }
+            catch (Exception ex)
+            {
+                if (ClientUtils.IsSecurityOrCriticalException(ex))
+                {
+                    throw;
+                }
 
-            //    // Some ActiveX controls throw exceptions when
-            //    // you ask for the text property after you have destroyed their handle. We
-            //    // don't want those exceptions to bubble all the way to the top, since
-            //    // we leave our state in a mess. See ASURT 49990.
-            //    //
-            //}
+                // Some ActiveX controls throw exceptions when
+                // you ask for the text property after you have destroyed their handle. We
+                // don't want those exceptions to bubble all the way to the top, since
+                // we leave our state in a mess. See ASURT 49990.
+                //
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Advanced)]
