@@ -157,6 +157,8 @@ namespace System.Windows.Forms
     using global::Windows.System.Power;
 #else
     using AndroidWinForms;
+    using Android.OS;
+    using Environment = System.Environment;
 #endif
     using System.Security.Permissions;
     using System.Collections;
@@ -1769,8 +1771,57 @@ namespace System.Windows.Forms
 
             return true;
 #else
-            // dummy
-            return false;
+            var intent = Android.App.Application.Context
+    .RegisterReceiver(null, new Android.Content.IntentFilter(Android.Content.Intent.ActionBatteryChanged));
+
+            int status = intent.GetIntExtra(BatteryManager.ExtraStatus, -1);
+            int plugged = intent.GetIntExtra(BatteryManager.ExtraPlugged, -1);
+            int level = intent.GetIntExtra(BatteryManager.ExtraLevel, -1);
+            int scale = intent.GetIntExtra(BatteryManager.ExtraScale, -1);
+
+            int percent = (int)(level * 100f / scale);
+
+            if (plugged == (int)BatteryPlugged.Ac || plugged == (int)BatteryPlugged.Usb || plugged == (int)BatteryPlugged.Wireless)
+            {
+                systemPowerStatus.ACLineStatus = 0x1;
+            }
+            else
+            {
+                systemPowerStatus.ACLineStatus = 0x0;
+            }
+
+            // Charging
+            if (status == (int)BatteryStatus.Charging || status == (int)BatteryStatus.Full)
+                systemPowerStatus.BatteryFlag |= 0x8;
+
+            if (percent > 66)
+            {
+                systemPowerStatus.BatteryFlag |= 0x1;
+            }
+            else if (percent > 20)
+            {
+                systemPowerStatus.BatteryFlag |= 0x2;
+            }
+            else
+            {
+                systemPowerStatus.BatteryFlag |= 0x4;
+            }
+
+            // No battery
+            if (!intent.GetBooleanExtra(BatteryManager.ExtraPresent, true))
+            {
+                systemPowerStatus.BatteryFlag |= 0x80;
+                systemPowerStatus.BatteryLifePercent = 0xFF;
+            }
+            else
+            {
+                systemPowerStatus.BatteryLifePercent = (byte)percent;
+            }
+
+            systemPowerStatus.BatteryFullLifeTime = -1; // Not retrivable from Android
+            systemPowerStatus.BatteryLifeTime = -1; // Not retrivable from Android
+
+            return true;
 #endif
         }
         //[DllImport(ExternDll.Powrprof, ExactSpelling = true, CharSet = CharSet.Auto)]

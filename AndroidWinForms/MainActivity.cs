@@ -77,7 +77,7 @@ public class MainActivity : Activity
             }
             else
             {
-                Toast.MakeText(this, "Permesso overlay richiesto!", ToastLength.Long).Show();
+                Toast.MakeText(this, "Overlay permission requested!", ToastLength.Long).Show();
                 Finish();
             }
         }
