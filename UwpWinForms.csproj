@@ -15,7 +15,7 @@
     <AssemblyName>App1</AssemblyName>
     <DefaultLanguage>it-IT</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
@@ -617,6 +617,8 @@
     <Content Include="html\css\theme\resources\panelframe_3d.png" />
     <Content Include="html\css\theme\resources\panelframe_single.png" />
     <Content Include="html\css\theme\resources\picturebox-3d.png" />
+    <Content Include="html\css\theme\resources\progress-block.png" />
+    <Content Include="html\css\theme\resources\progress-border.png" />
     <Content Include="html\css\theme\resources\scrollbar\h-left-scroll-arrow.png" />
     <Content Include="html\css\theme\resources\scrollbar\h-right-scroll-arrow.png" />
     <Content Include="html\css\theme\resources\scrollbar\h-scroll-bar.png" />

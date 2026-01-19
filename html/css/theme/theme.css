@@ -498,3 +498,44 @@ input[type=text], input[type=password], textarea {
     background-color: #0078D7;
     color: white;
 }
+
+.progress {
+    border-radius: 0%;
+    overflow: hidden;
+    position: absolute;
+    background-color: white;
+    --progress: calc( attr(data-value number, 0) / attr(data-max number, 100) * 100% );
+    --is-complete: max(0, sign(1 - abs(attr(data-value number, 0) - attr(data-max number, 100))));
+}
+
+    .progress > .progress-value {
+        margin: 2px;
+        margin-right: 3px;
+        background-color: blue;
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: calc(100% - 4px);
+        width: calc( calc(var(--progress) - mod(var(--progress), 19px)) * (1 - var(--is-complete)) + ((100% - 5px) * var(--is-complete)) );
+        background-image: url(resources\progress-block.png);
+        background-repeat: repeat;
+        background-size: 19px 100%;
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        -ms-interpolation-mode: nearest-neighbor;
+    }
+
+    .progress::before {
+        height: calc(100% - 4px);
+        width: calc(100% - 5px);
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        -ms-interpolation-mode: nearest-neighbor;
+        display: block;
+        position: relative;
+        content: ' ';
+        border: 2px solid transparent;
+        border-right: 3px solid transparent;
+        border-image: url(resources\progress-border.png) 2 3 2 2 stretch;
+        background-color: transparent;
+    }
