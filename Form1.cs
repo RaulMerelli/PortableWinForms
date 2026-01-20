@@ -63,6 +63,7 @@ namespace winformtest
             Text = textBox2.Text;
             label2.Text = textBox3.Text;
             button3.Text = textBox1.Text;
+            progressBar1.Value = new Random().Next(progressBar1.Minimum, progressBar1.Maximum);
         }
 
         private void button4_Click(object sender, EventArgs e)

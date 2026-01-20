@@ -222,6 +222,10 @@
     <Compile Include="System\Windows\Forms\MenuMerge.cs" />
     <Compile Include="System\Windows\Forms\Message.cs" />
     <Compile Include="System\Windows\Forms\MessageDecoder.cs" />
+    <Compile Include="System\Windows\Forms\ProgressBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ProgressBarStyle.cs" />
     <Compile Include="System\Windows\Forms\PropertyGridInternal\PropertiesTab.cs" />
     <Compile Include="System\Windows\Forms\RichTextBoxConstants.cs" />
     <Compile Include="System\Windows\Forms\ScrollButton.cs" />

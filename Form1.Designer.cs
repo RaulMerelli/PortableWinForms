@@ -32,6 +32,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -199,6 +200,15 @@
             this.textBox3.Size = new System.Drawing.Size(100, 20);
             this.textBox3.TabIndex = 15;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(89, 426);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(551, 25);
+            this.progressBar1.TabIndex = 1;
+            this.progressBar1.Value = 50;
+            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            // 
             // comboBox1
             // 
             //this.comboBox1.FormattingEnabled = true;
@@ -260,6 +270,7 @@
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
+            this.Controls.Add(this.progressBar1);
             //this.Controls.Add(this.comboBox1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -287,6 +298,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
+        private System.Windows.Forms.ProgressBar progressBar1;
         //private System.Windows.Forms.ComboBox comboBox1;
     }
 }

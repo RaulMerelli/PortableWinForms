@@ -51,6 +51,8 @@ A limited demo works: you can import a form with supported elements, apply a sli
 
 -   MessageBox
 
+-   ProgressBar
+
 * * * * *
 
 ### ⚙️ Working Properties (after layout, more works only before)
@@ -60,6 +62,8 @@ A limited demo works: you can import a form with supported elements, apply a sli
 -   `Size`, `Location`, `Anchor` (all controls)
 
 -   `BorderStyle` (Panel)
+
+-   `Value`, `Minimum`, `Maximum` (ProgressBar)
 
 * * * * *
 
